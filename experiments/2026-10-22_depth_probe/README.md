@@ -15,7 +15,7 @@
 |---|---|---|---|---|---|---|---|
 | (tham chiếu 20/10) | w12 n28 | 28 | 28 | 33.7 | 0.1997 | 0.3544 / 0.2029 | 0.3511 / 0.2101 |
 | #6536 22/10 16:53 | w12T2_VI_d150c90r | 88.2 | 75.4 | 71.3 | **0.3108** | 0.2495 / 0.3823 | 0.2635 / 0.3698 |
-| #6537 22/10 16:54 | rdT2_VI_d150c90r | 103.4 | 77.9 | 71.5 | 0.3054 | — | — |
+| #6537 22/10 16:54 | rdT2_VI_d150c90r | 103.4 | 77.9 | 71.5 | 0.3054 | 0.2225 / 0.3900 | 0.2586 / 0.3722 |
 | chờ | rd_VI_d150c90r, w12_VI_d150c90, w12_VI_d150c28, w12_VI_d200c28, w12_VI_d150c60, w12_VI_d100c28, rdT1_VI_d150c90r | | | | | | |
 
 ## Kết luận (tạm)
@@ -37,4 +37,5 @@ Hai bài gần như là **cùng một danh sách + 16,5 doc** reranker thích nh
 ⇒ (a) **hạng của retriever** là tín hiệu mạnh; reranker một mình không cứu được doc retriever xếp thấp;
 (b) gold dồn ở top retriever ⇒ đi sâu hơn trên *cùng* retriever có lợi giảm nhanh — gold còn thiếu (R chỉ 0.38) phần lớn
 **không nằm trong top ~250 của w12** ⇒ cần nguồn ứng viên khác (BM25 sâu/khác, truy vấn khác), không chỉ đào sâu.
+**Kiểm chứng bằng LB (#6537 đủ dòng):** Docs R +0.0077 ≈ +0,55 gold/q cho 16,5 doc thêm ⇒ precision ≈ 3,3% — xác nhận.
 Số đã ghi `EXPERIMENTS.md` bảng A.

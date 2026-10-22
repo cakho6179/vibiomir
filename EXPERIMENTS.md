@@ -21,7 +21,7 @@ Metric: FINAL = mean(DOCS_F2, CHUNKS_F2). Chunk = toàn văn doc (không cắt) 
 | 22/10 | submissions/e3v2_VI_n28.zip | BM25 doc-level + tách từ pyvi, chỉ VI | 28 | 0.1089 | 0.1792 / 0.1119 | 0.1784 / 0.1172 |
 | 22/10 | submissions/b3_VI_n28.zip | BM25 doc-level k1 0.9 b 0.4 (kiểu Pyserini), VI, **LZMA được chấm** | 28 | 0.0874 | 0.1415 / 0.0908 | 0.1411 / 0.0953 |
 | 22/10 | submissions/w12T2_VI_d150c90r.zip | **#6536, nộp 16:53.** w12 (E1v2+M3 1:2) giữ thứ tự, cắt ngưỡng reranker ≥ −2 (tối thiểu 20 doc), TB 88 doc / 75 chunk, xếp lại query, LZMA 71.3 MB — hạng 6/50 | 88/75 | **0.3108** | 0.2495 / 0.3823 | 0.2635 / 0.3698 |
-| 22/10 | submissions/rdT2_VI_d150c90r.zip | **#6537, nộp 16:54.** RRF(E1v2, M3, reranker) 1:2:3 (reranker vào thứ tự), cùng ngưỡng ≥ −2, TB 103 doc / 78 chunk, LZMA 71.5 MB (user báo điểm, chưa có P/R) | 103/78 | 0.3054 | — | — |
+| 22/10 | submissions/rdT2_VI_d150c90r.zip | **#6537, nộp 16:54.** RRF(E1v2, M3, reranker) 1:2:3 (reranker vào thứ tự), cùng ngưỡng ≥ −2, TB 103 doc / 78 chunk, LZMA 71.5 MB; docs F2 0.3051, chunks F2 0.3056 | 103/78 | 0.3054 | 0.2225 / 0.3900 | 0.2586 / 0.3722 |
 
 Tham chiếu: admin BM25 FINAL 0.3764 (docs F2 0.5587, P/R 0.880/0.515, chunks F2 0.1941); Top 1 `toptire` 0.4071 (docs P/R 0.232/0.571).
 
@@ -90,7 +90,7 @@ Tham chiếu: admin BM25 FINAL 0.3764 (docs F2 0.5587, P/R 0.880/0.515, chunks F
 | URL rác (xổ số/bóng đá/thời tiết/tử vi/giá…) (22/10) | 3.2% corpus VI; 1.2–1.4% trong top-28/150 của BM25, w12, rd; tỉ lệ host top-28 gần như giống hệt giữa BM25 (P .178) và w12 (P .354) ⇒ loại tài liệu không phải đòn bẩy |
 | Khớp **mã ICD 3 ký tự** query–doc (tiêu đề+heading+600 ký tự đầu; chỉ 272/1200 query có mã) | top-28: BM25 .553 < w12 .615 < rd .640; theo hạng w12: 1–28 .615 > 29–90 .540 > 91–150 .477 ⇒ tín hiệu đơn điệu, nhưng độ phủ query thấp (cần LLM trích thực thể) |
 | Khớp **ý hỏi ↔ heading** (8 ý, luật từ khoá; 1005/1200 query có ý) | top-28: BM25 .682 < w12 .717 < rd .727; theo hạng: .717 > .663 > .634 ⇒ đơn điệu, biên độ nhỏ (luật thô) |
-| #6536 vs #6537 (22/10, `experiments/2026-10-22_depth_probe/diff_6536_6537.py`) | chung 86,8 doc/q; #6537 thêm 16,5 doc/q (hạng w12 161–263, logit reranker trung vị −0,28) ⇒ ước precision phần thêm ≈ 4% (< F2/5) ⇒ −0,0054. P theo hạng ước: 1–28 ≈ .35, 29–88 ≈ .20, 161–263 ≈ .04 |
+| #6536 vs #6537 (22/10, `experiments/2026-10-22_depth_probe/diff_6536_6537.py`) | chung 86,8 doc/q; #6537 thêm 16,5 doc/q (hạng w12 161–263, logit reranker trung vị −0,28) ⇒ ước precision phần thêm ≈ 4% (< F2/5) ⇒ −0,0054. **Đo LB:** Docs R .3823→.3900 (+.0077 × |G|≈71 ≈ +0,55 gold/q cho 16,5 doc thêm) ⇒ precision phần thêm ≈ **3,3%** [ĐO+SUY, macro xấp xỉ], khớp ước tính. P theo hạng ước: 1–28 ≈ .35, 29–88 ≈ .20, 161–263 ≈ .04 |
 
 ## D. Bản đã dựng — từ 22/10 xem `submissions/MANIFEST.md` (bảng dưới là lịch sử, đường dẫn cũ)
 
