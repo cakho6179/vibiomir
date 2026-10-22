@@ -37,8 +37,8 @@ Bản đồ chi tiết "giai đoạn → file → lệnh": `docs/CODEMAP.md`.
 ## Luồng dữ liệu
 ```
 data/raw/btc (links, query) ──crawl──► data/raw/crawl/docs.jsonl ─┐
-data/raw/recovered/*.jsonl (Common Crawl, Wayback, PubMed, direct) ┴─► scripts/data → docs_clean → processed_v3
-   → gói dataset Kaggle → kernel: BM25 / BGE-M3 / reranker → ranking.parquet → kernel build_submission → zip
+data/raw/recovered/*.jsonl (Common Crawl, Wayback, PubMed, direct) ┴─► scripts/data → docs_clean
+   → gói dataset Kaggle (kernel đọc docs_clean; processed_v3 chỉ ở local — xem docs/DATA_PIPELINE.md) → kernel: BM25 / BGE-M3 / reranker → ranking.parquet → kernel build_submission → zip
    → submissions/ (user nộp tay trên Codabench) → điểm ghi EXPERIMENTS.md bảng A
 ```
 

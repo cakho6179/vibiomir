@@ -18,6 +18,18 @@ bằng script trong git.
 | `recovered/pubmed_2026-10-22.jsonl` | PubMed E-utilities | 178 doc |
 | *(đang chạy)* | Wayback VI/ZH, Common Crawl columnar p0–p4 | sẽ thành file mới trong `recovered/` |
 
+### Luật chấm chunk (`knowledge/pages/01_Evaluation.md` §3.2) [ĐO]
+- Hai phía được chuẩn hoá: NFKC, giải mã HTML entity, chữ thường, gộp khoảng trắng.
+- overlap(c, g) = LCS_token(c, g) / |g|, trong đó LCS là dãy con chung **không cần liên tiếp**. Chunk nộp c đúng nếu overlap ≥ 0,4
+  với **ít nhất một** gold chunk g cùng doc_id.
+- P = số chunk nộp đúng / số chunk nộp. R = số gold chunk được tìm thấy / tổng gold chunk.
+- Hệ quả:
+  1. Mẫu số là |g| ⇒ chunk dài **không bị phạt**. Chunk toàn văn chứa trọn mọi gold chunk của doc đó (overlap = 1): 1 chunk nộp
+     tìm được *mọi* gold chunk của doc. Toàn văn là tối ưu về điểm; cửa sổ chỉ dùng để **nhét thêm doc vào trần ~100 MB**.
+  2. Có furniture trong chunk cũng không mất gì ⇒ chunk nộp **luôn giữ nguyên văn đầy đủ**; furniture chỉ bỏ ở text index.
+  3. Cửa sổ chỉ đúng khi chứa ≥ 40% token của g theo thứ tự ⇒ phải chọn cửa sổ khớp query, đủ rộng (thử 1,5k và 3k ký tự).
+  4. Chuẩn hoá Unicode/khoảng trắng phía ta là an toàn vì bộ chấm cũng chuẩn hoá.
+
 Độ phủ hiện tại (so với links): VI 98,35% (thiếu 12.183), ZH 89,85% (thiếu 24.363), EN 99,87%. 14.803 doc VI < 500 ký tự.
 
 ---
@@ -51,8 +63,8 @@ data/docs_clean.jsonl  (1.183.751 doc, 97,0%)
 | P2 | **Mỗi giai đoạn tự chia đoạn** (1000, 1200, 1500, 4500 ký tự) và không có mã đoạn chung | không ghép được điểm cấp đoạn giữa BM25/M3/reranker; không chọn được "cửa sổ khớp nhất" để làm chunk |
 | P3 | ~1.725 doc trong `recovered/` **chưa vào** dataset Kaggle | mất recall với đúng các doc khó lấy |
 | P4 | Thông tin trùng (`content_key`, `dup_of`) không lên Kaggle | không gom cụm trùng khi gộp nguồn |
-| P5 | Embedding corpus không lưu thành tài sản dùng lại | mỗi biến thể query hay model mới lại phải embed lại ~1,18 triệu doc |
-| P6 | Dataset Kaggle = bản gốc + delta vá thêm, không có phiên bản và manifest | khó tái lập cho hạn nộp hệ thống 04/11 |
+| P5 | Embedding corpus không lưu thành tài sản dùng lại (các output dense chỉ có `q_emb.npy`) [ĐO] | mỗi biến thể query hay model mới lại phải embed lại ~1,18 triệu doc |
+| P6 | Dataset Kaggle = bản gốc + delta vá thêm, không có phiên bản và manifest; Kaggle có 1.183.760 doc còn docs_clean 1.183.751 (≈9 doc lệch, có thể là doc giả đã gỡ) | khó tái lập cho hạn nộp hệ thống 04/11 |
 
 ---
 
@@ -102,17 +114,27 @@ data/raw/{crawl, recovered/*}
 | 1 | S0–S2 trên local (CPU, đọc raw 5,3 GB) | local | số doc = docs_clean + recovered hợp lệ; 0 id trùng; mỗi id có source |
 | 2 | S3 phân đoạn + thống kê độ dài | local | ≥ 99% doc có ≥ 1 đoạn; trung vị đoạn 1.000–2.000 ký tự; span furniture < 5% ký tự |
 | 3 | S4 đẩy dataset `vibiomir-docstore-v1` | Kaggle | kernel đọc thử được, đếm khớp manifest |
-| 4 | **Kiểm hồi quy:** BM25 e1 trên v1 | Kaggle CPU | top-28 trùng ≥ 95% với E1v2 cũ (đổi kho không được làm hỏng cái đang chạy) |
-| 5 | S5 BGE-M3 dense+sparse theo pid, lưu embedding | Kaggle GPU (~2 acc × vài giờ) | ranking M3 trên v1 trùng top-28 ≥ 90% với M3 cũ |
+| 4a | **Kiểm hồi quy đường ống:** BM25 e1 trên v1, index **giữ** furniture | Kaggle CPU | top-28 trùng ≥ 95% với E1v2 cũ (chỉ khác ở doc recovered) |
+| 4b | A/B: index **bỏ** furniture | Kaggle CPU + 1 lượt LB | không có cổng trùng; chỉ so điểm LB |
+| 5 | S5 BGE-M3 dense+sparse theo pid, lưu embedding (`--save-emb`) | Kaggle GPU: lần trước 5 kernel × 1,2–1,9 h ≈ 8 h kernel cho ~2,97 triệu đoạn; embedding fp16 ≈ 6 GB | ranking M3 trên v1 trùng top-28 ≥ 90% với M3 cũ |
 | 6 | S6 + L1 nhiều nguồn | Kaggle | xem `docs/ROADMAP_SYSTEM.md` và spec L1 |
 
 Bước 1–4 không cần GPU và không phụ thuộc kết quả crawl đang chạy (crawl xong chỉ cần dựng lại v2).
+
+### Lịch (lùi từ hạn public 31/10 23:59; còn ~9 ngày × 10 lượt nộp)
+| Ngày | Kho doc (đường dài) | Thử nghiệm LB trên corpus CŨ (chạy song song, không chờ kho) |
+|---|---|---|
+| 22–23/10 | S0–S3 local, đẩy v1 | (a) chunk cửa sổ trong `build_submission.py` trên danh sách doc w12T2; `pool_VI_d500`; (b) rerank top-400 bằng reranker VI |
+| 24/10 | 4a/4b BM25 trên v1; S5 M3 bắt đầu | slice probe nguồn BM25-2000 |
+| 25–26/10 | S5 xong; S6 biến thể query | slice probe theo nguồn × dải hạng |
+| 27–29/10 | L1 nhiều nguồn trên v1 → L2/L3 | bảng mật độ → bộ quyết định |
+| 30–31/10 | đóng băng, chỉ bài chính | chọn bài cho private (5 lượt) |
+Nếu v1 trễ quá 26/10: bài chính vẫn dựng từ corpus cũ, kho doc chỉ phục vụ bài báo và hệ thống nộp 04/11.
 
 ---
 
 ## 5. Quyết định còn mở
 1. **Ưu tiên khi một id có nhiều nguồn** (crawl gốc vs Wayback vs Common Crawl): đề xuất lấy bản crawl gốc nếu qua lọc rác, nếu không
    thì bản dài nhất qua lọc.
-2. **Text index có bỏ span furniture không:** đề xuất bỏ cho BM25/dense (giảm nhiễu), nhưng chunk nộp vẫn có thể chứa (vì gold chunk
-   của BTC có thể lấy cả trang); kiểm bằng LB qua thử nghiệm (a).
+2. **Furniture:** chunk nộp luôn giữ (luật chấm không phạt, xem §1). Text index bỏ hay giữ quyết định bằng bước 4b.
 3. **Đoạn ~1.500 ký tự hay theo mục:** chọn theo mục, cận 1.500; mentor BTC dùng ~3.200 đoạn/400 doc ≈ 8 đoạn/doc — khớp cỡ này.

@@ -57,7 +57,7 @@ lấy từ pool các hệ của BTC (BM25 + BGE-M3 trên chunk MedKB) rồi lọ
 Trục chính: **bệnh/nhóm ICD × ý hỏi (loại mục)** — slide tr.23/40: chunk "Cùng bệnh, khác ý" không đúng; câu hỏi triệu chứng phải ra mục Triệu chứng.
 | Slide | Ta đã có | Cần làm |
 |---|---|---|
-| tr.12–14, 19 vùng bài, bỏ giao diện | processed_v3 + clean_v4 (phía index) | giữ |
+| tr.12–14, 19 vùng bài, bỏ giao diện | processed_v3 (chỉ local, kernel chưa dùng) + clean_v4 (trong kernel BM25) | gộp vào kho doc v1 (`docs/DATA_PIPELINE.md`) |
 | tr.17–18 metadata (tóm tắt, chuyên mục, loại tài liệu, nhóm chủ đề, ngày) | id, host, lang, title | thêm loại tài liệu (tr.11: hỏi đáp / kiến thức / sách-cẩm nang / thuốc-dược liệu / tin tức), nhóm ICD, chuyên mục nếu có |
 | tr.20 giữ dấu, phủ định, số–đơn vị; lưu gốc | ✓ | — |
 | tr.21 tách từ cho lexical (triệu_chứng sỏi_thận) | e3v2, b2 (pyvi) chờ LB | chọn theo LB |
