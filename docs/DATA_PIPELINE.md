@@ -88,14 +88,21 @@ data/raw/{crawl, recovered/*}
   L1 truy hồi rộng (chỉ cần encode query + tìm trên tài sản S5) → L2 giảm → L3 quyết định → L4 chunk = cửa sổ đoạn
 ```
 
-### Lược đồ (`data/docstore/vN/`)
-| Bảng | Khoá | Cột chính |
+### Lược đồ (`data/docstore/vN/`) — v1 đã xây (`scripts/data/build_docstore.py`, `r2ai2026/docstore.py`)
+Text chỉ có **một bản**, đúng định dạng kernel đang đọc ⇒ BM25 / dense / build chạy trên v1 không cần sửa kernel.
+Offset `start`/`end` = vị trí ký tự trong `x` (thân bài); tiêu đề `t` để riêng.
+| File | Khoá | Cột |
 |---|---|---|
-| `docs.parquet` | doc_id | url, host, lang, source (crawl/direct/wayback/cc/pubmed), title, text, n_chars, thin, doc_type, content_key, cluster_id |
-| `furniture.parquet` | (doc_id, start, end) | kind (template/related/cta/bio/ref) — chỉ để bỏ qua khi index, text vẫn còn |
-| `passages.parquet` | (doc_id, pid) | start, end, heading, sec_type, n_chars |
-| `queries_xl.parquet` | (qid, variant) | text, kind (gốc / viết lại / query2doc / dịch EN) |
-| `MANIFEST.md` | — | sha256 các file raw đầu vào, commit git, số doc theo ngôn ngữ/nguồn |
+| `corpus/part-00..07.jsonl.gz` | id | `{"id","t","x"}`: x = thân bài chuẩn (prepare_body), **giữ furniture** |
+| `docs_meta.parquet` | id | url, host, lang, source (crawl/direct/wayback/cc/pubmed), n_chars, thin (<500), content_key, dup_of, furniture_chars, n_passages |
+| `passages.parquet` | (doc_id, pid) | start, end, heading, content_chars (ký tự ngoài furniture) — các đoạn **phủ kín** x, không hở, không chồng |
+| `furniture.parquet` | (doc_id, start) | end, kind (template / references / bio / signature / related / url / cta) |
+| `templates.json`, `MANIFEST.json` | — | dòng template theo host; sha256 đầu vào raw, commit git, tham số, số đếm, lý do loại rác |
+
+Quy tắc S0: crawl = bản ghi ok cuối cùng mỗi id + lọc rác với số trùng đếm **trong crawl** (tái lập đúng docs_clean,
+kiểm bằng số 1.183.751). Recovered = chỉ id crawl không có; lọc rác với số trùng đếm trên **crawl + mọi file recovered**
+(bắt trang chủ/404 mà Wayback/CC trả về cho nhiều URL chết); nhiều nguồn cùng id ⇒ direct > wayback > cc > pubmed, rồi dài nhất.
+Để sau v1 (không cần cho cổng 4a): `doc_type`, cụm MinHash gần trùng, `sec_type`, `queries_xl`.
 
 ### Vì sao giải quyết được P1–P6
 - **P1, P2:** mọi kernel đọc cùng `docs` + `passages`; điểm BM25/M3/reranker gắn với cùng pid nên cộng được ở cấp đoạn.
