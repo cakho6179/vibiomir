@@ -1,7 +1,7 @@
 # ViBioMIR — R2AI2026 Shared Task 3
 
 Truy hồi tài liệu y khoa đa ngữ (VI/ZH/EN) cho 1.200 câu hỏi tiếng Việt + trích chunk. Metric: FINAL = trung bình
-F2 tài liệu và F2 chunk (`knowledge/pages/01_Evaluation.md`). Public phase đóng **31/10/2026 07:00**.
+F2 tài liệu và F2 chunk (`knowledge/pages/01_Evaluation.md`). Public phase đóng **31/10/2026 23:59 ICT** (API: 2026-10-31T16:59Z); private phase 01/11 00:00 → 03/11 23:59 ICT.
 Điểm và trạng thái hiện tại: `EXPERIMENTS.md` (bảng A) · bài chờ nộp: `submissions/MANIFEST.md` · lộ trình: `docs/ROADMAP_SYSTEM.md`.
 
 ## Cấu trúc

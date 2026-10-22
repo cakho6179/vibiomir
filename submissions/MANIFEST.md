@@ -19,7 +19,6 @@ Sinh bởi `scripts/submit/collect_submissions.py`; sửa `status`/`note` trong 
 | `rdT1_VI_d150c90r.zip` | chưa nộp | như rd + ngưỡng ≥ −1 (TB 86 doc, 69 chunk/query) — chặt hơn | 68.6 | 86.24 | 69.09 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-d/rdT1_VI_d150c90r.zip |
 | `rdT2_VI_d150c90r.zip` | chưa nộp | như rd + cắt theo ngưỡng reranker ≥ −2 (TB 103 doc, 78 chunk/query) — số doc biến thiên | 71.5 | 103.37 | 77.9 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-c/rdT2_VI_d150c90r.zip |
 | `rd_VI_d150c90r.zip` | chưa nộp | RRF(E1v2, M3, reranker) 1:2:3, 150 doc + 90 chunk, xếp lại query (85.4 MB) — reranker trong thứ tự | 85.4 | 149.94 | 89.99 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-c/rd_VI_d150c90r.zip |
-| `w12T2_VI_d150c90r.zip` | chưa nộp | w12 (không reranker trong thứ tự) + ngưỡng ≥ −2 (TB 88 doc, 75 chunk) — tách hiệu ứng cắt | 71.3 | 88.23 | 75.42 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-d/w12T2_VI_d150c90r.zip |
 | `b1_n28.zip` | không nộp | BM25 chunk 1000/200 — dừng hướng BM25 (22/10: các biến thể đều ~0.09–0.11) | 68.3 |  |  |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-bm25-b1/submission_b1_n28.zip |
 | `b2_n28.zip` | không nộp | BM25 b1 + pyvi — dừng hướng BM25 (22/10: các biến thể đều ~0.09–0.11) | 67.7 |  |  |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-bm25-b2/submission_b2_n28.zip |
 | `b3_VI_n28.zip` | đã nộp | BM25 doc-level k1 0.9 b 0.4 (Pyserini), LZMA | 32.4 | 28.0 |  | 0.0874 | 0.1415 / 0.0908 | 0.1411 / 0.0953 | temp_submission | kaggle/outputs/vibiomir-build-v2/b3_VI_n28.zip |
@@ -39,3 +38,4 @@ Sinh bởi `scripts/submit/collect_submissions.py`; sửa `status`/`note` trong 
 | `w12VI_n120.zip` | không nộp | build cũ 129.0 MB > trần upload | 129.0 | 119.97 |  |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-build-w12vi/w12VI_n120.zip |
 | `w12_VI_d150c120.zip` | không nộp | 129 MB > trần upload | 129.2 | 149.94 | 119.97 |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-build-depth-b/w12_VI_d150c120.zip |
 | `w12_VI_d150c120r.zip` | không nộp | 116.7 MB > trần (xếp lại query giảm 10%) | 116.7 | 149.94 | 119.97 |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-build-depth-b/w12_VI_d150c120r.zip |
+| `w12T2_VI_d150c90r.zip` | đã nộp | w12 (không reranker trong thứ tự) + ngưỡng ≥ −2 (TB 88 doc, 75 chunk) — tách hiệu ứng cắt | 71.3 | 88.23 | 75.42 | 0.3108 | 0.2495 / 0.3823 | 0.2635 / 0.3698 | temp_submission | kaggle/outputs/vibiomir-build-depth-d/w12T2_VI_d150c90r.zip |

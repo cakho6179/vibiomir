@@ -183,19 +183,6 @@
   "exists": true
  },
  {
-  "file": "w12T2_VI_d150c90r.zip",
-  "status": "chưa nộp",
-  "note": "w12 (không reranker trong thứ tự) + ngưỡng ≥ −2 (TB 88 doc, 75 chunk) — tách hiệu ứng cắt",
-  "from": "kaggle/outputs/vibiomir-build-depth-d/w12T2_VI_d150c90r.zip",
-  "sha12": "08f40e067116",
-  "mb": 71.3,
-  "added": "2026-10-22 16:55",
-  "docs_per_query": 88.23,
-  "chunks_per_query": 75.42,
-  "where": "submissions",
-  "exists": true
- },
- {
   "file": "b1_n28.zip",
   "status": "không nộp",
   "note": "BM25 chunk 1000/200 — dừng hướng BM25 (22/10: các biến thể đều ~0.09–0.11)",
@@ -420,5 +407,21 @@
   "docs_per_query": 149.94,
   "chunks_per_query": 119.97,
   "where": "temp_submission/khong_nop"
+ },
+ {
+  "file": "w12T2_VI_d150c90r.zip",
+  "status": "đã nộp",
+  "note": "w12 (không reranker trong thứ tự) + ngưỡng ≥ −2 (TB 88 doc, 75 chunk) — tách hiệu ứng cắt",
+  "from": "kaggle/outputs/vibiomir-build-depth-d/w12T2_VI_d150c90r.zip",
+  "sha12": "08f40e067116",
+  "mb": 71.3,
+  "added": "2026-10-22 16:55",
+  "docs_per_query": 88.23,
+  "chunks_per_query": 75.42,
+  "where": "temp_submission",
+  "exists": true,
+  "final": "0.3108",
+  "docs_pr": "0.2495 / 0.3823",
+  "chunks_pr": "0.2635 / 0.3698"
  }
 ]

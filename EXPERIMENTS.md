@@ -20,6 +20,7 @@ Metric: FINAL = mean(DOCS_F2, CHUNKS_F2). Chunk = toàn văn doc (không cắt) 
 | 20/10 | runs/submissions/probe_xl_enzh_n28.zip | Probe: 14 doc EN (BM25 query EN) + 14 doc ZH (BM25 query ZH) | 28 | 0.0089 | 0.0170 / 0.0105 | 0.0167 / 0.0084 |
 | 22/10 | submissions/e3v2_VI_n28.zip | BM25 doc-level + tách từ pyvi, chỉ VI | 28 | 0.1089 | 0.1792 / 0.1119 | 0.1784 / 0.1172 |
 | 22/10 | submissions/b3_VI_n28.zip | BM25 doc-level k1 0.9 b 0.4 (kiểu Pyserini), VI, **LZMA được chấm** | 28 | 0.0874 | 0.1415 / 0.0908 | 0.1411 / 0.0953 |
+| 22/10 | submissions/w12T2_VI_d150c90r.zip | w12 (E1v2+M3 1:2) + cắt ngưỡng reranker ≥ −2, TB 88 doc / 75 chunk, xếp lại query, LZMA 71.3 MB — **hạng 6/50** (lấy từ API Codabench, submission 6536) | 88/75 | **0.3108** | 0.2495 / 0.3823 | 0.2635 / 0.3698 |
 
 Tham chiếu: admin BM25 FINAL 0.3764 (docs F2 0.5587, P/R 0.880/0.515, chunks F2 0.1941); Top 1 `toptire` 0.4071 (docs P/R 0.232/0.571).
 
