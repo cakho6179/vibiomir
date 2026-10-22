@@ -1,0 +1,156 @@
+[
+  {
+    "type": "competition_overview",
+    "content": "# R2AI2026 TRUY H\u1ed2I T\u00c0I LI\u1ec6U Y KHOA \u0110A NG\u00d4N NG\u1eee \u2014 Competition Brief\n\n- Slug: `r2ai2026-vibiomir` | Host: Codabench | Competition id: 15\n- URL: https://leaderboard.aiguru.com.vn/competitions/15/ (tab: #/pages-tab)\n- Description: R2AI2026 TRUY H\u1ed2I T\u00c0I LI\u1ec6U Y KHOA \u0110A NG\u00d4N NG\u1eee - Shared Task 3\n- Participants: 72 | Submissions: 762 | Created: 2026-09-30T15:34:45.636301Z\n- Organizer: AI Guru \u2013 C\u00f4ng ty C\u1ed5 ph\u1ea7n T\u1eadp \u0111o\u00e0n Dagoras Group, T\u1ea7ng 8, s\u1ed1 80 Duy T\u00e2n, C\u1ea7u Gi\u1ea5y, H\u00e0 N\u1ed9i\n- Contacts: Nguy\u1ec5n Th\u1ecb Minh Nguy\u1ec7t (0981544974, nguyetntm@dagoras.io); V\u0169 Th\u1ecb Thu\u1ef3 Linh (0961891198, linhvtt@dagoras.io)\n- Docker image: codalab/codalab-legacy:py37 | Execution time limit: 600s | Robot submissions: False\n\n## Task\n\nVietnamese biomedical queries -> retrieve relevant **documents** AND relevant **chunks**\nfrom a multilingual (vi/en/zh) corpus that each team builds itself by crawling the URLs in\n`links_corpus.parquet`. Organizers provide NO embedding/indexing pipeline.\n\n## Timeline (all deadlines 23:59 ICT / UTC+07:00)\n\n| Milestone | Date |\n|---|---|\n| Public test released | 2026-10-01 |\n| Public phase (API) | 2026-09-30T00:00:00Z -> 2026-10-31T00:00:00Z (name: Ki\u1ec3m th\u1eed c\u00f4ng khai) |\n| Public submission deadline | 2026-10-31 23:59 ICT |\n| Private phase (API) | 2026-11-01T00:00:00Z -> 2026-11-04T00:00:00Z (name: Ki\u1ec3m th\u1eed ri\u00eang) |\n| Final system deadline | 2026-11-04 23:59 ICT |\n| Results announced | 2026-11-11 |\n\n## Data (HuggingFace: https://huggingface.co/datasets/AIGuruTinix/ViBioMIR)\n\n- `query.parquet`: `id:int`, `query:str` \u2014 Vietnamese medical queries. **1,200 queries total** across both phases; system must answer ALL; platform splits public/private automatically.\n- `links_corpus.parquet`: `id:int`, `url:str` \u2014 source article URLs. Teams crawl, preprocess, chunk and index themselves.\n- Ground-truth doc labels use the integer `id` in `links_corpus.parquet`; docs outside the list are never positive.\n- HF files: .gitattributes, README.md, figures/01_query_length_distribution.png, figures/04_medical_topic_signals.png, figures/05_intent_distribution_pie.png, figures/AI Guru.jpg, figures/MedKB.png, figures/records_by_year_without_books.png, figures/tokens_by_category_without_books.png, links_corpus.parquet, query.parquet\n- HF tags: task_categories:text-retrieval, multilinguality:multilingual, language:vi, language:en, language:zh, size_categories:1M<n<10M, format:parquet, modality:text, library:datasets, library:pandas, library:polars, library:mlcroissant, region:us, medical, information-retrieval, vietnamese, english, chinese\n\n## Metric\n\n- Document level: Precision = |D\u2229G|/|D|, Recall = |D\u2229G|/|G|\n- Chunk level: chunk c is correct if overlap(c,g) = LCS_tokens(c,g)/|g| >= **0.40** against ANY reference\n  chunk of the same question+doc_id. Text normalized: Unicode NFKC, HTML entities decoded,\n  lowercased, whitespace collapsed/trimmed.\n- F2 = 5\u00b7P\u00b7R / (4\u00b7P + R), macro-averaged per query.\n- **FINAL_SCORE = mean(DOCS_F2MACRO, CHUNKS_F2MACRO); per-query Precision/Recall/F2 macro-averaged over all queries, scored separately at document level and chunk level**\n- Leaderboard columns: FINAL_SCORE, DOCS_F2MACRO, CHUNKS_F2MACRO, DOCS_PRECISION, DOCS_RECALL, CHUNKS_PRECISION, CHUNKS_RECALL\n\n## Submission format\n\nSingle `.json` file (JSON array), then ZIP it (ONLY the json inside, no subfolder) and upload\nvia **My Submissions** on https://leaderboard.aiguru.com.vn:\n\n```json\n[\n  {\n    \"id\": 1,\n    \"relevant_docs\": [\"<doc id>\"],\n    \"relevant_chunks\": [\n      {\"doc_id\": \"<doc id>\", \"chunk_text\": \"<verbatim text extracted from the document>\"}\n    ]\n  }\n]\n```\n\n- `id`: integer query id. `relevant_docs`: predicted doc ids (integer `id` field of `links_corpus.parquet`).\n- `relevant_chunks[].chunk_text` MUST be verbatim extracted from the source document (no rewriting/generation).\n- Optional `chunk_order`: non-negative int; default = position in the array.\n- Empty lists required if no prediction at a level. Missing questions/files => submission not evaluated\n  (and it does not count against the quota).\n\n## Submission quotas\n\n- Public phase: **10 submissions/day** per team (max 310 per person total).\n- Private phase: **5 per day / 5 TOTAL per user** \u2014 choose private submissions carefully.\n- Final result official only after a working-notes paper is submitted.\n\n## Model / data constraints\n\n- External data allowed **with explicit citation** of sources.\n- Open-weight models only (model and/or training data public, e.g. Hugging Face).\n- **No closed LLMs** (GPT-4o, Gemini, ...).\n- Models released **before 2026-08-01 (ICT)**, size **<= 15B parameters**.\n\n## Leaderboard snapshot (2026-10-08T05:39:40+00:00)\n\n| Rank | Team | FINAL | DOCS F2 | CHUNKS F2 |\n|---|---|---|---|---|\n| 1 | BM25 Baseline | 0.3764 | 0.5587 | 0.1941 |\n| 2 | anonymous | 0.2672 | 0.2903 | 0.2441 |\n| 3 | anonymous | 0.2107 | 0.2283 | 0.1932 |\n| 4 | anonymous | 0.1907 | 0.2058 | 0.1757 |\n| 5 | bientrandev | 0.1743 | 0.1869 | 0.1617 |\n| 6 | anonymous | 0.1587 | 0.1603 | 0.1572 |\n| 7 | anonymous | 0.1349 | 0.179 | 0.0908 |\n| 8 | anonymous | 0.1193 | 0.1611 | 0.0776 |\n| 9 | anonymous | 0.1077 | 0.1097 | 0.1057 |\n| 10 | anonymous | 0.0785 | 0.1072 | 0.0499 |\n| 11 | anonymous | 0.0717 | 0.1022 | 0.0412 |\n| 12 | anonymous | 0.0662 | 0.1041 | 0.0283 |\n| 13 | anonymous | 0.0586 | 0.105 | 0.0122 |\n| 14 | anonymous | 0.0281 | 0.0562 | 0.0 |\n| 15 | anonymous | 0.0138 | 0.0199 | 0.0077 |\n\nBaseline `BM25 Baseline` (admin): FINAL 0.3764 = DOCS_F2 0.5587 + CHUNKS_F2 0.1941; DOCS P/R 0.8805/0.5146; CHUNKS P/R 0.3403/0.1755.\n",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "codabench",
+      "retrieval",
+      "medical",
+      "multilingual",
+      "r2ai2026"
+    ],
+    "metric": null,
+    "created_at": "2026-10-08T05:39:40+00:00"
+  },
+  {
+    "type": "problem_definition",
+    "content": "Multilingual (vi/en/zh) biomedical IR: for each Vietnamese query return relevant doc ids (links_corpus.parquet integer id) and verbatim relevant chunks (LCS-token overlap >= 0.40 counts as correct). Team builds corpus/chunks/index itself; no organizer pipeline. 1,200 queries answered in one submission; platform splits public/private.",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "retrieval",
+      "chunking",
+      "cross-lingual"
+    ],
+    "metric": null,
+    "created_at": "2026-10-08T05:39:40+00:00"
+  },
+  {
+    "type": "technique",
+    "content": "Rule constraints shape the approach: models <= 15B released before 2026-08-01, open weights only. Candidate families from plan: deberta-v3, tfidf-linear, sentence-transformer-reranker. Baseline reference is BM25 (FINAL 0.3764), suggesting dense multilingual embeddings (e.g. BGE-m3 / multilingual-e5 class) + chunk-level reranking headroom.",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "baseline",
+      "bm25",
+      "dense-retrieval",
+      "rerank"
+    ],
+    "metric": null,
+    "created_at": "2026-10-08T05:39:40+00:00"
+  },
+  {
+    "type": "metric_result",
+    "content": "Leaderboard baseline `BM25 Baseline` (admin) on public phase. FINAL_SCORE = mean(docs F2, chunks F2).",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "leaderboard",
+      "baseline"
+    ],
+    "metric": 0.3764,
+    "created_at": "2026-10-08T05:39:40+00:00"
+  },
+  {
+    "type": "competition_overview",
+    "content": "# R2AI2026 TRUY H\u1ed2I T\u00c0I LI\u1ec6U Y KHOA \u0110A NG\u00d4N NG\u1eee \u2014 Competition Brief (refreshed)\n\n- Slug: `r2ai2026-vibiomir` | Host: Codabench | Competition id: 15 | Leaderboard id: 93\n- URL: https://leaderboard.aiguru.com.vn/competitions/15/ (tab: #/pages-tab)\n- Description: R2AI2026 TRUY H\u1ed2I T\u00c0I LI\u1ec6U Y KHOA \u0110A NG\u00d4N NG\u1eee - Shared Task 3\n- Participants: **88** | Submissions: **1997** | Created: 2026-09-30T15:34:45.636301Z\n- Docker image: `codalab/codalab-legacy:py37` | Execution time limit: 600s | Robot submissions: False\n- Refreshed at: 2026-10-18T14:34:16+00:00\n\n## Timeline (all deadlines 23:59 ICT unless noted)\n\n| Milestone | Window |\n|---|---|\n| Public phase (platform api) | 2026-09-30T00:00:00Z -> 2026-10-31T00:00:00Z |\n| Public phase (ICT) | 2026-09-30 07:00 ICT -> **2026-10-31 07:00 ICT** |\n| Private phase (platform api) | 2026-11-01T00:00:00Z -> 2026-11-04T00:00:00Z |\n| Private phase (ICT) | 2026-11-01 07:00 ICT -> **2026-11-04 07:00 ICT** |\n| Public submission deadline (doc) | 2026-10-31 23:59 ICT |\n| Final system deadline (doc) | 2026-11-04 23:59 ICT |\n| Results announced | 2026-11-11 |\n\n> Platform phase windows close earlier than the documented deadlines (public phase ends at the platform `end` above, i.e. same calendar day but not 23:59). Treat the platform window as the binding constraint.\n\n## Data (HuggingFace: https://huggingface.co/datasets/AIGuruTinix/ViBioMIR)\n\n- HF repo created/last modified: 2026-10-12T13:52:14.000Z / 2026-10-12T13:52:14.000Z | downloads: 3185 | gated: False\n- Files: .gitattributes, README.md, links_corpus_vi_en_zh.parquet, query.parquet\n- `query.parquet`: `id:int`, `query:str` \u2014 Vietnamese medical queries (both phases).\n- `links_corpus_vi_en_zh.parquet`: `id:int`, `url:str` \u2014 source article URLs; teams crawl/clean/chunk/index themselves.\n- Ground-truth doc labels use the integer `id` in the corpus file; documents outside that list are never positive.\n\n### Corpus snapshot (local audit)\n\n- Queries: **1,200** (median 18 words, p95 84, max 281)\n- Corpus rows: **1,220,598** | unique urls: 1,220,598 | id range 583..7466161\n- Language heuristic: `{'vi': 694909, 'unknown': 55592, 'en': 240000, 'zh': 230097}`\n- PubMed URLs (bulk-harvestable via E-utilities): **240,000**\n- Top hosts: pubmed.ncbi.nlm.nih.gov (240,000), suckhoecongdongonline.vn (154,503), www.120ask.com (98,160), suckhoedoisong.vn (85,823), nhathuoclongchau.com.vn (79,598), thanhnien.vn (72,111), www.cnkang.com (40,046), ask.39.net (32,772)\n\n## Metric\n\n- Document level: Precision = |D\u2229G|/|D|, Recall = |D\u2229G|/|G|.\n- Chunk level: a submitted chunk counts as correct when LCS-token overlap with any reference chunk of the same query+doc is >= 0.40 (text normalized: NFKC, HTML entities, lowercase, whitespace).\n- F2 = 5\u00b7P\u00b7R / (4\u00b7P + R), macro-averaged per query at both levels.\n- **FINAL_SCORE = mean(DOCS_F2MACRO, CHUNKS_F2MACRO); per-query Precision/Recall/F2 macro-averaged over all queries, scored separately at document level and chunk level**\n\n## Submission format\n\nSingle `.json` array zipped alone (no folder), uploaded via My Submissions:\n\n```json\n[{\"id\": 1, \"relevant_docs\": [123], \"relevant_chunks\": [{\"doc_id\": 123, \"chunk_text\": \"<verbatim>\"}]}]\n```\n\n- Empty lists are mandatory when a level has no prediction; a submission missing queries is not evaluated (and burns no quota).\n- `chunk_text` must be verbatim text extracted from the source document.\n\n## Leaderboard (refreshed snapshot)\n\n- Entries in snapshot: **50** (this is the public leaderboard feed, newest first by score).\n\n| Rank | Entry | FINAL | DOCS F2 | CHUNKS F2 | DOCS P/R | CHUNKS P/R | When |\n|---:|---|---:|---:|---:|---|---|---|\n| 1 | BM25 Baseline | 0.3764 | 0.5587 | 0.1941 | 0.8805/0.5146 | 0.3403/0.1755 | 2026-09-30 |\n| 2 | Bien Tran Ngoc | 0.3502 | 0.3617 | 0.3388 | 0.2398/0.4669 | 0.2822/0.4082 | 2026-10-12 |\n| 3 | anonymous | 0.3187 | 0.3250 | 0.3125 | 0.2746/0.3968 | 0.2677/0.3749 | 2026-10-16 |\n| 4 | anonymous | 0.3076 | 0.3207 | 0.2945 | 0.1698/0.5219 | 0.2958/0.3481 | 2026-10-14 |\n| 5 | anonymous | 0.2683 | 0.2730 | 0.2636 | 0.1516/0.4071 | 0.1864/0.3424 | 2026-10-16 |\n| 6 | anonymous | 0.2672 | 0.2903 | 0.2441 | 0.1558/0.4663 | 0.1557/0.3482 | 2026-10-06 |\n| 7 | anonymous | 0.2427 | 0.2820 | 0.2033 | 0.1800/0.3821 | 0.1986/0.2342 | 2026-10-18 |\n| 8 | anonymous | 0.2394 | 0.2655 | 0.2132 | 0.1451/0.4078 | 0.1867/0.2559 | 2026-10-12 |\n| 9 | anonymous | 0.2326 | 0.2948 | 0.1703 | 0.1998/0.3824 | 0.1410/0.2047 | 2026-10-06 |\n| 10 | anonymous | 0.2112 | 0.2438 | 0.1785 | 0.1949/0.3150 | 0.1634/0.2199 | 2026-10-17 |\n| 11 | anonymous | 0.2049 | 0.2240 | 0.1857 | 0.1411/0.3245 | 0.1744/0.2245 | 2026-10-13 |\n| 12 | anonymous | 0.1985 | 0.2257 | 0.1712 | 0.1496/0.3046 | 0.1805/0.1969 | 2026-10-12 |\n| 13 | anonymous | 0.1943 | 0.2049 | 0.1837 | 0.1148/0.3324 | 0.1491/0.2439 | 2026-10-09 |\n| 14 | anonymous | 0.1727 | 0.1817 | 0.1637 | 0.1271/0.2433 | 0.2040/0.1746 | 2026-10-18 |\n| 15 | anonymous | 0.1626 | 0.1890 | 0.1363 | 0.1136/0.2888 | 0.1054/0.1841 | 2026-10-18 |\n\n- Admin baseline `BM25 Baseline`: FINAL 0.3764 (docs 0.5587 / chunks 0.1941).\n- Best non-admin entry: FINAL 0.3502 (docs 0.3617 / chunks 0.3388).\n\n## Quotas\n\n- Public phase: 10/day per team (cap 310 per person).\n- Private phase: 5/day \u2014 only **5 total** submissions per user.\n\n## Rules\n\nOne account per user; one team max per participant; one submission account per team. External data allowed but must be cited with full provenance. Open-weight PLMs/LLMs only (model and/or training data public, e.g. Hugging Face); closed LLMs (GPT-4o, Gemini, ...) forbidden; models must be released before 2026-08-01 (ICT) and be <= 15B parameters. Max 10 submissions/day in public phase; max 5 submissions total in private phase. Final ranking requires a working-notes paper describing the method. Organizers may disqualify non-compliant teams; winners grant usage rights over submissions, code and generated data.\n",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "codabench",
+      "refresh",
+      "brief"
+    ],
+    "metric": null,
+    "created_at": "2026-10-18T14:34:17.001944+00:00"
+  },
+  {
+    "type": "metric_result",
+    "content": "Leaderboard refresh 2026-10-18T14:34:17+00:00: 50 entries. Admin baseline BM25 Baseline FINAL 0.3764; best non-admin 0.3502. Participants 88, submissions 1997.",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "leaderboard",
+      "refresh"
+    ],
+    "metric": 0.3502,
+    "created_at": "2026-10-18T14:34:17.002762+00:00"
+  },
+  {
+    "type": "eda_report",
+    "content": "Corpus audit: 1,220,598 urls (240,000 pubmed), id range 583..7466161, languages {'vi': 694909, 'unknown': 55592, 'en': 240000, 'zh': 230097}. Queries: 1,200, median 18 words. HF corpus file renamed to links_corpus_vi_en_zh.parquet (dataset re-created 2026-10-12).",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "corpus",
+      "audit",
+      "hf"
+    ],
+    "metric": null,
+    "created_at": "2026-10-18T14:34:17.003239+00:00"
+  },
+  {
+    "type": "technique",
+    "content": "Retrieval plan branches: corpus-crawl-pipeline, pubmed-bulk-harvest, sparse-bm25, dense-multilingual, hybrid-rrf, chunk-retrieval-pipeline, cross-encoder-rerank, query-medical-vi, f2-selection-tuning, dev-proxy-eval. Ordered corpus -> sparse -> dense -> hybrid -> rerank -> chunking -> selection, with a local scorer replica and dev proxy gating every leaderboard probe.",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "plan",
+      "retrieval"
+    ],
+    "metric": null,
+    "created_at": "2026-10-18T14:34:17.003828+00:00"
+  },
+  {
+    "type": "competition_overview",
+    "content": "# R2AI2026 TRUY H\u1ed2I T\u00c0I LI\u1ec6U Y KHOA \u0110A NG\u00d4N NG\u1eee \u2014 Competition Brief (refreshed)\n\n- Slug: `r2ai2026-vibiomir` | Host: Codabench | Competition id: 15 | Leaderboard id: 93\n- URL: https://leaderboard.aiguru.com.vn/competitions/15/ (tab: #/pages-tab)\n- Description: R2AI2026 TRUY H\u1ed2I T\u00c0I LI\u1ec6U Y KHOA \u0110A NG\u00d4N NG\u1eee - Shared Task 3\n- Participants: **88** | Submissions: **1997** | Created: 2026-09-30T15:34:45.636301Z\n- Docker image: `codalab/codalab-legacy:py37` | Execution time limit: 600s | Robot submissions: False\n- Refreshed at: 2026-10-18T14:36:11+00:00\n\n## Timeline (all deadlines 23:59 ICT unless noted)\n\n| Milestone | Window |\n|---|---|\n| Public phase (platform api) | 2026-09-30T00:00:00Z -> 2026-10-31T00:00:00Z |\n| Public phase (ICT) | 2026-09-30 07:00 ICT -> **2026-10-31 07:00 ICT** |\n| Private phase (platform api) | 2026-11-01T00:00:00Z -> 2026-11-04T00:00:00Z |\n| Private phase (ICT) | 2026-11-01 07:00 ICT -> **2026-11-04 07:00 ICT** |\n| Public submission deadline (doc) | 2026-10-31 23:59 ICT |\n| Final system deadline (doc) | 2026-11-04 23:59 ICT |\n| Results announced | 2026-11-11 |\n\n> Platform phase windows close earlier than the documented deadlines (public phase ends at the platform `end` above, i.e. same calendar day but not 23:59). Treat the platform window as the binding constraint.\n\n## Data (HuggingFace: https://huggingface.co/datasets/AIGuruTinix/ViBioMIR)\n\n- HF repo created/last modified: 2026-10-12T13:52:14.000Z / 2026-10-12T13:52:14.000Z | downloads: 3185 | gated: False\n- Files: \n- `query.parquet`: `id:int`, `query:str` \u2014 Vietnamese medical queries (both phases).\n- `links_corpus_vi_en_zh.parquet`: `id:int`, `url:str` \u2014 source article URLs; teams crawl/clean/chunk/index themselves.\n- Ground-truth doc labels use the integer `id` in the corpus file; documents outside that list are never positive.\n\n### Corpus snapshot (local audit)\n\n- Queries: **1,200** (median 18 words, p95 84, max 281)\n- Corpus rows: **1,220,598** | unique urls: 1,220,598 | id range 583..7466161\n- Language heuristic: `{'vi': 694909, 'unknown': 55592, 'en': 240000, 'zh': 230097}`\n- PubMed URLs (bulk-harvestable via E-utilities): **240,000**\n- Top hosts: pubmed.ncbi.nlm.nih.gov (240,000), suckhoecongdongonline.vn (154,503), www.120ask.com (98,160), suckhoedoisong.vn (85,823), nhathuoclongchau.com.vn (79,598), thanhnien.vn (72,111), www.cnkang.com (40,046), ask.39.net (32,772)\n\n## Metric\n\n- Document level: Precision = |D\u2229G|/|D|, Recall = |D\u2229G|/|G|.\n- Chunk level: a submitted chunk counts as correct when LCS-token overlap with any reference chunk of the same query+doc is >= 0.40 (text normalized: NFKC, HTML entities, lowercase, whitespace).\n- F2 = 5\u00b7P\u00b7R / (4\u00b7P + R), macro-averaged per query at both levels.\n- **FINAL_SCORE = mean(DOCS_F2MACRO, CHUNKS_F2MACRO); per-query Precision/Recall/F2 macro-averaged over all queries, scored separately at document level and chunk level**\n\n## Submission format\n\nSingle `.json` array zipped alone (no folder), uploaded via My Submissions:\n\n```json\n[{\"id\": 1, \"relevant_docs\": [123], \"relevant_chunks\": [{\"doc_id\": 123, \"chunk_text\": \"<verbatim>\"}]}]\n```\n\n- Empty lists are mandatory when a level has no prediction; a submission missing queries is not evaluated (and burns no quota).\n- `chunk_text` must be verbatim text extracted from the source document.\n\n## Leaderboard (refreshed snapshot)\n\n- Entries in snapshot: **50** (this is the public leaderboard feed, newest first by score).\n\n| Rank | Entry | FINAL | DOCS F2 | CHUNKS F2 | DOCS P/R | CHUNKS P/R | When |\n|---:|---|---:|---:|---:|---|---|---|\n| 1 | BM25 Baseline | 0.3764 | 0.5587 | 0.1941 | 0.8805/0.5146 | 0.3403/0.1755 | 2026-09-30 |\n| 2 | Bien Tran Ngoc | 0.3502 | 0.3617 | 0.3388 | 0.2398/0.4669 | 0.2822/0.4082 | 2026-10-12 |\n| 3 | anonymous | 0.3187 | 0.3250 | 0.3125 | 0.2746/0.3968 | 0.2677/0.3749 | 2026-10-16 |\n| 4 | anonymous | 0.3076 | 0.3207 | 0.2945 | 0.1698/0.5219 | 0.2958/0.3481 | 2026-10-14 |\n| 5 | anonymous | 0.2683 | 0.2730 | 0.2636 | 0.1516/0.4071 | 0.1864/0.3424 | 2026-10-16 |\n| 6 | anonymous | 0.2672 | 0.2903 | 0.2441 | 0.1558/0.4663 | 0.1557/0.3482 | 2026-10-06 |\n| 7 | anonymous | 0.2427 | 0.2820 | 0.2033 | 0.1800/0.3821 | 0.1986/0.2342 | 2026-10-18 |\n| 8 | anonymous | 0.2394 | 0.2655 | 0.2132 | 0.1451/0.4078 | 0.1867/0.2559 | 2026-10-12 |\n| 9 | anonymous | 0.2326 | 0.2948 | 0.1703 | 0.1998/0.3824 | 0.1410/0.2047 | 2026-10-06 |\n| 10 | anonymous | 0.2112 | 0.2438 | 0.1785 | 0.1949/0.3150 | 0.1634/0.2199 | 2026-10-17 |\n| 11 | anonymous | 0.2049 | 0.2240 | 0.1857 | 0.1411/0.3245 | 0.1744/0.2245 | 2026-10-13 |\n| 12 | anonymous | 0.1985 | 0.2257 | 0.1712 | 0.1496/0.3046 | 0.1805/0.1969 | 2026-10-12 |\n| 13 | anonymous | 0.1943 | 0.2049 | 0.1837 | 0.1148/0.3324 | 0.1491/0.2439 | 2026-10-09 |\n| 14 | anonymous | 0.1727 | 0.1817 | 0.1637 | 0.1271/0.2433 | 0.2040/0.1746 | 2026-10-18 |\n| 15 | anonymous | 0.1626 | 0.1890 | 0.1363 | 0.1136/0.2888 | 0.1054/0.1841 | 2026-10-18 |\n\n- Admin baseline `BM25 Baseline`: FINAL 0.3764 (docs 0.5587 / chunks 0.1941).\n- Best non-admin entry: FINAL 0.3502 (docs 0.3617 / chunks 0.3388).\n\n## Quotas\n\n- Public phase: 10/day per team (cap 310 per person).\n- Private phase: 5/day \u2014 only **5 total** submissions per user.\n\n## Rules\n\nOne account per user; one team max per participant; one submission account per team. External data allowed but must be cited with full provenance. Open-weight PLMs/LLMs only (model and/or training data public, e.g. Hugging Face); closed LLMs (GPT-4o, Gemini, ...) forbidden; models must be released before 2026-08-01 (ICT) and be <= 15B parameters. Max 10 submissions/day in public phase; max 5 submissions total in private phase. Final ranking requires a working-notes paper describing the method. Organizers may disqualify non-compliant teams; winners grant usage rights over submissions, code and generated data.\n",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "codabench",
+      "refresh",
+      "brief"
+    ],
+    "metric": null,
+    "created_at": "2026-10-18T14:36:11.457008+00:00"
+  },
+  {
+    "type": "metric_result",
+    "content": "Leaderboard refresh 2026-10-18T14:36:11+00:00: 50 entries. Admin baseline BM25 Baseline FINAL 0.3764; best non-admin 0.3502. Participants 88, submissions 1997.",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "leaderboard",
+      "refresh"
+    ],
+    "metric": 0.3502,
+    "created_at": "2026-10-18T14:36:11.458086+00:00"
+  },
+  {
+    "type": "eda_report",
+    "content": "Corpus audit: 1,220,598 urls (240,000 pubmed), id range 583..7466161, languages {'vi': 694909, 'unknown': 55592, 'en': 240000, 'zh': 230097}. Queries: 1,200, median 18 words. HF corpus file renamed to links_corpus_vi_en_zh.parquet (dataset re-created 2026-10-12).",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "corpus",
+      "audit",
+      "hf"
+    ],
+    "metric": null,
+    "created_at": "2026-10-18T14:36:11.458960+00:00"
+  },
+  {
+    "type": "technique",
+    "content": "Retrieval plan branches: corpus-crawl-pipeline, pubmed-bulk-harvest, sparse-bm25, dense-multilingual, hybrid-rrf, chunk-retrieval-pipeline, cross-encoder-rerank, query-medical-vi, f2-selection-tuning, dev-proxy-eval. Ordered corpus -> sparse -> dense -> hybrid -> rerank -> chunking -> selection, with a local scorer replica and dev proxy gating every leaderboard probe.",
+    "source_system": "competition_hunter",
+    "competition_slug": "r2ai2026-vibiomir",
+    "tags": [
+      "plan",
+      "retrieval"
+    ],
+    "metric": null,
+    "created_at": "2026-10-18T14:36:11.459923+00:00"
+  }
+]

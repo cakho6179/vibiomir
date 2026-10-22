@@ -1,0 +1,17 @@
+{
+  "id": "snnguynvnk19hl/vibiomir-cc-recover2",
+  "title": "vibiomir-cc-recover2",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "snnguynvnk19hl/vibiomir-missing"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

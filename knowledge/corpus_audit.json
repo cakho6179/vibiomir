@@ -1,0 +1,185 @@
+{
+  "query": {
+    "path": "D:\\02_Competitions\\Kaggle_agent_tool\\data\\r2ai2026-vibiomir\\query.parquet",
+    "rows": 1200,
+    "id_min": 1,
+    "id_max": 1200,
+    "id_contiguous": true,
+    "words_min": 5,
+    "words_median": 18,
+    "words_p95": 84,
+    "words_max": 281,
+    "words_mean": 29.9,
+    "samples": [
+      {
+        "id": 1,
+        "query": "Em bị viêm xung huyết 1/3 dưới thực quản, viêm dạ dày trợt xung huyết mạn tính, sẹo loét hành tá tràng. Cho em hỏi các bệnh này của em có nặng và có thể khỏi được không. Em vừa uống xong đợt thuốc được 1 2 ngày thì giờ em lại thấy triệu chứng bị nghẹn ở cổ và hơi buồn nôn. không biết có phải bệnh nặng lên hay do sao."
+      },
+      {
+        "id": 2,
+        "query": "Răng có lỗ chấm đen, chảy máu khi thức dậy là sao?"
+      },
+      {
+        "id": 3,
+        "query": "Kết quả của Beta-HCG là dưới 0.10 U/L thì là như thế nào ạ?"
+      },
+      {
+        "id": 4,
+        "query": "Chỉ số SCC của em sau khi xét nghiệm là 1.52 vẫn nằm trong ngưỡng bình thường nhưng có vẻ hơi cao. Em có cần để ý, chú ý thêm hay sau mấy tháng phải xét nghiệm lại không. Bác sĩ có thể giải thích thêm về chỉ số của em không."
+      },
+      {
+        "id": 5,
+        "query": "Cách phòng tránh nguy cơ lây nhiễm bệnh lao đa kháng là gì?"
+      }
+    ]
+  },
+  "corpus": {
+    "path": "D:\\02_Competitions\\Kaggle_agent_tool\\data\\r2ai2026-vibiomir\\links_corpus_vi_en_zh.parquet",
+    "rows": 1220598,
+    "unique_urls": 1220598,
+    "unique_ids": 1220598,
+    "id_min": 583,
+    "id_max": 7466161,
+    "id_contiguous": false,
+    "languages_heuristic": {
+      "vi": 694909,
+      "unknown": 55592,
+      "en": 240000,
+      "zh": 230097
+    },
+    "schemes": {
+      "http": 134753,
+      "https": 1085845
+    },
+    "pubmed_urls": 240000,
+    "top_hosts": [
+      [
+        "pubmed.ncbi.nlm.nih.gov",
+        240000
+      ],
+      [
+        "suckhoecongdongonline.vn",
+        154503
+      ],
+      [
+        "www.120ask.com",
+        98160
+      ],
+      [
+        "suckhoedoisong.vn",
+        85823
+      ],
+      [
+        "nhathuoclongchau.com.vn",
+        79598
+      ],
+      [
+        "thanhnien.vn",
+        72111
+      ],
+      [
+        "www.cnkang.com",
+        40046
+      ],
+      [
+        "ask.39.net",
+        32772
+      ],
+      [
+        "laodong.vn",
+        31282
+      ],
+      [
+        "phunusuckhoe.giadinhonline.vn",
+        27577
+      ],
+      [
+        "www.familydoctor.com.cn",
+        26819
+      ],
+      [
+        "www.vinmec.com",
+        26129
+      ],
+      [
+        "medlatec.vn",
+        24762
+      ],
+      [
+        "giadinhonline.vn",
+        16729
+      ],
+      [
+        "baohaiphong.vn",
+        16286
+      ],
+      [
+        "baonghean.vn",
+        15941
+      ],
+      [
+        "vietnamnet.vn",
+        15543
+      ],
+      [
+        "baodanang.vn",
+        14500
+      ],
+      [
+        "tiemchunglongchau.com.vn",
+        13281
+      ],
+      [
+        "baocantho.com.vn",
+        12016
+      ],
+      [
+        "hellobacsi.com",
+        11747
+      ],
+      [
+        "baoangiang.com.vn",
+        10738
+      ],
+      [
+        "vov.vn",
+        9784
+      ],
+      [
+        "khoahocphothong.vn",
+        8143
+      ],
+      [
+        "youmed.vn",
+        7189
+      ],
+      [
+        "vov2.vov.vn",
+        6899
+      ],
+      [
+        "zysjonline.com",
+        6591
+      ],
+      [
+        "phuyen.baodaklak.vn",
+        6252
+      ],
+      [
+        "zhongyibaodian.net",
+        6061
+      ],
+      [
+        "suckhoeviet.org.vn",
+        5627
+      ]
+    ],
+    "sample_urls": [
+      "http://special.vietnamplus.vn/benh_vien_nhan_ai",
+      "https://bachmai.gov.vn/bai-viet/-nguoi-dan-se-duoc-thu-huong-chat-luong-kham-chua-benh-quoc-te-ngay-tai-benh-vien-bach-mai--9867?id=da6d8b2d-c5bd-c612-e89c-e85f802063b4",
+      "https://bachmai.gov.vn/bai-viet/-roi-loan-su-thich-ung-va-nhung-he-luy--9826?id=bda58e58-62e5-a99c-fd9f-aeb3142aa489",
+      "https://bachmai.gov.vn/bai-viet/1-4-nguoi-truong-thanh-bi-tang-huyet-ap?id=6708761f-7a0c-9837-53c4-f202187b38c9",
+      "https://bachmai.gov.vn/bai-viet/1-5-phai-manh-phan-nan-ve-tinh-trang-tren-bao-duoi-khong-nghe?id=eefea0b8-eef5-be7d-6426-88f0d9e5e491"
+    ]
+  }
+}

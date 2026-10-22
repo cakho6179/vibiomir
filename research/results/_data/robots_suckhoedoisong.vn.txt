@@ -1,0 +1,4 @@
+﻿User-agent: *
+Allow: /
+Disallow: /tim-kiem.htm
+Sitemap: https://suckhoedoisong.vn/sitemaps/index.rss

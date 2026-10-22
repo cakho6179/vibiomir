@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vibiomir"
+version = "0.1.0"
+description = "R2AI2026 Shared Task 3 (ViBioMIR): Vietnamese-query multilingual biomedical retrieval"
+requires-python = ">=3.11"
+dependencies = [
+  "numpy", "pandas", "pyarrow", "httpx", "trafilatura", "lxml", "beautifulsoup4",
+  "charset-normalizer", "bm25s", "rapidfuzz", "orjson", "zstandard", "tqdm",
+]
+
+[project.optional-dependencies]
+# heavy: translation (MarianMT), dense (BGE-M3), faiss. Prefer running these on Kaggle GPU.
+ml = ["torch", "transformers", "sentence-transformers", "faiss-cpu", "sentencepiece"]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["r2ai2026*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

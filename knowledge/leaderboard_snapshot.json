@@ -1,0 +1,807 @@
+{
+  "captured_at": "2026-10-18T14:36:11+00:00",
+  "leaderboard_id": 93,
+  "entries": [
+    {
+      "submission_id": 4060,
+      "display_name": "BM25 Baseline",
+      "owner": "admin",
+      "created_when": "2026-09-30T15:57:04.037174Z",
+      "scores": {
+        "FINAL_SCORE": 0.3764,
+        "DOCS_F2MACRO": 0.5587,
+        "CHUNKS_F2MACRO": 0.1941,
+        "DOCS_PRECISION": 0.8805,
+        "DOCS_RECALL": 0.5146,
+        "CHUNKS_PRECISION": 0.3403,
+        "CHUNKS_RECALL": 0.1755
+      },
+      "final_score": 0.3764
+    },
+    {
+      "submission_id": 5373,
+      "display_name": "Bien Tran Ngoc",
+      "owner": "f2_hunters",
+      "created_when": "2026-10-12T11:24:56.271025Z",
+      "scores": {
+        "FINAL_SCORE": 0.3502,
+        "DOCS_F2MACRO": 0.3617,
+        "CHUNKS_F2MACRO": 0.3388,
+        "DOCS_PRECISION": 0.2398,
+        "DOCS_RECALL": 0.4669,
+        "CHUNKS_PRECISION": 0.2822,
+        "CHUNKS_RECALL": 0.4082
+      },
+      "final_score": 0.3502
+    },
+    {
+      "submission_id": 5882,
+      "display_name": null,
+      "owner": "duong_cancelo",
+      "created_when": "2026-10-16T22:51:24.941063Z",
+      "scores": {
+        "FINAL_SCORE": 0.3187,
+        "DOCS_F2MACRO": 0.325,
+        "CHUNKS_F2MACRO": 0.3125,
+        "DOCS_PRECISION": 0.2746,
+        "DOCS_RECALL": 0.3968,
+        "CHUNKS_PRECISION": 0.2677,
+        "CHUNKS_RECALL": 0.3749
+      },
+      "final_score": 0.3187
+    },
+    {
+      "submission_id": 5589,
+      "display_name": null,
+      "owner": "cudo1",
+      "created_when": "2026-10-14T06:28:04.439975Z",
+      "scores": {
+        "FINAL_SCORE": 0.3076,
+        "DOCS_F2MACRO": 0.3207,
+        "CHUNKS_F2MACRO": 0.2945,
+        "DOCS_PRECISION": 0.1698,
+        "DOCS_RECALL": 0.5219,
+        "CHUNKS_PRECISION": 0.2958,
+        "CHUNKS_RECALL": 0.3481
+      },
+      "final_score": 0.3076
+    },
+    {
+      "submission_id": 5817,
+      "display_name": null,
+      "owner": "tranxuanvu1",
+      "created_when": "2026-10-16T05:23:54.995960Z",
+      "scores": {
+        "FINAL_SCORE": 0.2683,
+        "DOCS_F2MACRO": 0.273,
+        "CHUNKS_F2MACRO": 0.2636,
+        "DOCS_PRECISION": 0.1516,
+        "DOCS_RECALL": 0.4071,
+        "CHUNKS_PRECISION": 0.1864,
+        "CHUNKS_RECALL": 0.3424
+      },
+      "final_score": 0.2683
+    },
+    {
+      "submission_id": 4590,
+      "display_name": null,
+      "owner": "nxallstar",
+      "created_when": "2026-10-06T08:19:55.040534Z",
+      "scores": {
+        "FINAL_SCORE": 0.2672,
+        "DOCS_F2MACRO": 0.2903,
+        "CHUNKS_F2MACRO": 0.2441,
+        "DOCS_PRECISION": 0.1558,
+        "DOCS_RECALL": 0.4663,
+        "CHUNKS_PRECISION": 0.1557,
+        "CHUNKS_RECALL": 0.3482
+      },
+      "final_score": 0.2672
+    },
+    {
+      "submission_id": 6039,
+      "display_name": null,
+      "owner": "lengoctu",
+      "created_when": "2026-10-18T09:34:30.951600Z",
+      "scores": {
+        "FINAL_SCORE": 0.2427,
+        "DOCS_F2MACRO": 0.282,
+        "CHUNKS_F2MACRO": 0.2033,
+        "DOCS_PRECISION": 0.18,
+        "DOCS_RECALL": 0.3821,
+        "CHUNKS_PRECISION": 0.1986,
+        "CHUNKS_RECALL": 0.2342
+      },
+      "final_score": 0.2427
+    },
+    {
+      "submission_id": 5357,
+      "display_name": null,
+      "owner": "claude_everything",
+      "created_when": "2026-10-12T10:25:38.242298Z",
+      "scores": {
+        "FINAL_SCORE": 0.2394,
+        "DOCS_F2MACRO": 0.2655,
+        "CHUNKS_F2MACRO": 0.2132,
+        "DOCS_PRECISION": 0.1451,
+        "DOCS_RECALL": 0.4078,
+        "CHUNKS_PRECISION": 0.1867,
+        "CHUNKS_RECALL": 0.2559
+      },
+      "final_score": 0.2394
+    },
+    {
+      "submission_id": 4515,
+      "display_name": null,
+      "owner": "aichickenteam",
+      "created_when": "2026-10-06T01:07:17.483138Z",
+      "scores": {
+        "FINAL_SCORE": 0.2326,
+        "DOCS_F2MACRO": 0.2948,
+        "CHUNKS_F2MACRO": 0.1703,
+        "DOCS_PRECISION": 0.1998,
+        "DOCS_RECALL": 0.3824,
+        "CHUNKS_PRECISION": 0.141,
+        "CHUNKS_RECALL": 0.2047
+      },
+      "final_score": 0.2326
+    },
+    {
+      "submission_id": 5926,
+      "display_name": null,
+      "owner": "meted1",
+      "created_when": "2026-10-17T09:10:52.378912Z",
+      "scores": {
+        "FINAL_SCORE": 0.2112,
+        "DOCS_F2MACRO": 0.2438,
+        "CHUNKS_F2MACRO": 0.1785,
+        "DOCS_PRECISION": 0.1949,
+        "DOCS_RECALL": 0.315,
+        "CHUNKS_PRECISION": 0.1634,
+        "CHUNKS_RECALL": 0.2199
+      },
+      "final_score": 0.2112
+    },
+    {
+      "submission_id": 5488,
+      "display_name": null,
+      "owner": "manipteam",
+      "created_when": "2026-10-13T09:33:54.567715Z",
+      "scores": {
+        "FINAL_SCORE": 0.2049,
+        "DOCS_F2MACRO": 0.224,
+        "CHUNKS_F2MACRO": 0.1857,
+        "DOCS_PRECISION": 0.1411,
+        "DOCS_RECALL": 0.3245,
+        "CHUNKS_PRECISION": 0.1744,
+        "CHUNKS_RECALL": 0.2245
+      },
+      "final_score": 0.2049
+    },
+    {
+      "submission_id": 5311,
+      "display_name": null,
+      "owner": "ancientwings",
+      "created_when": "2026-10-12T06:26:06.356586Z",
+      "scores": {
+        "FINAL_SCORE": 0.1985,
+        "DOCS_F2MACRO": 0.2257,
+        "CHUNKS_F2MACRO": 0.1712,
+        "DOCS_PRECISION": 0.1496,
+        "DOCS_RECALL": 0.3046,
+        "CHUNKS_PRECISION": 0.1805,
+        "CHUNKS_RECALL": 0.1969
+      },
+      "final_score": 0.1985
+    },
+    {
+      "submission_id": 4934,
+      "display_name": null,
+      "owner": "nguyenhoangthai1",
+      "created_when": "2026-10-09T04:20:22.703478Z",
+      "scores": {
+        "FINAL_SCORE": 0.1943,
+        "DOCS_F2MACRO": 0.2049,
+        "CHUNKS_F2MACRO": 0.1837,
+        "DOCS_PRECISION": 0.1148,
+        "DOCS_RECALL": 0.3324,
+        "CHUNKS_PRECISION": 0.1491,
+        "CHUNKS_RECALL": 0.2439
+      },
+      "final_score": 0.1943
+    },
+    {
+      "submission_id": 6058,
+      "display_name": null,
+      "owner": "ai404",
+      "created_when": "2026-10-18T13:24:46.272469Z",
+      "scores": {
+        "FINAL_SCORE": 0.1727,
+        "DOCS_F2MACRO": 0.1817,
+        "CHUNKS_F2MACRO": 0.1637,
+        "DOCS_PRECISION": 0.1271,
+        "DOCS_RECALL": 0.2433,
+        "CHUNKS_PRECISION": 0.204,
+        "CHUNKS_RECALL": 0.1746
+      },
+      "final_score": 0.1727
+    },
+    {
+      "submission_id": 6009,
+      "display_name": null,
+      "owner": "ragnificent",
+      "created_when": "2026-10-18T04:50:34.542441Z",
+      "scores": {
+        "FINAL_SCORE": 0.1626,
+        "DOCS_F2MACRO": 0.189,
+        "CHUNKS_F2MACRO": 0.1363,
+        "DOCS_PRECISION": 0.1136,
+        "DOCS_RECALL": 0.2888,
+        "CHUNKS_PRECISION": 0.1054,
+        "CHUNKS_RECALL": 0.1841
+      },
+      "final_score": 0.1626
+    },
+    {
+      "submission_id": 5761,
+      "display_name": null,
+      "owner": "loi_cuda",
+      "created_when": "2026-10-15T16:35:53.745830Z",
+      "scores": {
+        "FINAL_SCORE": 0.1606,
+        "DOCS_F2MACRO": 0.2375,
+        "CHUNKS_F2MACRO": 0.0837,
+        "DOCS_PRECISION": 0.177,
+        "DOCS_RECALL": 0.3338,
+        "CHUNKS_PRECISION": 0.0669,
+        "CHUNKS_RECALL": 0.1145
+      },
+      "final_score": 0.1606
+    },
+    {
+      "submission_id": 4863,
+      "display_name": null,
+      "owner": "vf6",
+      "created_when": "2026-10-08T09:46:21.839349Z",
+      "scores": {
+        "FINAL_SCORE": 0.1416,
+        "DOCS_F2MACRO": 0.1901,
+        "CHUNKS_F2MACRO": 0.0931,
+        "DOCS_PRECISION": 0.1813,
+        "DOCS_RECALL": 0.2302,
+        "CHUNKS_PRECISION": 0.0807,
+        "CHUNKS_RECALL": 0.1189
+      },
+      "final_score": 0.1416
+    },
+    {
+      "submission_id": 5580,
+      "display_name": "BlueWhale",
+      "owner": "nguyenkhaluc",
+      "created_when": "2026-10-14T05:27:20.663464Z",
+      "scores": {
+        "FINAL_SCORE": 0.1309,
+        "DOCS_F2MACRO": 0.1817,
+        "CHUNKS_F2MACRO": 0.08,
+        "DOCS_PRECISION": 0.153,
+        "DOCS_RECALL": 0.2319,
+        "CHUNKS_PRECISION": 0.0533,
+        "CHUNKS_RECALL": 0.116
+      },
+      "final_score": 0.1309
+    },
+    {
+      "submission_id": 5574,
+      "display_name": null,
+      "owner": "phamlongnhat",
+      "created_when": "2026-10-14T05:10:18.020741Z",
+      "scores": {
+        "FINAL_SCORE": 0.1221,
+        "DOCS_F2MACRO": 0.1475,
+        "CHUNKS_F2MACRO": 0.0967,
+        "DOCS_PRECISION": 0.1138,
+        "DOCS_RECALL": 0.1977,
+        "CHUNKS_PRECISION": 0.1201,
+        "CHUNKS_RECALL": 0.1073
+      },
+      "final_score": 0.1221
+    },
+    {
+      "submission_id": 5698,
+      "display_name": null,
+      "owner": "primeqnu",
+      "created_when": "2026-10-15T03:55:48.294011Z",
+      "scores": {
+        "FINAL_SCORE": 0.111,
+        "DOCS_F2MACRO": 0.1208,
+        "CHUNKS_F2MACRO": 0.1012,
+        "DOCS_PRECISION": 0.2949,
+        "DOCS_RECALL": 0.1159,
+        "CHUNKS_PRECISION": 0.2316,
+        "CHUNKS_RECALL": 0.0982
+      },
+      "final_score": 0.111
+    },
+    {
+      "submission_id": 4217,
+      "display_name": null,
+      "owner": "toptire",
+      "created_when": "2026-10-03T12:17:03.977731Z",
+      "scores": {
+        "FINAL_SCORE": 0.1006,
+        "DOCS_F2MACRO": 0.1214,
+        "CHUNKS_F2MACRO": 0.0797,
+        "DOCS_PRECISION": 0.0616,
+        "DOCS_RECALL": 0.2096,
+        "CHUNKS_PRECISION": 0.0716,
+        "CHUNKS_RECALL": 0.1002
+      },
+      "final_score": 0.1006
+    },
+    {
+      "submission_id": 4402,
+      "display_name": null,
+      "owner": "linhdanhthue",
+      "created_when": "2026-10-05T02:22:22.813502Z",
+      "scores": {
+        "FINAL_SCORE": 0.0834,
+        "DOCS_F2MACRO": 0.1463,
+        "CHUNKS_F2MACRO": 0.0206,
+        "DOCS_PRECISION": 0.2253,
+        "DOCS_RECALL": 0.1562,
+        "CHUNKS_PRECISION": 0.0258,
+        "CHUNKS_RECALL": 0.0242
+      },
+      "final_score": 0.0834
+    },
+    {
+      "submission_id": 4323,
+      "display_name": null,
+      "owner": "mini_school_66b_gguf",
+      "created_when": "2026-10-04T12:01:11.509224Z",
+      "scores": {
+        "FINAL_SCORE": 0.0785,
+        "DOCS_F2MACRO": 0.1072,
+        "CHUNKS_F2MACRO": 0.0499,
+        "DOCS_PRECISION": 0.1117,
+        "DOCS_RECALL": 0.124,
+        "CHUNKS_PRECISION": 0.0499,
+        "CHUNKS_RECALL": 0.0603
+      },
+      "final_score": 0.0785
+    },
+    {
+      "submission_id": 5123,
+      "display_name": null,
+      "owner": "vaicotdo",
+      "created_when": "2026-10-11T02:17:52.086327Z",
+      "scores": {
+        "FINAL_SCORE": 0.077,
+        "DOCS_F2MACRO": 0.1054,
+        "CHUNKS_F2MACRO": 0.0486,
+        "DOCS_PRECISION": 0.1137,
+        "DOCS_RECALL": 0.1201,
+        "CHUNKS_PRECISION": 0.0368,
+        "CHUNKS_RECALL": 0.063
+      },
+      "final_score": 0.077
+    },
+    {
+      "submission_id": 4910,
+      "display_name": null,
+      "owner": "cocvangfu",
+      "created_when": "2026-10-09T01:44:19.206514Z",
+      "scores": {
+        "FINAL_SCORE": 0.0748,
+        "DOCS_F2MACRO": 0.1206,
+        "CHUNKS_F2MACRO": 0.0289,
+        "DOCS_PRECISION": 0.0687,
+        "DOCS_RECALL": 0.1914,
+        "CHUNKS_PRECISION": 0.0168,
+        "CHUNKS_RECALL": 0.0455
+      },
+      "final_score": 0.0748
+    },
+    {
+      "submission_id": 4479,
+      "display_name": null,
+      "owner": "zero",
+      "created_when": "2026-10-05T14:13:24.100066Z",
+      "scores": {
+        "FINAL_SCORE": 0.0717,
+        "DOCS_F2MACRO": 0.1022,
+        "CHUNKS_F2MACRO": 0.0412,
+        "DOCS_PRECISION": 0.1895,
+        "DOCS_RECALL": 0.1033,
+        "CHUNKS_PRECISION": 0.0666,
+        "CHUNKS_RECALL": 0.0451
+      },
+      "final_score": 0.0717
+    },
+    {
+      "submission_id": 5631,
+      "display_name": null,
+      "owner": "baso",
+      "created_when": "2026-10-14T10:38:40.488609Z",
+      "scores": {
+        "FINAL_SCORE": 0.0635,
+        "DOCS_F2MACRO": 0.1024,
+        "CHUNKS_F2MACRO": 0.0245,
+        "DOCS_PRECISION": 0.1171,
+        "DOCS_RECALL": 0.1193,
+        "CHUNKS_PRECISION": 0.0444,
+        "CHUNKS_RECALL": 0.0258
+      },
+      "final_score": 0.0635
+    },
+    {
+      "submission_id": 4156,
+      "display_name": null,
+      "owner": "ptit_phan_tuan_quoc_anh",
+      "created_when": "2026-10-02T16:12:35.311006Z",
+      "scores": {
+        "FINAL_SCORE": 0.0594,
+        "DOCS_F2MACRO": 0.1188,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0408,
+        "DOCS_RECALL": 0.3115,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0594
+    },
+    {
+      "submission_id": 5910,
+      "display_name": null,
+      "owner": "entropy_zero",
+      "created_when": "2026-10-17T08:00:31.931059Z",
+      "scores": {
+        "FINAL_SCORE": 0.0557,
+        "DOCS_F2MACRO": 0.0721,
+        "CHUNKS_F2MACRO": 0.0393,
+        "DOCS_PRECISION": 0.078,
+        "DOCS_RECALL": 0.0817,
+        "CHUNKS_PRECISION": 0.028,
+        "CHUNKS_RECALL": 0.0533
+      },
+      "final_score": 0.0557
+    },
+    {
+      "submission_id": 5168,
+      "display_name": null,
+      "owner": "paracetamol",
+      "created_when": "2026-10-11T05:49:14.385181Z",
+      "scores": {
+        "FINAL_SCORE": 0.055,
+        "DOCS_F2MACRO": 0.1053,
+        "CHUNKS_F2MACRO": 0.0047,
+        "DOCS_PRECISION": 0.0897,
+        "DOCS_RECALL": 0.1346,
+        "CHUNKS_PRECISION": 0.0043,
+        "CHUNKS_RECALL": 0.0061
+      },
+      "final_score": 0.055
+    },
+    {
+      "submission_id": 6000,
+      "display_name": null,
+      "owner": "prairie1",
+      "created_when": "2026-10-18T03:58:57.109591Z",
+      "scores": {
+        "FINAL_SCORE": 0.0437,
+        "DOCS_F2MACRO": 0.0874,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0967,
+        "DOCS_RECALL": 0.1036,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0437
+    },
+    {
+      "submission_id": 5547,
+      "display_name": "supluon37",
+      "owner": "trandinhtu1",
+      "created_when": "2026-10-14T02:05:04.333894Z",
+      "scores": {
+        "FINAL_SCORE": 0.0412,
+        "DOCS_F2MACRO": 0.0628,
+        "CHUNKS_F2MACRO": 0.0197,
+        "DOCS_PRECISION": 0.377,
+        "DOCS_RECALL": 0.0545,
+        "CHUNKS_PRECISION": 0.0994,
+        "CHUNKS_RECALL": 0.0178
+      },
+      "final_score": 0.0412
+    },
+    {
+      "submission_id": 5171,
+      "display_name": null,
+      "owner": "overfit",
+      "created_when": "2026-10-11T06:05:44.653697Z",
+      "scores": {
+        "FINAL_SCORE": 0.0399,
+        "DOCS_F2MACRO": 0.0675,
+        "CHUNKS_F2MACRO": 0.0122,
+        "DOCS_PRECISION": 0.069,
+        "DOCS_RECALL": 0.0815,
+        "CHUNKS_PRECISION": 0.0483,
+        "CHUNKS_RECALL": 0.0121
+      },
+      "final_score": 0.0399
+    },
+    {
+      "submission_id": 5968,
+      "display_name": null,
+      "owner": "pomodoro",
+      "created_when": "2026-10-17T16:05:18.899782Z",
+      "scores": {
+        "FINAL_SCORE": 0.019,
+        "DOCS_F2MACRO": 0.0375,
+        "CHUNKS_F2MACRO": 0.0006,
+        "DOCS_PRECISION": 0.1901,
+        "DOCS_RECALL": 0.0328,
+        "CHUNKS_PRECISION": 0.0047,
+        "CHUNKS_RECALL": 0.0005
+      },
+      "final_score": 0.019
+    },
+    {
+      "submission_id": 4220,
+      "display_name": null,
+      "owner": "uit_clmr",
+      "created_when": "2026-10-03T12:25:06.442688Z",
+      "scores": {
+        "FINAL_SCORE": 0.0125,
+        "DOCS_F2MACRO": 0.0179,
+        "CHUNKS_F2MACRO": 0.0071,
+        "DOCS_PRECISION": 0.2464,
+        "DOCS_RECALL": 0.0149,
+        "CHUNKS_PRECISION": 0.0727,
+        "CHUNKS_RECALL": 0.0061
+      },
+      "final_score": 0.0125
+    },
+    {
+      "submission_id": 4766,
+      "display_name": null,
+      "owner": "hcmus_impact",
+      "created_when": "2026-10-07T17:08:25.889667Z",
+      "scores": {
+        "FINAL_SCORE": 0.0081,
+        "DOCS_F2MACRO": 0.0115,
+        "CHUNKS_F2MACRO": 0.0048,
+        "DOCS_PRECISION": 0.0639,
+        "DOCS_RECALL": 0.01,
+        "CHUNKS_PRECISION": 0.0438,
+        "CHUNKS_RECALL": 0.0041
+      },
+      "final_score": 0.0081
+    },
+    {
+      "submission_id": 5530,
+      "display_name": null,
+      "owner": "prometheus1",
+      "created_when": "2026-10-13T18:17:24.066663Z",
+      "scores": {
+        "FINAL_SCORE": 0.008,
+        "DOCS_F2MACRO": 0.0102,
+        "CHUNKS_F2MACRO": 0.0059,
+        "DOCS_PRECISION": 0.0985,
+        "DOCS_RECALL": 0.0085,
+        "CHUNKS_PRECISION": 0.0404,
+        "CHUNKS_RECALL": 0.0051
+      },
+      "final_score": 0.008
+    },
+    {
+      "submission_id": 4127,
+      "display_name": "k@ik3n",
+      "owner": "dophuchung",
+      "created_when": "2026-10-02T08:56:52.900323Z",
+      "scores": {
+        "FINAL_SCORE": 0.0017,
+        "DOCS_F2MACRO": 0.0034,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0056,
+        "DOCS_RECALL": 0.0033,
+        "CHUNKS_PRECISION": 0.0001,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0017
+    },
+    {
+      "submission_id": 5358,
+      "display_name": null,
+      "owner": "medbridge",
+      "created_when": "2026-10-12T10:33:45.689519Z",
+      "scores": {
+        "FINAL_SCORE": 0.0014,
+        "DOCS_F2MACRO": 0.0025,
+        "CHUNKS_F2MACRO": 0.0002,
+        "DOCS_PRECISION": 0.0467,
+        "DOCS_RECALL": 0.0021,
+        "CHUNKS_PRECISION": 0.0025,
+        "CHUNKS_RECALL": 0.0002
+      },
+      "final_score": 0.0014
+    },
+    {
+      "submission_id": 5816,
+      "display_name": null,
+      "owner": "minerva",
+      "created_when": "2026-10-16T04:58:11.642897Z",
+      "scores": {
+        "FINAL_SCORE": 0.0001,
+        "DOCS_F2MACRO": 0.0001,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0004,
+        "DOCS_RECALL": 0.0001,
+        "CHUNKS_PRECISION": 0.0007,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0001
+    },
+    {
+      "submission_id": 6014,
+      "display_name": null,
+      "owner": "power_rangers",
+      "created_when": "2026-10-18T05:17:34.710235Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0003,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 4069,
+      "display_name": null,
+      "owner": "letriluan",
+      "created_when": "2026-10-01T08:43:11.564223Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 4100,
+      "display_name": "Phải làm sao đây em chưa từng yêu anh",
+      "owner": "3changlinhngulam",
+      "created_when": "2026-10-02T04:18:57.335116Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 4238,
+      "display_name": null,
+      "owner": "arcane2",
+      "created_when": "2026-10-03T15:19:48.554121Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 4415,
+      "display_name": null,
+      "owner": "bkai",
+      "created_when": "2026-10-05T03:58:58.102781Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 4853,
+      "display_name": null,
+      "owner": "mrrobot1",
+      "created_when": "2026-10-08T09:00:09.912850Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 4882,
+      "display_name": "",
+      "owner": "nextgen_ai",
+      "created_when": "2026-10-08T11:59:25.150131Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 5404,
+      "display_name": "Trần Đình Tú",
+      "owner": "tutd",
+      "created_when": "2026-10-12T18:07:03.328835Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 5410,
+      "display_name": "",
+      "owner": "ongthomiu",
+      "created_when": "2026-10-12T19:09:42.758190Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    },
+    {
+      "submission_id": 6038,
+      "display_name": null,
+      "owner": "baconvit",
+      "created_when": "2026-10-18T09:28:27.813236Z",
+      "scores": {
+        "FINAL_SCORE": 0.0,
+        "DOCS_F2MACRO": 0.0,
+        "CHUNKS_F2MACRO": 0.0,
+        "DOCS_PRECISION": 0.0,
+        "DOCS_RECALL": 0.0,
+        "CHUNKS_PRECISION": 0.0,
+        "CHUNKS_RECALL": 0.0
+      },
+      "final_score": 0.0
+    }
+  ],
+  "previous_captured_at": "2026-10-18T14:34:16+00:00"
+}

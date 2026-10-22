@@ -1,0 +1,16 @@
+{
+  "id": "hytahy/vibiomir-recrawl-ask391",
+  "title": "vibiomir-recrawl-ask391",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "hytahy/vibiomir-recrawl-targets"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

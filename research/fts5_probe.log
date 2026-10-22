@@ -1,0 +1,23 @@
+python 3.13.3 | sqlite 3.49.1
+fts modules: ['fts4aux', 'fts3', 'fts4', 'fts3tokenize', 'fts5vocab', 'fts5']
+  DIACRITIC-INSENS: viem da day -> 1
+  DIACRITIC-INSENS: vi├¬m dß║í d├áy -> 1
+  DIACRITIC-INSENS: dß║í d├áy -> 1
+  DIACRITIC-INSENS: xung huyet -> 1
+   bm25(t) default OK -> [(-3e-06,)]
+   bm25(t,k1,b) OK -> [(-3.3e-06,)]
+   bm25(t,colw,k1,b) OK -> [(-5.892857142857143e-06,)]
+  TRIGRAM σÅæτâ¡σÆ│σù╜ -> 1
+  TRIGRAM σÆ│σù╜τùçτè╢ -> 1
+  TRIGRAM σ░▒σî╗ -> 0
+
+indexed 1,200,000 docs in 168.0s ; db size 2891 MB
+Traceback (most recent call last):
+  File "D:\02_Competitions\Kaggle_agent_tool\_fts5_probe.py", line 53, in <module>
+    run("top5 + bm25 default", 'select rowid, bm25(docs) from docs where docs match ? order by bm25(docs) limit 5')
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\02_Competitions\Kaggle_agent_tool\_fts5_probe.py", line 52, in run
+    print(f"{label:34s} {dt/len(qs):7.3f}s/query  (top1={rows[0][0]:.3f})  -> 1200 q in {dt/len(qs)*1200/60:.1f} min")
+                                                         ~~~~^^^
+IndexError: list index out of range
+EXIT=1

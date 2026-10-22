@@ -1,0 +1,312 @@
+{
+  "id": 15,
+  "title": "R2AI2026 TRUY HỒI TÀI LIỆU Y KHOA ĐA NGÔN NGỮ",
+  "published": true,
+  "created_by": "admin",
+  "owner_display_name": "BM25 Baseline",
+  "created_when": "2026-09-30T15:34:45.636301Z",
+  "logo": "https://leaderboard.aiguru.com.vn/public/logos/2026-09-30-1790782485/73898a0540c5/logo.png?AWSAccessKeyId=testkey&Signature=s00iheyEBWWB1wEoPo59ne0OZuI%3D&Expires=1792337392",
+  "logo_icon": "https://leaderboard.aiguru.com.vn/public/logos/2026-09-30-1790782485/73898a0540c5/logo_icon.png?AWSAccessKeyId=testkey&Signature=ENLwcA4wxrc0nOYRMYyh1VRaWa0%3D&Expires=1792337392",
+  "terms": "<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n  <meta charset=\"utf-8\" />\n  <link href=\"https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap\" rel=\"stylesheet\" />\n  <style>\n    body { font-family: 'Noto Sans', Arial, sans-serif; }\n    h2, h3, h4 { font-family: 'Noto Sans', Arial, sans-serif; font-weight: 700; }\n  </style>\n</head>\n<body>\n\n<h2>Quy định chung</h2>\n<ul>\n  <li>Quyền hủy bỏ, sửa đổi hoặc loại tư cách. Ban Tổ chức Cuộc thi có toàn quyền theo quyết định riêng của mình để chấm dứt, sửa đổi hoặc tạm ngưng cuộc thi.</li>\n  <li>Khi nộp kết quả cho cuộc thi này, bạn đồng ý cho phép công bố công khai điểm số của mình tại hội thảo của Cuộc thi và trong các kỷ yếu liên quan, theo quyết định của ban tổ chức nhiệm vụ. Điểm số có thể bao gồm nhưng không giới hạn ở các đánh giá định lượng tự động và thủ công, các đánh giá định tính, cùng các chỉ số khác mà ban tổ chức nhiệm vụ cho là phù hợp. Bạn chấp nhận rằng quyết định cuối cùng về việc lựa chọn chỉ số và giá trị điểm số thuộc về ban tổ chức nhiệm vụ.</li>\n  <li>Khi tham gia cuộc thi, bạn đã chấp nhận các điều khoản và điều kiện của Điều khoản Tham gia và Thỏa thuận Sử dụng Dữ liệu của Nhiệm vụ chung R2AI2026 TRUY HỒI TÀI LIỆU Y KHOA ĐA NGÔN NGỮ, đã được gửi đến email của bạn.</li>\n  <li>Khi tham gia cuộc thi, bạn khẳng định và thừa nhận rằng bạn đồng ý tuân thủ các luật và quy định hiện hành, và bạn không được xâm phạm bất kỳ bản quyền, tài sản trí tuệ hoặc bằng sáng chế nào của bên khác đối với phần mềm bạn phát triển trong quá trình diễn ra cuộc thi, và sẽ không vi phạm bất kỳ luật và quy định hiện hành nào liên quan đến kiểm soát xuất khẩu cũng như quyền riêng tư và bảo vệ dữ liệu.</li>\n  <li>Giải thưởng phụ thuộc vào việc Ban Tổ chức Cuộc thi xem xét và xác minh tư cách hợp lệ của thí sinh cũng như sự tuân thủ các quy định này, cùng với sự tuân thủ của các bài nộp thắng giải đối với các yêu cầu nộp bài.</li>\n  <li>Người tham gia trao cho Ban Tổ chức Cuộc thi quyền sử dụng các bài nộp thắng giải cùng mã nguồn và dữ liệu được tạo ra cho và dùng để tạo ra bài nộp đó vì bất kỳ mục đích nào và không cần phê duyệt thêm.</li>\n</ul>\n\n<h2>Điều kiện tham gia</h2>\n<ul>\n  <li>Mỗi người tham gia phải tạo một tài khoản để nộp giải pháp cho cuộc thi. <strong>Chỉ cho phép một tài khoản cho mỗi người dùng</strong>.</li>\n  <li>Cuộc thi là công khai, nhưng Ban Tổ chức Cuộc thi có thể quyết định không cho phép tham gia theo cân nhắc riêng của mình.</li>\n  <li>Ban Tổ chức Cuộc thi có quyền loại bất kỳ thí sinh nào khỏi cuộc thi nếu, theo quyết định riêng của Ban Tổ chức, họ có cơ sở hợp lý để tin rằng thí sinh đã cố gắng làm suy yếu hoạt động hợp pháp của cuộc thi thông qua gian lận, lừa dối hoặc các hành vi chơi không công bằng khác.</li>\n</ul>\n\n<h2>Đội thi</h2>\n<ul>\n  <li>Người tham gia được phép lập đội.</li>\n  <li>Bạn <strong>không được tham gia nhiều hơn một đội</strong>. Mỗi thành viên trong đội phải là một cá nhân riêng biệt vận hành một tài khoản riêng.</li>\n  <li>Chỉ <strong>một tài khoản cho mỗi đội</strong> được phê duyệt để nộp kết quả.</li>\n</ul>\n\n</body>\n</html>",
+  "pages": [
+    {
+      "id": 98,
+      "title": "Overview",
+      "content": "<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n  <meta charset=\"utf-8\" />\n  <link href=\"https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap\" rel=\"stylesheet\" />\n  <style>\n    body { font-family: 'Noto Sans', Arial, sans-serif; }\n    h2, h3, h4 { font-family: 'Noto Sans', Arial, sans-serif; font-weight: 700; }\n  </style>\n</head>\n<body>\n\n<h2>Bối cảnh bài toán</h2>\n<p>Tri thức y sinh hiện nay được phân bố không đồng đều giữa các ngôn ngữ. Mặc dù nguồn dữ liệu tiếng Việt ngày càng được mở rộng, nguồn này vẫn còn hạn chế về chiều sâu và chuyên môn. Trong khi đó, tiếng Anh và tiếng Trung sở hữu kho tài nguyên y sinh đồ sộ. Sự chênh lệch này tạo ra một “khoảng cách thông tin y tế” đáng kể, khiến người dùng sử dụng tiếng Việt gặp nhiều trở ngại trong việc tiếp cận các bằng chứng y học được công bố bằng ngôn ngữ khác.</p>\n<p>Xuất phát từ thực trạng đó, cuộc thi hướng tới xây dựng các hệ thống AI có khả năng truy hồi thông tin y sinh đa ngôn ngữ từ các nguồn tiếng Việt, tiếng Anh và tiếng Trung. Với mỗi truy vấn bằng tiếng Việt, hệ thống cần xác định các tài liệu và nội dung liên quan, không phụ thuộc vào ngôn ngữ của nguồn. Ban Tổ chức cung cấp các nguồn dữ liệu để các đội chủ động thu thập, xử lý và xây dựng cơ sở tri thức phục vụ truy hồi. Kết quả được đánh giá ở hai mức độ: tài liệu (document) và đoạn nội dung (chunk), qua đó phản ánh cả khả năng xác định đúng tài liệu liên quan và khả năng định vị chính xác phần nội dung chứa thông tin cần tìm.</p>\n<p>Nhiệm vụ có thể được hình thức hoá như sau: Cho tập truy vấn Q = {q₁, q₂, …, qₙ} bằng tiếng Việt và tập các nguồn dữ liệu y sinh đa ngôn ngữ do Ban Tổ chức cung cấp hoặc chỉ định. Các đội tự thiết kế quy trình xây dựng cơ sở tri thức, bao gồm thu thập dữ liệu, tiền xử lý, phân đoạn, lập chỉ mục và truy xuất. Với mỗi truy vấn qᵢ, hệ thống cần tìm và xếp hạng các tài liệu hoặc nội dung liên quan từ các nguồn tiếng Việt, tiếng Anh và tiếng Trung.</p>\n\n<h2>Mục tiêu cuộc thi</h2>\n<p>Các đội thi cần xây dựng hệ thống AI có khả năng:</p>\n\n<h4>1. Truy hồi chính xác ở cấp tài liệu</h4>\n<ul>\n  <li>Xác định đúng các tài liệu liên quan đến truy vấn từ các nguồn dữ liệu y sinh đa ngôn ngữ.</li>\n  <li>Thực hiện truy hồi xuyên ngôn ngữ giữa tiếng Việt, tiếng Anh và tiếng Trung thay vì chỉ dựa trên so khớp từ khoá.</li>\n</ul>\n\n<h4>2. Truy hồi chính xác ở cấp đoạn nội dung</h4>\n<ul>\n  <li>Xác định được các đoạn nội dung thực sự chứa thông tin y khoa liên quan đến truy vấn.</li>\n  <li>Cách phân đoạn tài liệu và tổ chức các đơn vị truy hồi do từng đội tự thiết kế.</li>\n</ul>\n\n<h4>3. Hiểu truy vấn y khoa bằng tiếng Việt</h4>\n<ul>\n  <li>Hiểu ngôn ngữ tự nhiên tiếng Việt về các thuật ngữ, khái niệm y khoa và lâm sàng.</li>\n  <li>Xử lý được truy vấn chứa nhiều thông tin khác nhau trong cùng một câu hỏi.</li>\n</ul>\n\n<h2>Các mốc thời gian quan trọng</h2>\n<ul>\n  <li>01 tháng 10, 2026: Phát hành tập kiểm thử công khai (public test)</li>\n  <li>31 tháng 10, 2026: Hạn chót nộp bài cho tập kiểm thử công khai</li>\n  <li>01 tháng 11, 2026: Giai đoạn kiểm thử riêng (private test)</li>\n  <li>04 tháng 11, 2026: Hạn chót nộp hệ thống</li>\n  <li>11 tháng 11, 2026: Công bố kết quả chung cuộc</li>\n</ul>\n<p><strong>Lưu ý: Tất cả các hạn chót đều là 23:59 theo giờ Việt Nam (UTC+07:00).</strong></p>\n\n<h2>Quy định về dữ liệu bên ngoài và mô hình ngôn ngữ huấn luyện trước (PLMs)</h2>\n<p>Để đảm bảo sự công bằng trong cuộc thi, người tham gia phải cung cấp nguồn dữ liệu. Người tham gia được phép sử dụng dữ liệu từ các nguồn bên ngoài, tuy nhiên phải trích dẫn rõ ràng và cung cấp đầy đủ thông tin về nguồn gốc dữ liệu để Ban tổ chức có thể kiểm tra, xác minh khi cần thiết.</p>\n<p>Người tham gia có thể sử dụng các mô hình ngôn ngữ huấn luyện trước và các LLM có dữ liệu huấn luyện và/hoặc mô hình được công khai (ví dụ: Hugging Face hoặc các trang tương tự), nhưng không được sử dụng các LLM có mô hình đóng (ví dụ: GPT-4o, Gemini, ...). Ngoài ra, người tham gia chỉ được sử dụng các mô hình được phát hành trước ngày 1 tháng 8 năm 2026 (giờ Việt Nam) có kích thước nhỏ hơn hoặc bằng 15B.</p>\n\n<h2>Ban Tổ chức cuộc thi</h2>\n<p><strong>AI Guru – Công ty Cổ phần Tập đoàn Dagoras Group</strong></p>\n<p>Địa chỉ: Tầng 8, số 80 Duy Tân, Cầu Giấy, Hà Nội</p>\n<p><strong>Đầu mối liên hệ:</strong></p>\n<ul>\n  <li>Nguyễn Thị Minh Nguyệt, Điện thoại: 0981544974, Email: nguyetntm@dagoras.io</li>\n  <li>Vũ Thị Thuỳ Linh, Điện thoại: 0961891198, Email: linhvtt@dagoras.io</li>\n</ul>\n\n</body>\n</html>",
+      "index": 0
+    },
+    {
+      "id": 108,
+      "title": "Evaluation",
+      "content": "<!-- Evaluation Metrics for Multilingual Medical Document Retrieval -->\n<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n  <meta charset=\"utf-8\" />\n  <script defer src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js\"></script>\n  <link href=\"https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap\" rel=\"stylesheet\" />\n  <style>\n    body { font-family: 'Noto Sans', Arial, sans-serif; }\n    h2, h3, h4 { font-family: 'Noto Sans', Arial, sans-serif; font-weight: 700; }\n  </style>\n</head>\n<body>\n\n\n<h2>Phương pháp đánh giá</h2>\n<p>Hiệu suất hệ thống trên nhiệm vụ truy hồi được đánh giá ở hai cấp độ: tài liệu và đoạn nội dung, bằng các chỉ số Độ chính xác (Precision), Độ bao phủ (Recall) và F<sub>2</sub>. Các chỉ số được tính riêng cho từng truy vấn, sau đó lấy trung bình trên toàn bộ tập câu hỏi (macro-average).</p>\n\n<h3>3.1 Truy hồi tài liệu (cấp document)</h3>\n\n<p>Với mỗi truy vấn, gọi <strong>D</strong> là tập tài liệu được truy hồi và <strong>G</strong> là tập tài liệu liên quan theo nhãn tham chiếu.</p>\n\n<table style=\"margin: 18px auto; border-collapse: collapse; font-size: 18px;\">\n  <tr>\n    <td rowspan=\"2\" style=\"padding-right: 8px; vertical-align: middle;\">\n      Precision =\n    </td>\n    <td style=\"text-align: center; border-bottom: 1px solid #000; padding: 0 8px 3px;\">\n      |D ∩ G|\n    </td>\n  </tr>\n  <tr>\n    <td style=\"text-align: center; padding: 3px 8px 0;\">\n      |D|\n    </td>\n  </tr>\n</table>\n\n<table style=\"margin: 18px auto; border-collapse: collapse; font-size: 18px;\">\n  <tr>\n    <td rowspan=\"2\" style=\"padding-right: 8px; vertical-align: middle;\">\n      Recall =\n    </td>\n    <td style=\"text-align: center; border-bottom: 1px solid #000; padding: 0 8px 3px;\">\n      |D ∩ G|\n    </td>\n  </tr>\n  <tr>\n    <td style=\"text-align: center; padding: 3px 8px 0;\">\n      |G|\n    </td>\n  </tr>\n</table>\n\n<h3>3.2. Quy tắc xác định một đoạn văn bản được truy hồi đúng</h3>\n\n<p>Mỗi chunk đội thi nộp được đối chiếu với các đoạn tham chiếu thuộc cùng câu hỏi và cùng <code>doc_id</code>.</p>\n\n<p>Trước khi đối chiếu, văn bản hai phía được chuẩn hóa theo các bước sau:</p>\n<ul>\n  <li>Chuẩn hóa Unicode theo NFKC.</li>\n  <li>Giải mã HTML entity, chuyển văn bản về chữ thường, gộp các khoảng trắng liên tiếp và bỏ khoảng trắng ở đầu, cuối đoạn.</li>\n</ul>\n\n<p>Gọi <strong>c</strong> là chunk đội thi nộp và <strong>g</strong> là chunk tham chiếu. Sau bước chuẩn hóa văn bản, độ trùng khớp được tính như sau:</p>\n\n\n<table style=\"margin: 18px auto; border-collapse: collapse; font-size: 18px;\">\n  <tr>\n    <td rowspan=\"2\" style=\"padding-right: 8px; vertical-align: middle;\">\n      overlap(c,g) =\n    </td>\n    <td style=\"text-align: center; border-bottom: 1px solid #000; padding: 0 8px 3px;\">\n      LCS<sub>tokens</sub>(c,g)\n    </td>\n  </tr>\n  <tr>\n    <td style=\"text-align: center; padding: 3px 8px 0;\">\n      |g|\n    </td>\n  </tr>\n</table>\n\n<p>Trong đó, <strong>LCS<sub>tokens</sub>(c,g)</strong> là độ dài của dãy token con chung dài nhất giữa <em>c</em> và <em>g</em>, trong đó thứ tự token được giữ nguyên nhưng các token không bắt buộc phải liên tiếp.</p>\n\n<p>Một chunk được tính là đúng nếu overlap với ít nhất một chunk tham chiếu đạt <strong>từ 40% trở lên</strong>.</p>\n\n<h3>3.3. Đánh giá ở cấp đoạn nội dung</h3>\n\n<table style=\"margin: 18px auto; border-collapse: collapse; font-size: 18px;\">\n  <tr>\n    <td rowspan=\"2\" style=\"padding-right: 8px; vertical-align: middle;\">\n      Precision =\n    </td>\n    <td style=\"text-align: center; border-bottom: 1px solid #000; padding: 0 8px 3px;\">\n      Số chunk được tính là đúng\n    </td>\n  </tr>\n  <tr>\n    <td style=\"text-align: center; padding: 3px 8px 0;\">\n      Tổng số chunk đội thi nộp\n    </td>\n  </tr>\n</table>\n\n<table style=\"margin: 18px auto; border-collapse: collapse; font-size: 18px;\">\n  <tr>\n    <td rowspan=\"2\" style=\"padding-right: 8px; vertical-align: middle;\">\n      Recall =\n    </td>\n    <td style=\"text-align: center; border-bottom: 1px solid #000; padding: 0 8px 3px;\">\n      Số chunk tham chiếu đã được tìm thấy\n    </td>\n  </tr>\n  <tr>\n    <td style=\"text-align: center; padding: 3px 8px 0;\">\n      Tổng số chunk tham chiếu\n    </td>\n  </tr>\n</table>\n\n<h3>3.4. Điểm F<sub>2</sub></h3>\n\n<p>Ở mỗi cấp đánh giá, với từng câu hỏi, F<sub>2</sub> được tính từ Precision và Recall:</p>\n\n<table style=\"margin: 18px auto; border-collapse: collapse; font-size: 18px;\">\n  <tr>\n    <td rowspan=\"2\" style=\"padding-right: 8px; vertical-align: middle;\">\n      F<sub>2</sub> =\n    </td>\n    <td style=\"text-align: center; border-bottom: 1px solid #000; padding: 0 8px 3px;\">\n      5 × Precision × Recall\n    </td>\n  </tr>\n  <tr>\n    <td style=\"text-align: center; padding: 3px 8px 0;\">\n      4 × Precision + Recall\n    </td>\n  </tr>\n</table>\n\n<p>Precision, Recall và F<sub>2</sub> cuối cùng ở mỗi cấp đánh giá được tính bằng trung bình cộng giá trị tương ứng trên toàn bộ câu hỏi (macro-average).</p>\n\n</body>\n</html>",
+      "index": 1
+    },
+    {
+      "id": 100,
+      "title": "Submission Instructions",
+      "content": "<!-- Submission Instructions -->\n<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n  <meta charset=\"utf-8\" />\n  <link href=\"https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap\" rel=\"stylesheet\" />\n  <style>\n    body { font-family: 'Noto Sans', Arial, sans-serif; }\n    h2, h3, h4 { font-family: 'Noto Sans', Arial, sans-serif; font-weight: 700; }\n  </style>\n</head>\n<body>\n\n<h2>Dashboard kết quả</h2>\n<p>Các đội thi nộp kết quả dự đoán trực tiếp trên hệ thống Dashboard chính thức của cuộc thi. Mỗi lần nộp bài cần đảm bảo các yêu cầu sau:</p>\n<ul>\n  <li><strong>Định dạng file:</strong> kết quả được nộp dưới dạng file chuẩn theo mẫu do Ban Tổ chức quy định, với cấu trúc trường dữ liệu tuân thủ đúng đặc tả.</li>\n  <li><strong>Nội dung file:</strong> bao gồm kết quả trả lời cho toàn bộ câu hỏi trong bộ dữ liệu kiểm thử. Bài nộp bị thiếu câu hoặc không đúng định dạng sẽ không được đánh giá.</li>\n  <li><strong>Số lần nộp:</strong> mỗi đội được giới hạn số lần nộp bài mỗi ngày nhằm đảm bảo tính công bằng và tránh hiện tượng dò đáp án.</li>\n</ul>\n\n<h2>Định dạng nộp bài</h2>\n<p>Thí sinh phải nộp file kết quả truy hồi ở định dạng <code>.json</code>. File phải tuân theo cấu trúc sau:</p>\n\n<pre><code>[\n  {\n    \"id\": &lt;integer&gt;,\n    \"relevant_docs\": [\"&lt;id_tài_liệu&gt;\"],\n    \"relevant_chunks\": [\n      {\n        \"doc_id\": \"&lt;id_tài_liệu&gt;\",\n        \"chunk_text\": \"&lt;nội_dung_chunk&gt;\"\n      }\n    ]\n  },\n  ...\n]\n</code></pre>\n\n<p><strong>Trong đó:</strong></p>\n<ul>\n  <li><strong>id:</strong> Mã định danh của câu hỏi, kiểu số nguyên (integer).</li>\n  <li><strong>relevant_docs:</strong> Danh sách mã định danh của các tài liệu được dự đoán là liên quan. Trong phiên bản dữ liệu đánh giá này, sử dụng trường <code>id</code> kiểu số nguyên trong <code>links_corpus.parquet</code>.</li>\n  <li><strong>relevant_chunks:</strong> Danh sách các đoạn nội dung được dự đoán là liên quan. Mỗi đoạn cần chỉ rõ tài liệu nguồn qua <code>doc_id</code> và nội dung của đoạn qua <code>chunk_text</code>.</li>\n  <li><strong>doc_id:</strong> Mã định danh của tài liệu gốc chứa đoạn nội dung, là trường <code>id</code> kiểu số nguyên tương ứng trong <code>links_corpus.parquet</code>.</li>\n  <li><strong>chunk_text:</strong> Nội dung của đoạn văn bản được hệ thống truy hồi từ tài liệu tương ứng với <code>doc_id</code>. <code>chunk_text</code> phải là nội dung được trích xuất từ tài liệu gốc, không phải nội dung được viết lại hoặc sinh mới bởi hệ thống.</li>\n  <li><strong>chunk_order:</strong> Trường tùy chọn. Nếu cung cấp, giá trị phải là số nguyên không âm. Nếu bỏ qua, hệ thống sử dụng vị trí của chunk trong mảng <code>relevant_chunks</code>.</li>\n</ul>\n\n<p><strong>Ví dụ bài nộp:</strong></p>\n<pre><code>[\n  {\n    \"id\": 1,\n    \"relevant_docs\": [\n      \"doc_id1\",\n      \"doc_id2\"\n    ],\n    \"relevant_chunks\": [\n      {\n        \"doc_id\": \"doc_id1\",\n        \"chunk_text\": \"Đoạn nội dung liên quan thứ nhất được trích từ tài liệu doc_id1.\"\n      },\n      {\n        \"doc_id\": \"doc_id1\",\n        \"chunk_text\": \"Đoạn nội dung liên quan thứ hai được trích từ một vị trí khác trong tài liệu doc_id1.\"\n      },\n      {\n        \"doc_id\": \"doc_id2\",\n        \"chunk_text\": \"Đoạn nội dung liên quan được trích từ tài liệu doc_id2.\"\n      }\n    ]\n  }\n]\n</code></pre>\n\n<p>Nếu hệ thống không dự đoán được kết quả ở một mức, thí sinh vẫn phải cung cấp trường tương ứng với danh sách rỗng.</p>\n\n<p>Thí sinh nộp kết quả cho toàn bộ 1.200 truy vấn đã phát hành ở cả hai giai đoạn. Hệ thống tự chọn các truy vấn thuộc public hoặc private phase để chấm; không cần biết trước cách chia phase.</p>\n\n<p>Sau đó, nén file <code>.json</code>, vào mục <strong>My Submissions</strong> trên <a href=\"https://leaderboard.aiguru.com.vn/\" target=\"_blank\" rel=\"noopener noreferrer\">leaderboard.aiguru.com.vn</a> và tải lên file ZIP.</p>\n\n<p><strong>Lưu ý</strong>:</p>\n<ul>\n  <li>Tất cả các file kết quả phải được nén trong một file ZIP, chỉ chứa duy nhất một file (không nằm trong thư mục con).</li>\n  <li>Xin lưu ý rằng các bài nộp bị thiếu file hoặc thiếu câu sẽ không được đánh giá và sẽ không bị tính vào số lần nộp tối đa cho phép.</li>\n</ul>\n\n<h2>Quy định nộp bài</h2>\n<ol>\n  <li>Mỗi đội được phép nộp tối đa 10 bài mỗi ngày.</li>\n  <li><strong>Số bài nộp tối đa cho mỗi người dùng trong Vòng riêng (Private Phase) là 5 bài tổng cộng. Vì vậy, hãy chọn lựa các bài nộp ở Vòng riêng một cách cẩn thận.</strong></li>\n  <li>Mỗi đội cần có một tên người dùng đại diện.</li>\n  <li>Kết quả cuối cùng sẽ không được xem là chính thức cho đến khi một bài báo mô tả phương pháp (working notes paper) với mô tả đầy đủ về các phương pháp được nộp.</li>\n  <li>Ban Tổ chức Cuộc thi có toàn quyền, theo quyết định riêng của mình, loại bất kỳ thí sinh nào có bài nộp không tuân thủ tất cả các yêu cầu.</li>\n</ol>\n\n</body>\n</html>",
+      "index": 2
+    },
+    {
+      "id": 102,
+      "title": "Data",
+      "content": "<!-- Dataset Description and Format -->\n<!DOCTYPE html>\n<html lang=\"vi\">\n<head>\n  <meta charset=\"utf-8\" />\n  <link href=\"https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap\" rel=\"stylesheet\" />\n  <style>\n    body { font-family: 'Noto Sans', Arial, sans-serif; }\n    h2, h3, h4 { font-family: 'Noto Sans', Arial, sans-serif; font-weight: 700; }\n  </style>\n</head>\n<body>\n\n<h2>Dữ liệu cuộc thi</h2>\n\t\n<div style=\"background-color: #d4edda; color: #155724; padding: 15px; border-radius: 4px; margin-bottom: 20px; border: 1px solid #c3e6cb;\">\n  <strong>Nguồn dữ liệu chính thức của cuộc thi:</strong> <br/>\n  Bạn có thể truy cập và tải toàn bộ Dataset trên HuggingFace tại đây:<br/>\n  <a href=\"https://huggingface.co/datasets/AIGuruTinix/ViBioMIR\" target=\"_blank\" style=\"display: inline-block; margin-top: 10px; padding: 10px 15px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;\">Truy cập HuggingFace Dataset (ViBioMIR)</a>\n</div>\n\n\t\n<p><strong>Ban Tổ chức cung cấp:</strong></p>\n<ul>\n  <li><strong>Danh sách nguồn dữ liệu:</strong> Các liên kết trong <code>links_corpus.parquet</code> để các đội chủ động thu thập, xử lý và xây dựng cơ sở tri thức phục vụ truy hồi.</li>\n  <li><strong>Bộ dữ liệu kiểm thử (test set):</strong> Tập câu hỏi bằng tiếng Việt, được sử dụng làm căn cứ chấm điểm và đánh giá hệ thống của các đội thi.</li>\n</ul>\n\n<p>Ban Tổ chức không cung cấp quy trình embedding/indexing sẵn có. Các đội thi được toàn quyền chủ động trong việc:</p>\n<ul>\n  <li>Xây dựng hoặc lựa chọn mô hình embedding đa ngôn ngữ phù hợp với dữ liệu y học.</li>\n  <li>Thiết kế chiến lược lập chỉ mục và tìm kiếm.</li>\n  <li>Xây dựng cơ chế reranking, hậu xử lý.</li>\n  <li>Các tập dữ liệu mở khác về y học mà đội thi có thể hợp pháp sử dụng để huấn luyện/đánh giá bổ trợ.</li>\n</ul>\n<h3>Tập câu hỏi truy vấn</h3>\n<p>Tập câu hỏi truy vấn được cung cấp trong tệp <code>query.parquet</code>, gồm:</p>\n<ul>\n  <li><strong>id:</strong> Mã định danh của truy vấn, kiểu số nguyên (integer).</li>\n  <li><strong>query:</strong> Nội dung truy vấn y khoa bằng tiếng Việt, kiểu chuỗi (string).</li>\n</ul>\n\n<pre><code>{\n  \"id\": &lt;integer&gt;,\n  \"query\": \"&lt;string&gt;\"\n}\n</code></pre>\n\n<p><strong>Ví dụ:</strong></p>\n<pre><code>{\n  \"id\": 1,\n  \"query\": \"Cần làm gì đối với tình trạng tắc nghẽn đường tiết niệu do sỏi thận?\"\n}\n</code></pre>\n<h3>Nguồn dữ liệu được cung cấp</h3>\n\n<p>Ban Tổ chức cung cấp danh sách URL của các bài viết y khoa trong tệp <code>links_corpus.parquet</code>, gồm:</p>\n\n<ul>\n  <li><strong>id:</strong> Mã định danh của nguồn, kiểu số nguyên (integer).</li>\n  <li><strong>url:</strong> URL dẫn tới bài viết gốc, kiểu chuỗi (string).</li>\n</ul>\n\n<pre><code>{\n  \"id\": &lt;integer&gt;,\n  \"url\": \"&lt;string&gt;\"\n}\n</code></pre>\n\n<p><strong>Ví dụ:</strong></p>\n<pre><code>{\n  \"id\": 1,\n  \"url\": \"https://example.com/article\"\n}\n</code></pre>\n\n<p>Các đội tự thực hiện việc thu thập nội dung từ các URL được cung cấp, tiền xử lý, phân đoạn và xây dựng cơ sở tri thức phục vụ truy hồi.</p>\n<p>Trong phiên bản đánh giá này, mọi nhãn tài liệu đều sử dụng trường <code>id</code> kiểu số nguyên có trong <code>links_corpus.parquet</code>. Tài liệu nằm ngoài danh sách này không được tính là nhãn dương.</p>\n</body>\n</html>",
+      "index": 3
+    }
+  ],
+  "phases": [
+    {
+      "id": 44,
+      "index": 0,
+      "start": "2026-09-30T00:00:00Z",
+      "end": "2026-10-31T00:00:00Z",
+      "name": "Kiểm thử công khai",
+      "description": "",
+      "status": "Current",
+      "execution_time_limit": 600,
+      "tasks": [
+        {
+          "task": "a11c7141-8cd1-47e6-9537-28cd968c3ccc",
+          "order_index": 0,
+          "phase": 44,
+          "id": 50,
+          "value": "a11c7141-8cd1-47e6-9537-28cd968c3ccc",
+          "key": "a11c7141-8cd1-47e6-9537-28cd968c3ccc",
+          "created_when": "2026-09-30T15:34:45.243593Z",
+          "name": "Kiểm thử công khai Task",
+          "solutions": [],
+          "public_datasets": [
+            {
+              "id": 4201,
+              "created_by": "admin",
+              "owner_display_name": "BM25 Baseline",
+              "created_when": "2026-09-30T15:34:44.986623Z",
+              "name": "reference_data @ '09-30-2026 15:34'",
+              "type": "reference_data",
+              "description": null,
+              "is_public": false,
+              "key": "6c3855e8-6232-4183-9a48-18c8923ecb28",
+              "value": "6c3855e8-6232-4183-9a48-18c8923ecb28",
+              "was_created_by_competition": true,
+              "in_use": [
+                {
+                  "pk": 15,
+                  "title": "R2AI2026 TRUY HỒI TÀI LIỆU Y KHOA ĐA NGÔN NGỮ"
+                }
+              ],
+              "competition": null,
+              "file_name": "",
+              "file_size": 39644527.0
+            },
+            {
+              "id": 4205,
+              "created_by": "admin",
+              "owner_display_name": "BM25 Baseline",
+              "created_when": "2026-09-30T15:57:03.659936Z",
+              "name": "R2AI medical scoring with rapidfuzz 2.15.2 and tokenizers 0.13.3",
+              "type": "scoring_program",
+              "description": null,
+              "is_public": false,
+              "key": "aec206a5-cbc8-4740-95ea-1ee628bb4bcb",
+              "value": "aec206a5-cbc8-4740-95ea-1ee628bb4bcb",
+              "was_created_by_competition": false,
+              "in_use": [
+                {
+                  "pk": 15,
+                  "title": "R2AI2026 TRUY HỒI TÀI LIỆU Y KHOA ĐA NGÔN NGỮ"
+                }
+              ],
+              "competition": null,
+              "file_name": "",
+              "file_size": 14847343.0
+            }
+          ]
+        }
+      ],
+      "has_max_submissions": true,
+      "max_submissions_per_day": 10,
+      "max_submissions_per_person": 310,
+      "auto_migrate_to_this_phase": false,
+      "hide_output": false,
+      "hide_prediction_output": false,
+      "hide_score_output": false,
+      "public_data": null,
+      "starting_kit": null,
+      "is_final_phase": false,
+      "used_submissions_per_day": 0,
+      "used_submissions_per_person": 0
+    },
+    {
+      "id": 45,
+      "index": 1,
+      "start": "2026-11-01T00:00:00Z",
+      "end": "2026-11-04T00:00:00Z",
+      "name": "Kiểm thử riêng",
+      "description": null,
+      "status": "Next",
+      "execution_time_limit": 600,
+      "tasks": [
+        {
+          "task": "8188e192-05ef-4b0c-8189-b9989254fb89",
+          "order_index": 0,
+          "phase": 45,
+          "id": 51,
+          "value": "8188e192-05ef-4b0c-8189-b9989254fb89",
+          "key": "8188e192-05ef-4b0c-8189-b9989254fb89",
+          "created_when": "2026-09-30T15:34:45.597517Z",
+          "name": "Kiểm thử riêng Task",
+          "solutions": [],
+          "public_datasets": [
+            {
+              "id": 4203,
+              "created_by": "admin",
+              "owner_display_name": "BM25 Baseline",
+              "created_when": "2026-09-30T15:34:45.342690Z",
+              "name": "reference_data @ '09-30-2026 15:34'",
+              "type": "reference_data",
+              "description": null,
+              "is_public": false,
+              "key": "0a01b352-6d91-4b9a-8f8b-ece5a845eede",
+              "value": "0a01b352-6d91-4b9a-8f8b-ece5a845eede",
+              "was_created_by_competition": true,
+              "in_use": [
+                {
+                  "pk": 15,
+                  "title": "R2AI2026 TRUY HỒI TÀI LIỆU Y KHOA ĐA NGÔN NGỮ"
+                }
+              ],
+              "competition": null,
+              "file_name": "",
+              "file_size": 40620568.0
+            },
+            {
+              "id": 4205,
+              "created_by": "admin",
+              "owner_display_name": "BM25 Baseline",
+              "created_when": "2026-09-30T15:57:03.659936Z",
+              "name": "R2AI medical scoring with rapidfuzz 2.15.2 and tokenizers 0.13.3",
+              "type": "scoring_program",
+              "description": null,
+              "is_public": false,
+              "key": "aec206a5-cbc8-4740-95ea-1ee628bb4bcb",
+              "value": "aec206a5-cbc8-4740-95ea-1ee628bb4bcb",
+              "was_created_by_competition": false,
+              "in_use": [
+                {
+                  "pk": 15,
+                  "title": "R2AI2026 TRUY HỒI TÀI LIỆU Y KHOA ĐA NGÔN NGỮ"
+                }
+              ],
+              "competition": null,
+              "file_name": "",
+              "file_size": 14847343.0
+            }
+          ]
+        }
+      ],
+      "has_max_submissions": true,
+      "max_submissions_per_day": 5,
+      "max_submissions_per_person": 5,
+      "auto_migrate_to_this_phase": false,
+      "hide_output": false,
+      "hide_prediction_output": false,
+      "hide_score_output": false,
+      "public_data": null,
+      "starting_kit": null,
+      "is_final_phase": false,
+      "used_submissions_per_day": 0,
+      "used_submissions_per_person": 0
+    }
+  ],
+  "leaderboards": [
+    {
+      "id": 93,
+      "primary_index": 0,
+      "title": "RESULTS",
+      "key": "RESULTS",
+      "columns": [
+        {
+          "id": 98,
+          "computation": null,
+          "computation_indexes": null,
+          "title": "FINAL SCORE",
+          "key": "FINAL_SCORE",
+          "sorting": "desc",
+          "index": 0,
+          "hidden": false,
+          "precision": 4
+        },
+        {
+          "id": 99,
+          "computation": null,
+          "computation_indexes": null,
+          "title": "DOCS F2-MACRO",
+          "key": "DOCS_F2MACRO",
+          "sorting": "desc",
+          "index": 1,
+          "hidden": false,
+          "precision": 4
+        },
+        {
+          "id": 100,
+          "computation": null,
+          "computation_indexes": null,
+          "title": "CHUNKS F2-MACRO",
+          "key": "CHUNKS_F2MACRO",
+          "sorting": "desc",
+          "index": 2,
+          "hidden": false,
+          "precision": 4
+        },
+        {
+          "id": 101,
+          "computation": null,
+          "computation_indexes": null,
+          "title": "DOCS PRECISION",
+          "key": "DOCS_PRECISION",
+          "sorting": "desc",
+          "index": 3,
+          "hidden": false,
+          "precision": 4
+        },
+        {
+          "id": 102,
+          "computation": null,
+          "computation_indexes": null,
+          "title": "DOCS RECALL",
+          "key": "DOCS_RECALL",
+          "sorting": "desc",
+          "index": 4,
+          "hidden": false,
+          "precision": 4
+        },
+        {
+          "id": 103,
+          "computation": null,
+          "computation_indexes": null,
+          "title": "CHUNKS PRECISION",
+          "key": "CHUNKS_PRECISION",
+          "sorting": "desc",
+          "index": 5,
+          "hidden": false,
+          "precision": 4
+        },
+        {
+          "id": 104,
+          "computation": null,
+          "computation_indexes": null,
+          "title": "CHUNKS RECALL",
+          "key": "CHUNKS_RECALL",
+          "sorting": "desc",
+          "index": 6,
+          "hidden": false,
+          "precision": 4
+        }
+      ],
+      "hidden": false,
+      "submission_rule": "Add"
+    }
+  ],
+  "collaborators": [],
+  "registration_auto_approve": false,
+  "description": "R2AI2026 TRUY HỒI TÀI LIỆU Y KHOA ĐA NGÔN NGỮ - Shared Task 3",
+  "participants_count": 88,
+  "submissions_count": 1997,
+  "queue": null,
+  "enable_detailed_results": true,
+  "show_detailed_results_in_submission_panel": true,
+  "show_detailed_results_in_leaderboard": true,
+  "auto_run_submissions": true,
+  "can_participants_make_submissions_public": true,
+  "make_programs_available": false,
+  "make_input_data_available": false,
+  "docker_image": "codalab/codalab-legacy:py37",
+  "allow_robot_submissions": false,
+  "competition_type": "competition",
+  "fact_sheet": null,
+  "forum": 9,
+  "reward": "",
+  "contact_email": "",
+  "report": "",
+  "forum_enabled": false
+}

@@ -1,0 +1,127 @@
+topic: "R2AI2026 Truy hồi Tài liệu Y khoa Đa ngôn ngữ (ViBioMIR) — Nghiên cứu chiến lược TOP 1"
+current_date: "2026-10-18"
+time_range: unlimited
+goal: "Vượt BM25 baseline 0.3764 để giành TOP 1. Public phase đóng 2026-10-31T00:00:00Z = 07:00 ICT ngày 31/10; private phase đóng 2026-11-04T00:00:00Z = 07:00 ICT ngày 04/11 (quota private chỉ 5 bài TỔNG)."
+
+constraints:
+  host: "Codabench (leaderboard.aiguru.com.vn), competition id 15, leaderboard id 93"
+  submission: "ZIP chứa DUY NHẤT 1 file submission.json (không folder con), upload qua My Submissions"
+  metric: "FINAL_SCORE = mean(DOCS_F2MACRO, CHUNKS_F2MACRO); F2 = 5PR/(4P+R); chunk đúng khi LCS_tokens(c,g)/|g| >= 0.40 (normalize NFKC + HTML entities + lowercase + collapse whitespace)"
+  models: "open-weight, phát hành TRƯỚC 2026-08-01 (ICT), <= 15B tham số, KHÔNG dùng closed LLM (GPT/Gemini/Claude)"
+  quotas: "public 10 bài/ngày (tối đa 310/người); private 5 bài/ngày và 5 bài TỔNG/người"
+  deliverables_final: "bài working-notes paper mô tả phương pháp; trao quyền sử dụng submission + code + data cho BTC"
+
+known_facts:
+  corpus: "1.220.598 URL: 740.598 VI + 240.000 EN (pubmed.ncbi.nlm.nih.gov/<PMID>) + 240.000 ZH. File HF: links_corpus_vi_en_zh.parquet (dataset tạo lại 2026-10-12). id KHÔNG liên tục, range 583..7.466.161."
+  queries: "1.200 query tiếng Việt, id 1..1200 liên tục, median 18 từ, p95 84, max 281."
+  leaderboard: "2026-10-18: 50 entry, 88 participant, 1.997 submission. #1 = BM25 Baseline (admin) FINAL 0.3764 (docs F2 0.5587 P/R 0.8805/0.5146; chunks F2 0.1941 P/R 0.3403/0.1755). Best non-admin 0.3502 (chunks-heavy)."
+  top_hosts: "pubmed 240k, suckhoecongdongonline.vn 154k, 120ask.com 98k, suckhoedoisong.vn 86k, nhathuoclongchau.com.vn 80k, thanhnien.vn 72k, cnkang.com 40k, ask.39.net 33k..."
+  prior_research: "Outline bản 2026-10-08 đã ghi nhận: scoring program dùng rapidfuzz 2.15.2 + tokenizers 0.13.3; cần DEV PROXY vì không có nhãn; crawl là workstream lớn nhất."
+
+refresh_log:
+  - date: "2026-10-08"
+    note: "Outline gốc (10 item)."
+  - date: "2026-10-18"
+    note: "Refresh + audit dữ liệu thật; phát hiện HF dataset tạo lại 12/10, file đổi tên, corpus 1,22M (không phải 4,42M). Mở rộng outline lên 12 item, tách riêng: chunk strategy, learned sparse/hybrid, corpus acquisition, scoring exploitation, synthesis TOP-1."
+
+items:
+  - id: 1
+    name: "Scoring program & metric engineering"
+    note: |
+      Mục tiêu: mổ xẻ CHÍNH XÁC cách chấm để tối ưu hợp lệ.
+      Đã biết: scoring program tên "R2AI medical scoring with rapidfuzz 2.15.2 and tokenizers 0.13.3" (ẩn, is_public=false — KHÔNG được tải/đọc: truy cập file ẩn của BTC là vi phạm).
+      Cần: (a) metric định nghĩa lại chính xác từ trang Evaluation; (b) rapidfuzz 2.15.2 dùng cho việc gì (fuzz.ratio / partial_ratio / LCSseq / token_sort?) — LCS_tokens mô tả là "dãy con chung dài nhất, giữ thứ tự, không cần liên tiếp" ~ khớp rapidfuzz LCSseq; (c) tokenizers 0.13.3: token nào (HF fast tokenizer từ model nào? whitespace/word-level?), vì |g| = số token gold, ảnh hưởng trực tiếp ngưỡng 0.40; (d) edge case: query không có gold, D rỗng, chunk thuộc doc không gold, 1 chunk nộp có thể khớp nhiều gold chunk không, 1 gold chunk được tìm bởi nhiều chunk nộp không; (e) macro-average có trọng số theo query hay không (macro nghĩa là mọi query trọng số bằng nhau, kể cả query 0 gold).
+      Deliverable: pseudo-code scorer + danh sách hệ quả chiến lược (chunk dài/ngắn, số chunk, dedup) + rủi ro hiểu sai metric.
+    priority: critical
+  - id: 2
+    name: "ViBioMIR dataset & corpus reality"
+    note: |
+      Mục tiêu: hiểu corpus thật để biết trần recall và chi phí crawl.
+      Đã biết: 1.220.598 URL (740.598 VI + 240.000 EN PubMed + 240.000 ZH), id range 583..7.466.161 KHÔNG liên tục; top host đã audit.
+      Cần: (a) phân bố host/token/năm theo README HF (figures); (b) quan hệ với MedKB (medkb.tinix.ai) — corpus có phải crawl từ MedKB không, MedKB có index/tìm kiếm công khai cho các URL này không (đường tắt lấy text hợp lệ?); (c) mẫu URL mỗi nhóm: path pattern, có query string/encode không, http vs https, trùng lặp nội dung; (d) độ khả thi crawl: robots.txt/ToS của top host, rate limit, chặn bot; (e) tỷ lệ URL chết/redirect dự kiến; (f) id 1..~7.4M nghĩa là corpus gốc lớn hơn 1.22M — ảnh hưởng gì tới việc suy đoán nhãn gold.
+      Deliverable: corpus profile + ước lượng coverage khả thi + danh sách host ưu tiên crawl.
+    priority: critical
+  - id: 3
+    name: "Admin BM25 baseline reverse-engineering"
+    note: |
+      Mục tiêu: hiểu vì sao BM25 của BTC đạt 0.3764 và cách vượt nó rẻ nhất.
+      Đã biết: FINAL 0.3764; docs F2 0.5587 (P 0.8805 / R 0.5146); chunks F2 0.1941 (P 0.3403 / R 0.1755).
+      Cần: (a) từ P/R suy ra số doc & chunk trung bình mỗi query (giả thiết |G| ~ vài doc/query); (b) doc representation nào cho P cao như vậy (title+URL slug? full text?) ; (c) BM25 impl + hyperparam hợp lý (rank_bm25 / Pyserini / Elasticsearch / Tantivy), analyzer cho tiếng Việt (underthesea/pyvi/VnCoreNLP, bỏ dấu hay giữ dấu), trọng số field; (d) chunk strategy để ra P 0.34/R 0.18 (chunk size ~ bao nhiêu, cắt theo đoạn?); (e) baseline "admin" có thể dùng gold text của BTC (họ có corpus đầy đủ) — nghĩa là ta cần crawl tương đương; (f) cách rẻ nhất để vượt: tune k1/b + top-k theo F2 + chunk dài hơn.
+      Deliverable: recipe tái lập baseline + checklist đường vượt.
+    priority: critical
+  - id: 4
+    name: "Dense multilingual embedders (compliant)"
+    note: |
+      Mục tiêu: chọn embedder đa ngữ cho VI query -> VI/EN/ZH docs, có kiểm tra compliance.
+      Ứng viên cần kiểm: BAAI/bge-m3, intfloat/multilingual-e5-large(-instruct), Alibaba-NLP/gte-multilingual-base/large, Qwen/Qwen3-Embedding-0.6B/4B/8B, LaBSE, jina-embeddings-v3, Vietnamese-specific (AITeamVN/Vietnamese_Embedding, bkai-foundation-models), medical-domain (MedCPT, BioLORD, PubMedBERT-based).
+      Cần: ngày phát hành (< 2026-08-01), số param (<=15B), license, độ phủ VI/EN/ZH, benchmark (MIRACL vi, BEIR, MTEB, Vi-specific), max seq len, chi phí embed ~1.22M doc (số chunk thực tế ~2-3M) trên T4 16GB / CPU, kích thước index (FAISS HNSW/IVF).
+      Deliverable: shortlist xếp hạng + kế hoạch embed (batch size, thời gian, dung lượng).
+    priority: critical
+  - id: 5
+    name: "Rerankers and late interaction"
+    note: |
+      Mục tiêu: tăng precision ở top-k và xếp hạng chunk.
+      Ứng viên: BAAI/bge-reranker-v2-m3, namdp-ptit/ViRanker, Alibaba gte-multilingual-reranker, jina-reranker-v2, mixedbread, ColBERT-style late interaction (bge-m3 colbert vecs, jina-colbert-v2), listwise rerank bằng LLM open <=15B.
+      Cần: ngày phát hành + param + license; chất lượng trên dữ liệu y khoa/VI; chi phí latency cho top-50/top-100 x 1200 query; khả năng chạy trên T4 16GB (fp16/int8); có cần finetune không.
+      Deliverable: khuyến nghị stack rerank (loại nào, top-k nào, ngân sách thời gian).
+    priority: high
+  - id: 6
+    name: "Corpus acquisition pipeline and shortcuts"
+    note: |
+      Mục tiêu: biến 1.22M URL thành text sạch, nhanh nhất có thể, không vi phạm.
+      Cần: (a) kiến trúc crawler async (httpx/aiohttp + trafilatura/resiliparse/readability-lxml, scrapy), quản lý per-host concurrency + backoff + robots.txt; (b) throughput thực tế cho ~980k URL VI/ZH và ước tính thời gian (giả định 20-100 req/s tổng); (c) PubMed: E-utilities (esummary/efetch) + PMC full text, batch/rate limit (3 req/s không key), so sánh với crawl HTML; (d) fallback URL chết: Wayback CDX, Common Crawl index, cache khác; (e) xử lý encoding tiếng Việt/Trung, boilerplate, paywall; (f) storage/index format (parquet/jsonl, Tantivy/Elasticsearch/Whoosh/FAISS) và chi phí ổ đĩa; (g) mức độ hợp lệ (CC BY-NC của dataset, robots, ToS).
+      Deliverable: spec pipeline có thể implement ngay + ước lượng thời gian/dung lượng + rủi ro.
+    priority: critical
+  - id: 7
+    name: "Vietnamese medical query understanding and expansion"
+    note: |
+      Mục tiêu: tăng recall phía query (F2 nghiêng recall).
+      Cần: (a) phân loại intent câu hỏi bệnh nhân (triệu chứng/chẩn đoán/thuốc/xét nghiệm/phòng bệnh) từ figures HF + mẫu query thật; (b) chuẩn hóa thuật ngữ y khoa VI (ICD-10, SNOMED CT, ATC, RxNorm; có từ điển VI?), viết tắt, teencode; (c) word segmentation tiếng Việt (VnCoreNLP/underthesea/pyvi) ảnh hưởng BM25 thế nào, bỏ dấu có lợi hay hại; (d) query expansion / Query2Doc / HyDE bằng LLM open <=15B (Qwen3-8B/14B, Llama-3.x-8B, Gemma-3, Vistral/PhoGPT/Sailor) — bằng chứng định lượng (+% recall); (e) dịch VI->EN/ZH bằng mô hình open (NLLB-200, Opus-MT, Qwen) rồi retrieve cross-lingual; (f) multi-query fusion.
+      Deliverable: pipeline query + ước lượng gain + model nào chạy được trên T4/local.
+    priority: high
+  - id: 8
+    name: "Chunk strategy and selection under the published rule"
+    note: |
+      Mục tiêu: tối đa CHUNKS_F2 — nút thắt của cuộc thi (baseline chỉ 0.1941).
+      Cần phân tích: (a) nếu nộp CẢ BÀI làm 1 chunk thì LCS(cả bài, gold chunk) ≈ |gold| -> overlap ~1.0, tức mỗi chunk nộp gần như luôn "đúng" nếu bài chứa đoạn gold; hệ quả lên precision (đếm chunk nộp / gold) và recall (gold chunk được tìm nếu nằm trong bài) — nhưng cần kiểm: giới hạn kích thước submission/JSON, giới hạn thời gian chấm 600s, chi phí pairwise LCS O(|c|*|g|), liệu BTC có cap độ dài chunk_text; (b) grid chunk size (64/128/256/512/1024 token) x overlap (0/10/20%) vs LCS>=0.4; (c) số chunk tối ưu mỗi query/doc cho macro F2 (P giảm khi nộp nhiều); (d) xử lý trùng lặp chunk, chunk_order; (e) suy đoán độ dài gold chunk từ cấu trúc bài MedKB (đoạn/heading); (f) cách chọn chunk: per-doc top-n vs per-query top-k toàn cục.
+      Deliverable: chính sách chunk + công thức chọn + ước lượng CHUNKS_F2 đạt được.
+    priority: critical
+  - id: 9
+    name: "Hybrid fusion and learned sparse"
+    note: |
+      Mục tiêu: tăng recall/fusion giữa các nhánh.
+      Cần: (a) RRF vs weighted score fusion vs CombSUM/CombMNZ; chuẩn hóa điểm (score normalization, rank-based); (b) per-language weighting (VI/EN/ZH) và fusion giữa sparse + dense + (learned sparse); (c) learned sparse đa ngữ: SPLADE-v3, bge-m3 sparse, uniCOIL, đánh giá chi phí index; (d) ảnh hưởng của fusion tới F2 (recall tăng nhưng precision giảm -> cần ngưỡng); (e) bằng chứng hybrid +15-30% recall trong multilingual IR; (f) cách tune trọng số không cần nhãn (dev proxy).
+      Deliverable: recipe fusion + kỳ vọng gain theo nhánh.
+    priority: high
+  - id: 10
+    name: "Compute, tooling and submission ops"
+    note: |
+      Mục tiêu: runbook để chạy và nộp an toàn trong 12 ngày.
+      Cần: (a) máy local (Windows, không GPU rời? torch 2.6+cu124 đã có) vs Kaggle T4 16GB (rule workspace #1) — cái nào dùng cho embed 1.22M doc, cái nào cho crawl; (b) throughput embed (doc/s) và thời gian thực tế; (c) index memory (FAISS HNSW 1024d x 2.5M chunk ~ ? GB; IVF/OPQ nén); (d) replica scorer local (tokenizers 0.13.3 + rapidfuzz 2.15.2) — cài đúng phiên bản, kiểm tra hành vi; (e) submission packaging: ZIP 1 file json, giới hạn kích thước, validator tự viết; (f) account/đăng ký dashboard BTC, thủ tục nộp; (g) quota plan 10/ngày + 5 private tổng; (h) contingency khi crawl thiếu.
+      Deliverable: runbook + lịch 12 ngày + ngân sách.
+    priority: high
+  - id: 11
+    name: "Competitors, related tasks and literature"
+    note: |
+      Mục tiêu: biết đối thủ đang làm gì và trần điểm thực tế.
+      Cần: (a) thông tin công khai về R2AI2026 ST3 (site aiguru, facebook, forum, các đội 0.3502/0.3187/0.3076 làm gì dựa trên dấu vết metric); (b) paper "Which Works Best for Vietnamese?" (EACL 2026 Findings) và các nghiên cứu VI IR; (c) benchmark y khoa: BioASQ, CLEF eHealth, MIRAGE, MedMARCO; (d) MIRACL/BEIR vi, ViMQ, VLSP shared tasks; (e) các shared task tương tự (truy hồi chunk + doc) và phương pháp thắng; (f) ước lượng trần điểm FINAL có thể đạt (docs F2 ~0.7-0.8? chunks F2 ~0.5?).
+      Deliverable: bức tranh cạnh tranh + trần điểm + bài học chuyển giao được.
+    priority: medium
+  - id: 12
+    name: "TOP1 strategy synthesis and risk register"
+    note: |
+      Mục tiêu: tổng hợp thành kế hoạch TOP-1 thực thi được (đọc kết quả 11 item trước nếu có sẵn trong ./results).
+      Cần: (a) kiến trúc hệ thống cuối (corpus -> index -> retrieve -> fuse -> rerank -> chunk -> select -> submit); (b) kỳ vọng điểm theo từng giai đoạn và điểm mục tiêu đánh bại 0.3764; (c) lịch 12 ngày tới 31/10 07:00 ICT với decision gate; (d) rủi ro: crawl coverage, hiểu sai metric, burn quota, vi phạm rule (closed LLM, model >15B hoặc sau 2026-08-01), thiếu working-notes paper; (e) kế hoạch ablation/dev-proxy không cần nhãn; (f) kế hoạch B nếu corpus chỉ crawl được một phần.
+      Deliverable: kế hoạch có milestone + risk register + quyết định go/no-go.
+    priority: critical
+
+execution:
+  batch_size: 3
+  items_per_agent: 1
+  output_dir: ./results
+  validation_script: "C:/Users/NOS/.claude/skills/research/validate_json.py"
+  batches:
+    - [1, 2, 3]    # metric + data + baseline (nền tảng)
+    - [6, 8, 7]    # corpus + chunk + query (đường tới điểm)
+    - [4, 5, 9]    # dense + rerank + fusion (mô hình)
+    - [10, 11, 12] # ops + đối thủ + tổng hợp TOP-1

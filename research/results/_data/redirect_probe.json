@@ -1,0 +1,962 @@
+[
+ {
+  "host": "suckhoecongdongonline.vn",
+  "url": "https://suckhoecongdongonline.vn/ts-tran-huu-minh-nen-som-trien-khai-vach-ngan-bao-ve-lai-xe-taxi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoedoisong.vn",
+  "url": "https://suckhoedoisong.vn/viem-be-than-thuong-do-nhiem-trung-169104593.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoedoisong.vn",
+  "url": "https://suckhoedoisong.vn/7-tieu-chuan-vang-cho-nu-cuoi-dep-sau-boc-su-169231122101753288.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "thanhnien.vn",
+  "url": "https://thanhnien.vn/bo-y-te-chi-tiem-vac-xin-covid-19-cho-nguoi-tu-18-tuoi-1851112437.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vinmec.com",
+  "url": "https://www.vinmec.com/vie/bai-viet/hoi-chung-ruot-kich-thich-va-viem-dai-trang-co-gi-dac-biet-vi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "medlatec.vn",
+  "url": "https://medlatec.vn/tin-tuc/hit-tho-khi-chay-ben-nhu-the-nao-dung-cach-va-an-toan-cho-suc-khoe-s64-n23525",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "medlatec.vn",
+  "url": "https://medlatec.vn/tin-tuc/giai-dap-benh-ung-thu-vu-co-di-truyen-khong-va-cach-phong-ngua-s91-n21790",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "giadinhonline.vn",
+  "url": "https://giadinhonline.vn/8-truong-hop-bat-buoc-phai-deo-khau-trang-neu-khong-muon-bi-phat-toi-3-trieu-dong-d190570.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "phunusuckhoe.giadinhonline.vn",
+  "url": "https://phunusuckhoe.giadinhonline.vn/hay-hoc-cach-an-uong-ngay-tu-bay-gio-de-phong-ngua-ung-thu-da-day-c12a316724.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "baonghean.vn",
+  "url": "https://baonghean.vn/bat-ngo-voi-tac-dung-kiem-soat-ung-thu-tu-rau-ngo-tay-10139737.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "baonghean.vn",
+  "url": "https://baonghean.vn/vung-den-thuc-pham-giau-dinh-duong-10043614.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vietnamnet.vn",
+  "url": "https://vietnamnet.vn/cham-soc-tam-li-cho-nguoi-co-nguoi-than-qua-doi-vi-covid-19-794810.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "hellobacsi.com",
+  "url": "https://hellobacsi.com/duoc-lieu/thao-duoc/boron/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "youmed.vn",
+  "url": "https://youmed.vn/tin-tuc/tay-trang-rang-laser-co-nen-hay-khong/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "youmed.vn",
+  "url": "https://youmed.vn/tin-tuc/tre-sinh-non-co-nhung-nguy-co-nao-can-chu-y/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vnexpress.net",
+  "url": "https://vnexpress.net/9-nam-6-lan-thu-tinh-trong-ong-nghiem-5050975.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoeviet.org.vn",
+  "url": "https://suckhoeviet.org.vn/9-cach-tu-nhien-ngan-ngua-con-dau-da-day-632.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "cnkang.com",
+  "url": "http://www.cnkang.com/jibing/baya/687759.html",
+  "status": 301,
+  "location": "https://www.cnkang.com/jibing/baya/687759.html"
+ },
+ {
+  "host": "cnkang.com",
+  "url": "http://www.cnkang.com/dise/36/399915.html",
+  "status": 301,
+  "location": "https://www.cnkang.com/dise/36/399915.html"
+ },
+ {
+  "host": "ask.39.net",
+  "url": "https://ask.39.net/question/_ch3yc5.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "laodong.vn",
+  "url": "https://laodong.vn/suc-khoe/canh-bao-xuat-huyet-giam-tieu-cau-muc-do-nang-o-tre-1403920.ldo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tienphong.vn",
+  "url": "https://tienphong.vn/phau-thuat-ung-thu-da-day-cho-benh-nhan-trong-tu-the-hiem-gap-post1771267.tpo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tienphong.vn",
+  "url": "https://tienphong.vn/ca-mau-2-ngu-dan-tho-may-vi-nhau-canh-chua-ca-noc-post1722064.tpo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "dantri.com.vn",
+  "url": "https://dantri.com.vn/suc-khoe/ngay-tet-can-biet-dieu-nay-de-khong-lo-can-tang-phi-ma-20230118084931858.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tuoitre.vn",
+  "url": "https://tuoitre.vn/dau-canh-tay-khong-ngo-que-cay-tranh-thai-di-lac-vao-co-bap-20250627001331992.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "sggp.org.vn",
+  "url": "https://www.sggp.org.vn/bo-y-te-yeu-cau-khong-de-xay-ra-thieu-thuoc-trong-boi-canh-xung-dot-quoc-te-post843803.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "sggp.org.vn",
+  "url": "https://www.sggp.org.vn/lam-dong-thieu-nguon-mau-y-bac-si-luan-phien-hien-mau-cuu-nguoi-post812371.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoecongdongonline.vn",
+  "url": "https://suckhoecongdongonline.vn/nghe-an-be-gai-7-tuoi-bi-tai-nan-ao-chong-nang",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoecongdongonline.vn",
+  "url": "https://suckhoecongdongonline.vn/cu-rua-ho-guom-la-giong-cai",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoedoisong.vn",
+  "url": "https://suckhoedoisong.vn/mot-quan-dai-quet-dat-gay-sot-mua-lanh-2015-169108826.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "thanhnien.vn",
+  "url": "https://thanhnien.vn/an-so-co-la-giup-giam-dau-185140155.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vinmec.com",
+  "url": "https://www.vinmec.com/vie/bai-viet/tuoi-day-thi-de-mac-hoi-chung-tam-ly-vi-sao-vi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vinmec.com",
+  "url": "https://www.vinmec.com/vie/bai-viet/tre-10-thang-tuoi-nang-73kg-co-nhe-can-khong-vi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "medlatec.vn",
+  "url": "https://medlatec.vn/tin-tuc/nguyen-nhan-va-trieu-chung-sot-phat-ban-khong-the-lo-la-s195-n19835",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "giadinhonline.vn",
+  "url": "https://giadinhonline.vn/troi-nong-dinh-diem-me-bau-nen-nam-dieu-hoa-bao-nhieu-do-d95077.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "phunusuckhoe.giadinhonline.vn",
+  "url": "https://phunusuckhoe.giadinhonline.vn/sang-211-benh-nhan-covid-19-nang-tang-nhe-hai-bien-the-moi-bq1-va-bq11-ang-lay-nhiem-nhanh-chong-tai-my-c12a426307.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "phunusuckhoe.giadinhonline.vn",
+  "url": "https://phunusuckhoe.giadinhonline.vn/xot-long-tieng-khoc-doi-me-cua-cau-be-bi-giao-vien-danh-o-nha-tre-c12a50208.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "baonghean.vn",
+  "url": "https://baonghean.vn/500-sinh-vien-tham-gia-hien-mau-tinh-nguyen-10097114.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vietnamnet.vn",
+  "url": "https://vietnamnet.vn/can-benh-ung-thu-pho-bien-o-viet-nam-nguyen-nhan-co-the-tu-hat-lac-moc-2281204.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "hellobacsi.com",
+  "url": "https://hellobacsi.com/suc-khoe-rang-mieng/viem-nuou-nha-chu/bi-tut-loi-phai-lam-sao/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "hellobacsi.com",
+  "url": "https://hellobacsi.com/suc-khoe-tinh-duc/ngua-thai/1-tuan-uong-2-vien-tranh-thai-khan-cap-co-sao-khong/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "youmed.vn",
+  "url": "https://youmed.vn/tin-tuc/ngoi-thai-bat-thuong-lua-chon-sinh-mo-hay-sinh-thuong/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vnexpress.net",
+  "url": "https://vnexpress.net/vaccine-ung-thu-nga-cho-phe-duyet-4936422.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoeviet.org.vn",
+  "url": "https://suckhoeviet.org.vn/cay-dai-phong-tu-cong-dung-cach-dung-tri-benh-theo-y-hoc-co-truyen-18941.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoeviet.org.vn",
+  "url": "https://suckhoeviet.org.vn/lam-the-nao-de-tri-seo-an-toan-dut-diem-lo-au-8216.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "cnkang.com",
+  "url": "http://www.cnkang.com/jibing/bizichuxue/676360.html",
+  "status": 301,
+  "location": "https://www.cnkang.com/jibing/bizichuxue/676360.html"
+ },
+ {
+  "host": "ask.39.net",
+  "url": "https://ask.39.net/question/65173463.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "laodong.vn",
+  "url": "https://laodong.vn/ban-tin/kiem-soat-duong-huyet-nho-3-meo-khi-an-trai-cay-1449007.ldo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "laodong.vn",
+  "url": "https://laodong.vn/cac-loai-benh/cach-phan-biet-chung-run-ray-do-parkinson-va-cac-chung-run-khac-1496108.ldo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tienphong.vn",
+  "url": "https://tienphong.vn/gia-tri-thuoc-nam-trong-cham-soc-suc-khoe-cong-dong-post1773902.tpo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "dantri.com.vn",
+  "url": "https://dantri.com.vn/suc-khoe/phau-thuat-khoi-u-xo-nang-55-kg-cho-nguoi-phu-nu-35-tuoi-20220409155958896.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tuoitre.vn",
+  "url": "https://tuoitre.vn/co-hoa-hau-dien-vien-tham-gia-ban-dam-hoat-dong-mai-dam-cho-nguoi-nuoc-ngoai-pho-bien-20250926165243806.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tuoitre.vn",
+  "url": "https://tuoitre.vn/thuc-hu-chuyen-dung-kien-de-xua-duoi-muoi-truyen-benh-chikungunya-20250827223028617.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "sggp.org.vn",
+  "url": "https://www.sggp.org.vn/chu-tich-ubnd-tphcm-phan-van-mai-tham-chuc-tet-tai-benh-vien-cho-ray-post779880.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoecongdongonline.vn",
+  "url": "https://suckhoecongdongonline.vn/gia-xang-dau-tang-manh-gan-1500-donglit-tu-17h-hom-nay",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoedoisong.vn",
+  "url": "https://suckhoedoisong.vn/5-cach-giup-co-the-tu-san-sinh-collagen-lam-cham-qua-trinh-lao-hoa-da-169251104122759605.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoedoisong.vn",
+  "url": "https://suckhoedoisong.vn/su-dung-kem-chong-nang-gia-nguy-hiem-nhu-the-nao-169250603095948615.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "thanhnien.vn",
+  "url": "https://thanhnien.vn/rang-gia-ket-trong-phoi-mot-benh-nhan-o-khanh-hoa-185240809185708493.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vinmec.com",
+  "url": "https://www.vinmec.com/vie/bai-viet/dau-hieu-trao-nguoc-da-day-ban-nen-biet-vi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "medlatec.vn",
+  "url": "https://medlatec.vn/tin-tuc/meo-dan-gian-chua-khut-khit-cho-tre-so-sinh-cha-me-nen-biet",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "medlatec.vn",
+  "url": "https://medlatec.vn/tin-tuc/hit-tho-sau-bi-dau-nguc-ben-phai-la-dau-hieu-cua-benh-gi-phai-lam-sao",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "giadinhonline.vn",
+  "url": "https://giadinhonline.vn/nhung-ai-co-nguy-co-thieu-axit-folic-d98847.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "phunusuckhoe.giadinhonline.vn",
+  "url": "https://phunusuckhoe.giadinhonline.vn/thuong-xuyen-au-nua-au-thieu-nu-17-tuoi-phat-hien-mac-benh-hiem-gap-o-nao-c12a508686.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "baonghean.vn",
+  "url": "https://baonghean.vn/dong-y-dieu-tri-suy-tim-10022985.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "baonghean.vn",
+  "url": "https://baonghean.vn/kinh-nghiem-phong-tranh-va-dieu-tri-kien-ba-khoang-dot-10084383.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vietnamnet.vn",
+  "url": "https://vietnamnet.vn/ly-do-giao-vien-tieng-anh-mac-covid-19-khong-phai-lay-nhiem-cong-dong-693927.html#comment",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "hellobacsi.com",
+  "url": "https://hellobacsi.com/an-uong-lanh-manh/thong-tin-dinh-duong/hat-thong/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "youmed.vn",
+  "url": "https://youmed.vn/tin-tuc/giong-noi-thay-doi-nguyen-nhan-do-dau/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "youmed.vn",
+  "url": "https://youmed.vn/tin-tuc/nhung-bien-phap-khac-phuc-tang-tiet-mo-hoi-hieu-qua/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vnexpress.net",
+  "url": "https://vnexpress.net/so-benh-nhan-phong-o-viet-nam-giam-manh-5013285.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoeviet.org.vn",
+  "url": "https://suckhoeviet.org.vn/bo-y-te-dua-ra-5-khuyen-cao-phong-chong-benh-soi-17203.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "cnkang.com",
+  "url": "http://www.cnkang.com/dise/51/596412.html",
+  "status": 301,
+  "location": "https://www.cnkang.com/dise/51/596412.html"
+ },
+ {
+  "host": "cnkang.com",
+  "url": "http://www.cnkang.com/nrjk/nxjb/nmnjb/llbb/200812/117271.html",
+  "status": 301,
+  "location": "https://www.cnkang.com/nrjk/nxjb/nmnjb/llbb/200812/117271.html"
+ },
+ {
+  "host": "ask.39.net",
+  "url": "https://ask.39.net/question/57411323.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "laodong.vn",
+  "url": "https://laodong.vn/y-te/mau-du-tru-xuong-muc-thap-can-tho-yeu-cau-xa-phuong-dang-ky-it-nhat-2-dot-hien-1614605.ldo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tienphong.vn",
+  "url": "https://tienphong.vn/hue-ghi-nhan-42-ca-benh-4-truong-hop-tu-vong-do-lien-cau-lon-post1769839.tpo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tienphong.vn",
+  "url": "https://tienphong.vn/can-benh-lien-quan-den-thoai-hoa-than-kinh-khien-teo-dan-co-xuong-co-the-tu-vong-post1759250.tpo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "dantri.com.vn",
+  "url": "https://dantri.com.vn/suc-khoe/chuyen-gia-khuyen-cao-quy-tac-4-so-2-de-giu-rang-khoe-20260314101229670.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tuoitre.vn",
+  "url": "https://tuoitre.vn/quan-y-truong-sa-cap-cuu-ngu-dan-bi-dot-quy-nao-tren-bien-2025082515490248.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "sggp.org.vn",
+  "url": "https://www.sggp.org.vn/co-gi-dang-ke-dau-post833894.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "sggp.org.vn",
+  "url": "https://www.sggp.org.vn/cap-nhat-danh-muc-thuoc-bhyt-them-co-hoi-song-cho-nguoi-mac-benh-hiem-ngheo-post842786.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoecongdongonline.vn",
+  "url": "https://suckhoecongdongonline.vn/18-nguoi-tren-may-bay-nga-mat-tich-o-siberia-deu-song-sot",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoecongdongonline.vn",
+  "url": "https://suckhoecongdongonline.vn/thi-nghiem-loai-keo-cao-su-co-tac-dung-giam-lay-lan-virus-sars-cov-2",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoedoisong.vn",
+  "url": "https://suckhoedoisong.vn/5-bai-tap-chan-don-gian-giup-giam-nguy-co-te-nga-169250917153627289.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "thanhnien.vn",
+  "url": "https://thanhnien.vn/cong-bo-danh-sach-cac-co-so-san-xuat-bun-banh-hoi-chua-tinopal-185387010.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vinmec.com",
+  "url": "https://www.vinmec.com/vie/bai-viet/5-cach-chua-viem-duong-tiet-nieu-tai-nha-hieu-qua-vi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vinmec.com",
+  "url": "https://www.vinmec.com/vie/bai-viet/he-thong-kinh-lac-trong-co-vi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "medlatec.vn",
+  "url": "https://medlatec.vn/tin-tuc/xo-gan-co-truong-trieu-chung-nguyen-nhan-va-cach-dieu-tri-benh-hieu-qua-s94-n14397",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "giadinhonline.vn",
+  "url": "https://giadinhonline.vn/tra-xanh-tot-cho-suc-khoe-nhung-khong-phai-ai-cung-nen-uong-d159370.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "phunusuckhoe.giadinhonline.vn",
+  "url": "https://phunusuckhoe.giadinhonline.vn/cang-cao-tuoi-cang-ngu-it-la-binh-thuong-c12a372712.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "phunusuckhoe.giadinhonline.vn",
+  "url": "https://phunusuckhoe.giadinhonline.vn/5-nhom-nguoi-han-che-an-xoi-c12a496488.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "baonghean.vn",
+  "url": "https://baonghean.vn/8-benh-de-doa-ban-khi-thoi-tiet-chuyen-tu-thu-sang-dong-10023714.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vietnamnet.vn",
+  "url": "https://vietnamnet.vn/q-a-thai-doc-dai-trang-co-giup-duong-ruot-khoe-ngua-ung-thu-khong-2166355.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "hellobacsi.com",
+  "url": "https://hellobacsi.com/da-lieu/cham-soc-da/vitamin-b1-co-tac-dung-gi-cho-da/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "hellobacsi.com",
+  "url": "https://hellobacsi.com/nuoi-day-con/be-0-1-tuoi/cham-soc-be/8-dau-hieu-phan-be-so-sinh/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "youmed.vn",
+  "url": "https://youmed.vn/tin-tuc/tam-soat-benh-ly-tim-mach/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vnexpress.net",
+  "url": "https://vnexpress.net/ung-dung-ai-vao-phuc-hoi-chuc-nang-sau-phau-thuat-cot-song-5050239.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoeviet.org.vn",
+  "url": "https://suckhoeviet.org.vn/thiet-bi-tao-song-sieu-am-tu-phan-huy-sinh-hoc-hy-vong-moi-trong-viec-dua-thuoc-vao-nao-de-dieu-tri-ung-thu-6472.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoeviet.org.vn",
+  "url": "https://suckhoeviet.org.vn/dan-gian-dieu-tri-chung-chan-chien-phong-trao-parkinson-17123.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "cnkang.com",
+  "url": "http://www.cnkang.com/dise/73/28832.html",
+  "status": 301,
+  "location": "https://www.cnkang.com/dise/73/28832.html"
+ },
+ {
+  "host": "ask.39.net",
+  "url": "https://ask.39.net/question/57447111.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "laodong.vn",
+  "url": "https://laodong.vn/suc-khoe/5-loai-hat-giup-kiem-soat-huyet-ap-hieu-qua-nhat-1463788.ldo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "laodong.vn",
+  "url": "https://laodong.vn/suc-khoe/cach-phong-cac-loai-benh-ve-da-mua-lanh-khong-the-bo-qua-869822.ldo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tienphong.vn",
+  "url": "https://tienphong.vn/vitrolife-hop-tac-chuyen-mon-voi-benh-vien-tam-anh-toi-uu-hoa-cong-nghe-pgt-a-nang-cao-hieu-qua-dieu-tri-ivf-post1744536.tpo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "dantri.com.vn",
+  "url": "https://dantri.com.vn/suc-khoe/bac-si-cuu-nguoi-tren-duong-duoc-so-y-te-ha-noi-khen-thuong-dot-xuat-20260317135332887.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tuoitre.vn",
+  "url": "https://tuoitre.vn/tu-1-7-truong-hop-nao-tu-di-kham-chua-benh-trai-tuyen-duoc-huong-100-bao-hiem-y-te-2025060918003568.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tuoitre.vn",
+  "url": "https://tuoitre.vn/do-tuoi-nao-de-bi-caffeine-tac-dong-den-giac-ngu-nhat-20250531152659322.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "sggp.org.vn",
+  "url": "https://www.sggp.org.vn/bo-y-te-yeu-cau-chan-chinh-kiem-tra-nghiem-ngat-ho-so-hien-ghep-tang-post842320.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoecongdongonline.vn",
+  "url": "https://suckhoecongdongonline.vn/truc-tiep-ket-qua-xo-so-mien-nam-24-5-2021-xsmn-thu-2-du-doan-xsmn-24-5",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoedoisong.vn",
+  "url": "https://suckhoedoisong.vn/kho-vi-vo-di-tao-hinh-tham-my-vung-bikini-16975077.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "thanhnien.vn",
+  "url": "https://thanhnien.vn/11-cach-tri-loet-mieng-tai-nha-hieu-qua-ban-can-biet-185957331.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "thanhnien.vn",
+  "url": "https://thanhnien.vn/nghe-tieng-la-trong-quan-tai-nguoi-nha-ben-dua-den-benh-vien-185812882.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vinmec.com",
+  "url": "https://www.vinmec.com/vie/bai-viet/nu-gioi-noi-hach-o-vu-nguyen-nhan-la-gi-vi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "medlatec.vn",
+  "url": "https://medlatec.vn/tin-tuc/ban-do-nhiem-khuan-so-sinh-trieu-chung-va-dieu-tri-s75-n23871",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "giadinhonline.vn",
+  "url": "https://giadinhonline.vn/ba-bau-an-gac-duoc-khong-d42897.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "giadinhonline.vn",
+  "url": "https://giadinhonline.vn/cach-phoi-ao-so-mi-giup-tre-ra-10-tuoi-d200293.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "phunusuckhoe.giadinhonline.vn",
+  "url": "https://phunusuckhoe.giadinhonline.vn/bat-mi-bi-quyet-an-vai-tha-ga-ma-khong-so-nong-trong-nguoi-noi-mun-ay-mat-c12a484473.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "baonghean.vn",
+  "url": "https://baonghean.vn/tang-vien-phi-tao-da-nang-chat-luong-kham-chua-benh-10038413.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vietnamnet.vn",
+  "url": "https://vietnamnet.vn/rau-den-bo-mau-hon-thit-bo-nhung-nhieu-nguoi-khong-nen-an-2264611.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vietnamnet.vn",
+  "url": "https://vietnamnet.vn/ba-ria-vung-tau-xet-nghiem-tam-soat-ncov-cho-hon-30000-nguoi-751686.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "hellobacsi.com",
+  "url": "https://hellobacsi.com/an-uong-lanh-manh/thong-tin-dinh-duong/nuoc-ep-hanh-tay/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "youmed.vn",
+  "url": "https://youmed.vn/tin-tuc/duoi-nuoc-6-buoc-so-cap-cuu-ban-dau/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vnexpress.net",
+  "url": "https://vnexpress.net/tranh-an-bu-ngay-tet-phong-dai-thao-duong-thai-ky-5041315.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vnexpress.net",
+  "url": "https://vnexpress.net/loi-ich-cua-dua-chuot-voi-lan-da-5049291.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoeviet.org.vn",
+  "url": "https://suckhoeviet.org.vn/phong-kham-da-khoa-dai-viet-danh-gia-tu-trai-nghiem-thuc-te-cua-nguoi-benh-5116.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "cnkang.com",
+  "url": "http://www.cnkang.com/myjk/yc/fm/cqzz/200710/101163.html",
+  "status": 301,
+  "location": "https://www.cnkang.com/myjk/yc/fm/cqzz/200710/101163.html"
+ },
+ {
+  "host": "ask.39.net",
+  "url": "https://ask.39.net/question/15885971.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "ask.39.net",
+  "url": "https://ask.39.net/question/65681179.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "laodong.vn",
+  "url": "https://laodong.vn/suc-khoe/5-li-do-khien-ban-tap-the-duc-deu-dan-nhung-khong-giam-can-1259816.ldo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tienphong.vn",
+  "url": "https://tienphong.vn/sap-dien-ra-hoi-thao-cap-nhat-chan-doan-dieu-tri-dot-quy-tu-ly-thuyet-den-thuc-hanh-tai-can-tho-post1748518.tpo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "dantri.com.vn",
+  "url": "https://dantri.com.vn/suc-khoe/nuot-phai-kep-toc-be-gai-5-tuoi-nhap-vien-cap-cuu-20250919171602924.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "dantri.com.vn",
+  "url": "https://dantri.com.vn/suc-khoe/khach-dang-an-sang-nga-quy-chu-quan-ep-tim-gan-1-tieng-tao-ky-tich-20251229094149401.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tuoitre.vn",
+  "url": "https://tuoitre.vn/thuc-hu-tin-don-gel-tai-tao-sun-khong-can-den-phau-thuat-20250903115826771.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "sggp.org.vn",
+  "url": "https://www.sggp.org.vn/cuu-nguoi-phu-nu-nuot-ban-chai-danh-rang-post832741.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoecongdongonline.vn",
+  "url": "https://suckhoecongdongonline.vn/du-khach-tan-huong-gia-lanh-13-do-c-giua-ky-nghi-le-o-sa-pa-481755236612",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoedoisong.vn",
+  "url": "https://suckhoedoisong.vn/phong-benh-tim-mach-hieu-qua-voi-nhung-thoi-quen-don-gian-169250123230645257.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "thanhnien.vn",
+  "url": "https://thanhnien.vn/vi-sao-nhieu-nguoi-chet-som-sau-khi-ly-di-185761534.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "thanhnien.vn",
+  "url": "https://thanhnien.vn/muon-bo-thuoc-la-hay-tap-the-duc-185144288.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vinmec.com",
+  "url": "https://www.vinmec.com/vie/bai-viet/phau-thuat-thay-toan-bo-khop-hang-vi",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "medlatec.vn",
+  "url": "https://medlatec.vn/tin-tuc/tim-hieu-nhung-phuong-phap-dieu-tri-roi-loan-tieu-hoa-o-tre-em-s75-n25614",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "giadinhonline.vn",
+  "url": "https://giadinhonline.vn/7-thoi-quen-nho-giup-cai-thien-suc-khoe-va-tinh-than-hieu-qua-d176838.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "giadinhonline.vn",
+  "url": "https://giadinhonline.vn/tu-vi-ngay-22-5-2019-cua-12-con-giap-tuoi-mao-tai-loc-vuong-phat-tuoi-than-tinh-duyen-no-ro-d143811.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "phunusuckhoe.giadinhonline.vn",
+  "url": "https://phunusuckhoe.giadinhonline.vn/35-tuoi-khong-uong-ruou-hut-thuoc-nhung-lai-bi-ung-thu-gan-nguoi-phu-nu-khoc-het-nuoc-mat-vi-biet-nguyen-nhan-c12a380096.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "baonghean.vn",
+  "url": "https://baonghean.vn/tac-dung-khong-ngo-cua-cu-cai-trang-10019505.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vietnamnet.vn",
+  "url": "https://vietnamnet.vn/rau-mong-toi-co-tot-khong-nhung-nguoi-khong-nen-an-rau-mong-toi-2397826.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vietnamnet.vn",
+  "url": "https://vietnamnet.vn/nguoi-phu-nu-ngung-tim-2-lan-khi-mo-chuyen-vien-trong-tinh-huong-dac-biet-2457018.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "hellobacsi.com",
+  "url": "https://hellobacsi.com/mang-thai/thai-ky/suc-khoe-khi-mang-thai/viem-loet-da-day-khi-mang-thai/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "youmed.vn",
+  "url": "https://youmed.vn/tin-tuc/chuyen-gia-giai-dap-thac-mac-thai-chua-vao-tu-cung-co-quan-he-duoc-khong/",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vnexpress.net",
+  "url": "https://vnexpress.net/vaccine-phe-cau-phong-benh-gi-4962519.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "vnexpress.net",
+  "url": "https://vnexpress.net/bat-ban-doi-tranh-thai-triet-san-vi-dinh-kien-gioi-bi-phat-toi-12-trieu-dong-5051781.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "suckhoeviet.org.vn",
+  "url": "https://suckhoeviet.org.vn/bai-thuoc-bo-phe-than-tu-cay-bach-qua-779.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "cnkang.com",
+  "url": "http://www.cnkang.com/nkwk/yxyzl/600334.html",
+  "status": 301,
+  "location": "https://www.cnkang.com/nkwk/yxyzl/600334.html"
+ },
+ {
+  "host": "ask.39.net",
+  "url": "https://ask.39.net/question/105483103.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "ask.39.net",
+  "url": "https://ask.39.net/question/43506171.html",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "laodong.vn",
+  "url": "https://laodong.vn/suc-khoe/tre-nhap-vien-vi-soc-sot-xuat-huyet-nang-cha-me-can-luu-y-bao-ve-con-kip-thoi-1534349.ldo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tienphong.vn",
+  "url": "https://tienphong.vn/thanh-hoa-van-hanh-may-khoan-da-mot-cong-nhan-bi-mui-khoan-gam-sau-trong-mui-post1766592.tpo",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "dantri.com.vn",
+  "url": "https://dantri.com.vn/suc-khoe/6-ly-do-pho-bien-dan-den-giam-ham-muon-tinh-duc-20231118213329907.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "dantri.com.vn",
+  "url": "https://dantri.com.vn/suc-khoe/can-canh-ca-mo-than-toc-giai-cuu-benh-nhan-bit-tac-duong-tho-nhieu-nam-20260119142437519.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "tuoitre.vn",
+  "url": "https://tuoitre.vn/hon-95-dan-so-ha-noi-co-bao-hiem-y-te-sap-toi-nhieu-nguoi-duoc-ho-tro-them-muc-dong-20250610133240692.htm",
+  "status": 200,
+  "location": null
+ },
+ {
+  "host": "sggp.org.vn",
+  "url": "https://www.sggp.org.vn/xay-dung-he-sinh-thai-toan-dien-cho-chuyen-doi-so-y-te-post828959.html",
+  "status": 200,
+  "location": null
+ }
+]

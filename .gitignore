@@ -1,0 +1,46 @@
+# Data and run outputs live outside git (raw data is described in data/raw/MANIFEST.md)
+data/**
+!data/raw/
+!data/raw/README.md
+!data/raw/MANIFEST.md
+runs/
+_temp/
+_archive/
+temp_submission/
+submissions/*.zip
+kaggle/outputs/
+kaggle/corpus_dataset/
+kaggle/rankings_ds/
+kaggle/recrawl_missing*/
+kaggle/recrawl/dataset/
+kaggle/recrawl/by_account/*/dataset/
+research/refs/
+
+# Large or binary artifacts anywhere
+*.parquet
+*.jsonl
+*.jsonl.gz
+*.gz
+*.zip
+*.npy
+*.pack
+*.sqlite
+*.faiss
+*.pkl
+*.bin
+*.safetensors
+
+# Secrets (never commit)
+kaggle.json
+.env
+*.key
+
+# Python / tools
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Dataset staging folders for Kaggle uploads
+kaggle/*_ds/
+kaggle/cc_recover/data/

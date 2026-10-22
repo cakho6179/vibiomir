@@ -1,0 +1,603 @@
+# Kaggle Kernel: Probe Chinese Medical Hosts from Google Cloud IP
+# Testing ask.39.net and www.120ask.com connectivity
+
+import subprocess
+import sys
+import json
+import time
+from collections import Counter
+
+print("=== Starting Chinese Hosts Probe from Kaggle Environment ===")
+
+# Install curl_cffi for TLS fingerprint impersonation
+try:
+    import curl_cffi
+except ImportError:
+    print("Installing curl_cffi...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "curl_cffi"])
+    import curl_cffi
+
+from curl_cffi import requests as cffi_requests
+import requests as std_requests
+
+TARGETS = [
+  {
+    "id": 2217563,
+    "url": "https://ask.39.net/question/24781417.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2224447,
+    "url": "https://ask.39.net/question/29297290.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2178032,
+    "url": "https://ask.39.net/question/107377662.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2243219,
+    "url": "https://ask.39.net/question/36187907.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2203341,
+    "url": "https://ask.39.net/question/14055857.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2255640,
+    "url": "https://ask.39.net/question/42056954.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2219679,
+    "url": "https://ask.39.net/question/26353564.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2342506,
+    "url": "https://ask.39.net/question/86892864.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2449200,
+    "url": "https://ask.39.net/question/_prmb05.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2266762,
+    "url": "https://ask.39.net/question/54057881.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2216286,
+    "url": "https://ask.39.net/question/23961654.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2252723,
+    "url": "https://ask.39.net/question/40731500.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2291923,
+    "url": "https://ask.39.net/question/60630791.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2258515,
+    "url": "https://ask.39.net/question/44431540.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2310876,
+    "url": "https://ask.39.net/question/66057845.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2197414,
+    "url": "https://ask.39.net/question/11693941.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2223391,
+    "url": "https://ask.39.net/question/28584889.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2306978,
+    "url": "https://ask.39.net/question/64979916.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2267582,
+    "url": "https://ask.39.net/question/55198546.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2382211,
+    "url": "https://ask.39.net/question/95000611.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2336493,
+    "url": "https://ask.39.net/question/86194958.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2406911,
+    "url": "https://ask.39.net/question/_49vfb5.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2273531,
+    "url": "https://ask.39.net/question/57725521.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2426747,
+    "url": "https://ask.39.net/question/_ch3yc5.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2218106,
+    "url": "https://ask.39.net/question/25173502.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2348944,
+    "url": "https://ask.39.net/question/88086581.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2185667,
+    "url": "https://ask.39.net/question/10839394.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2184084,
+    "url": "https://ask.39.net/question/108195512.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2211175,
+    "url": "https://ask.39.net/question/20576256.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2302485,
+    "url": "https://ask.39.net/question/63845950.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2224020,
+    "url": "https://ask.39.net/question/29035835.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2406291,
+    "url": "https://ask.39.net/question/_41du05.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2259104,
+    "url": "https://ask.39.net/question/44858630.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2225544,
+    "url": "https://ask.39.net/question/30113579.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2242592,
+    "url": "https://ask.39.net/question/35796122.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2249485,
+    "url": "https://ask.39.net/question/39100218.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2447871,
+    "url": "https://ask.39.net/question/_p589c5.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2256693,
+    "url": "https://ask.39.net/question/42812957.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2288599,
+    "url": "https://ask.39.net/question/59895107.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2248523,
+    "url": "https://ask.39.net/question/38459666.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2222564,
+    "url": "https://ask.39.net/question/28027344.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2391247,
+    "url": "https://ask.39.net/question/98912506.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2272062,
+    "url": "https://ask.39.net/question/57383141.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2208049,
+    "url": "https://ask.39.net/question/18283963.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2209047,
+    "url": "https://ask.39.net/question/19076822.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2232994,
+    "url": "https://ask.39.net/question/32929752.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2331312,
+    "url": "https://ask.39.net/question/85931609.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2384576,
+    "url": "https://ask.39.net/question/95758980.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2264397,
+    "url": "https://ask.39.net/question/49924847.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 2310755,
+    "url": "https://ask.39.net/question/66006414.html",
+    "host": "ask.39.net"
+  },
+  {
+    "id": 932611,
+    "url": "http://www.120ask.com/question/103360366.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1183281,
+    "url": "http://www.120ask.com/question/26924701.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 987693,
+    "url": "http://www.120ask.com/question/108351570.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1063855,
+    "url": "http://www.120ask.com/question/14263903.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1241343,
+    "url": "http://www.120ask.com/question/366170.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1159755,
+    "url": "http://www.120ask.com/question/2350067.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1305034,
+    "url": "http://www.120ask.com/question/566160.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1394975,
+    "url": "http://www.120ask.com/question/930795.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 994578,
+    "url": "http://www.120ask.com/question/108433389.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 995319,
+    "url": "http://www.120ask.com/question/108443609.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1153825,
+    "url": "http://www.120ask.com/question/22720828.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1224655,
+    "url": "http://www.120ask.com/question/3375871.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 984814,
+    "url": "http://www.120ask.com/question/108301225.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1282086,
+    "url": "http://www.120ask.com/question/4651515.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 2610206,
+    "url": "https://www.120ask.com/question/108403487.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1231302,
+    "url": "http://www.120ask.com/question/3497063.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 2769670,
+    "url": "https://www.120ask.com/question/24914889.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1390743,
+    "url": "http://www.120ask.com/question/9005481.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1329485,
+    "url": "http://www.120ask.com/question/63337600.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1202239,
+    "url": "http://www.120ask.com/question/30482599.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 984826,
+    "url": "http://www.120ask.com/question/108301304.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 962386,
+    "url": "http://www.120ask.com/question/107460423.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 2738320,
+    "url": "https://www.120ask.com/question/204787.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1169902,
+    "url": "http://www.120ask.com/question/2499310.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1285550,
+    "url": "http://www.120ask.com/question/47747725.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1099938,
+    "url": "http://www.120ask.com/question/1697603.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 948667,
+    "url": "http://www.120ask.com/question/107180889.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1191348,
+    "url": "http://www.120ask.com/question/28349973.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 2911870,
+    "url": "https://www.120ask.com/question/61605945.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1250279,
+    "url": "http://www.120ask.com/question/380434.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1130337,
+    "url": "http://www.120ask.com/question/201851.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1158185,
+    "url": "http://www.120ask.com/question/233029.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1313169,
+    "url": "http://www.120ask.com/question/5912530.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1318305,
+    "url": "http://www.120ask.com/question/60505910.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 2746308,
+    "url": "https://www.120ask.com/question/21409686.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1320060,
+    "url": "http://www.120ask.com/question/60945099.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1070094,
+    "url": "http://www.120ask.com/question/14526000.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1361784,
+    "url": "http://www.120ask.com/question/75602135.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 989210,
+    "url": "http://www.120ask.com/question/108367644.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1274658,
+    "url": "http://www.120ask.com/question/44068655.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 2981367,
+    "url": "https://www.120ask.com/question/9397822.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 944729,
+    "url": "http://www.120ask.com/question/107048909.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 2824482,
+    "url": "https://www.120ask.com/question/34614766.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1104043,
+    "url": "http://www.120ask.com/question/17296585.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 948105,
+    "url": "http://www.120ask.com/question/107162662.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1074674,
+    "url": "http://www.120ask.com/question/14832541.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 2923402,
+    "url": "https://www.120ask.com/question/64651545.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 993954,
+    "url": "http://www.120ask.com/question/108427488.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1344773,
+    "url": "http://www.120ask.com/question/673517.htm",
+    "host": "www.120ask.com"
+  },
+  {
+    "id": 1153138,
+    "url": "http://www.120ask.com/question/226546.htm",
+    "host": "www.120ask.com"
+  }
+]
+
+results = []
+by_host_outcome = Counter()
+
+print(f"Total probe targets: {len(TARGETS)} URLs")
+
+for i, target in enumerate(TARGETS):
+    did = target["id"]
+    url = target["url"]
+    host = target["host"]
+    
+    t0 = time.time()
+    outcome = "unknown"
+    status = None
+    chars = 0
+    title = ""
+    err_msg = ""
+
+    # 1. Try with curl_cffi (Chrome 124 TLS fingerprint)
+    try:
+        resp = cffi_requests.get(url, impersonate="chrome124", timeout=10)
+        status = resp.status_code
+        if status == 200:
+            text = resp.text
+            chars = len(text)
+            if "39健康" in text and "captcha" in text.lower():
+                outcome = "captcha"
+            elif "404" in text or "页面不存在" in text:
+                outcome = "not_found"
+            elif chars < 200:
+                outcome = "too_short"
+            else:
+                outcome = "ok_cffi"
+        else:
+            outcome = f"http_{status}"
+    except Exception as e:
+        err_msg = str(e)[:100]
+        # 2. Fallback to standard requests
+        try:
+            resp2 = std_requests.get(url, timeout=10, headers={"User-Agent": "Mozilla/5.0"})
+            status = resp2.status_code
+            if status == 200:
+                chars = len(resp2.text)
+                outcome = "ok_std"
+            else:
+                outcome = f"std_http_{status}"
+        except Exception as e2:
+            outcome = f"err_{type(e).__name__}"
+            err_msg = str(e)[:100]
+
+    elapsed = time.time() - t0
+    key = f"{host} -> {outcome}"
+    by_host_outcome[key] += 1
+    
+    results.append({
+        "id": did,
+        "url": url,
+        "host": host,
+        "outcome": outcome,
+        "status": status,
+        "chars": chars,
+        "elapsed": round(elapsed, 2),
+        "error": err_msg
+    })
+    
+    if (i + 1) % 20 == 0 or (i + 1) == len(TARGETS):
+        print(f"  [{i+1}/{len(TARGETS)}] Done. Latest: {host} -> {outcome} ({status}) {chars} chars in {elapsed:.2f}s")
+
+print("\n" + "="*60)
+print("=== PROBE SUMMARY RESULTS ACROSS 100 SAMPLES ===")
+print("="*60)
+for k, v in by_host_outcome.most_common():
+    pct = v / len(TARGETS) * 100
+    print(f"  {k:45s}: {v:3d} ({pct:.1f}%)")
+
+with open("probe_results.json", "w", encoding="utf-8") as f:
+    json.dump({"summary": dict(by_host_outcome), "records": results}, f, ensure_ascii=False, indent=2)
+
+print("\nProbe complete. Results saved to probe_results.json")
