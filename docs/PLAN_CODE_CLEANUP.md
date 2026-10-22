@@ -39,7 +39,7 @@ vibiomir/
 ## 3. Các bước (mỗi bước độc lập, đảo ngược được)
 | # | Việc | Rủi ro | Ghi chú |
 |---|---|---|---|
-| 0 | `git init` cục bộ cho `vibiomir/` (bỏ qua data/, runs/, kaggle/outputs/, submissions/, *.zip, *.parquet) và commit hiện trạng | thấp | **cần user đồng ý** — để mọi bước sau xem lại / hoàn tác được |
+| 0 | ✅ 22/10: `git init` cho `vibiomir/` (commit bffa280), dữ liệu gốc chuyển vào `data/raw/` (chỉ đọc, có MANIFEST sha256), `paths.py` trỏ về `raw/` | — | xong |
 | 1 | Chuyển vào `_temp`: 41 probe `research/results/_data/`, `research/_reveng.py`, `recrawl/dataset` + `recrawl/by_account` (bản cũ), kernel BM25 v1 (e1/e2/e3), `__pycache__` | rất thấp | không file nào tham chiếu |
 | 2 | Chuyển vào `_temp`: 18 script không còn tham chiếu (build_sota_v2, build_decision_v4, clean_corpus, kaggle_sync…) — Haiku kiểm lại từng file bằng grep trước | thấp | |
 | 3 | Viết `docs/CODEMAP.md` | không | làm trước cả bước 4 để có bản đồ |
