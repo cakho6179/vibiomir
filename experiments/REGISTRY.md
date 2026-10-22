@@ -8,7 +8,7 @@
 | 2026-10-20_rrf_weights_1to1_vs_1to2 | 20/10 | RRF E1v2 + BGE-M3: trọng số 1:1 hay 1:2 tốt hơn? | Kaggle + LB | 1:1 FINAL 0.1781; 1:2 FINAL 0.1997 (tốt nhất lúc đó) | xong |
 | 2026-10-20_qwen3_emb_fusion | 20/10 | Thêm Qwen3-Emb vào fusion (1:2:2) có tăng FINAL không? | Kaggle + LB | 1:2:2 FINAL 0.1948 < 1:2 (0.1997) ⇒ Qwen3-Emb làm loãng | xong |
 | 2026-10-20_en_zh_probe | 20/10 | Doc EN/ZH có bổ sung recall cho query VI không (14 EN + 14 ZH mỗi query)? | Kaggle + LB | FINAL 0.0089; R 0.0105 (~0.5 doc gold/query) ⇒ bỏ luồng EN/ZH | bỏ |
-| 2026-10-20_upload_limit_lzma | 20/10 | Giới hạn upload là bao nhiêu? Nén LZMA có cứu được N=70 không? | LB | N=70 (159 MB) bị 413; N=28 ~80 MB qua; LZMA N=70 còn 64–68 MB, chưa nộp | chờ LB |
+| 2026-10-20_upload_limit_lzma | 20/10 | Giới hạn upload là bao nhiêu? Nén LZMA có cứu được N=70 không? | LB | N=70 (159 MB) bị 413; LZMA 256 MiB được server chấm (b3_VI_n28, 22/10); trần ~102.6 MB (đội khác) | xong |
 | 2026-10-20_recovery_cc_wayback_pubmed | 20/10 | Lấy lại được bao nhiêu doc thiếu từ Wayback, Common Crawl, PubMed? | Kaggle | Wayback LC +60,599; ask.39.net +31,789; PubMed +4; corpus sạch v2 1,183,751 (97.0%); CC cc-recover CANCEL | xong |
 | 2026-10-20_corpus_processed_v3 | 20/10 | Xử lý v3 (chuẩn hóa, gỡ template theo host, khóa trùng) cho corpus sạch đến mức nào? | offline | 1,183,751 doc (vi 728,415 / zh 215,637 / en 239,699); gỡ 2.04% ký tự | xong |
 | 2026-10-20_boilerplate_audit | 20/10 | Boilerplate theo host chiếm bao nhiêu corpus? Host nào bẩn nhất? | offline | 2.8% ký tự toàn corpus; suckhoeviet.org.vn 32%, 120ask 31%, familydoctor 17% | xong |
@@ -20,6 +20,7 @@
 | 2026-10-22_icd_chapter_by_system | 22/10 | Chương ICD-10 của query và doc trùng nhau theo từng hệ truy hồi thế nào? | offline | BM25 e1v2 79.7% (3.80 doc lệch/q); M3 88.8%; reranker r1 90.0% (1.93) | xong |
 | 2026-10-22_section_template_share | 22/10 | Bao nhiêu doc có khung mục chuẩn (nguyên nhân/triệu chứng/điều trị) để chunk theo mục? | offline | 3.9% doc vi (mẫu 18,255); Medlatec 30%, tiemchunglongchau 36%, báo chí ~0% | xong |
 | 2026-10-22_body_span_chunk_text | 22/10 | chunk_text = đoạn thân bài liên tục có giữ đủ nội dung và còn chỗ nhét thêm chunk không? | offline | Giữ 98.8% ký tự toàn văn (clean_v4 rời rạc 98.2%) ⇒ không đủ chỗ nhét thêm chunk | xong |
+| 2026-10-22_recovery_round2 | 22/10 | Vét doc còn thiếu (VI 12.183, ZH 24.363) qua Common Crawl, PubMed, tải trực tiếp, Wayback | Kaggle | CC CDX 1.096 · PubMed 178 · direct 451 → `data/raw/recovered/`; CC columnar ×5 + Wayback VI/ZH đang chạy | đang chạy |
 | [2026-10-22_frame_probe](2026-10-22_frame_probe/README.md) | 22/10 | Đúng bệnh / đúng ý có đơn điệu theo P và hạng? | offline | ICD .553→.615→.640; ý .682→.717→.727; rác URL ~1,3% | xong |
 | 2026-10-22_depth_probe | 22/10 | P(N) khi đi sâu 100/150/200 doc; lợi chunk 28→60→90; cắt ngưỡng reranker | Kaggle + LB | zip trong `submissions/` (w12_VI_d*, rd*, rdT1/T2, w12T2) | chờ LB |
 
