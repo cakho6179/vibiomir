@@ -113,13 +113,18 @@ class TemplateModel:
         self._sample.clear()
         return self
 
-    def apply(self, host: str, text: str) -> str:
+    def template_mask(self, host: str, lines: list[str]) -> list[bool]:
+        """True for each template line of ``lines``; all False when removal would cut below keep_min_share."""
         keys = self.lines.get(host)
         if not keys:
-            return text
-        kept = [ln for ln in text.split("\n") if line_key(ln) not in keys]
-        out = "\n".join(kept)
-        return out if len(out) >= self.keep_min_share * len(text) else text
+            return [False] * len(lines)
+        mask = [line_key(ln) in keys for ln in lines]
+        kept = sum(len(ln) for ln, m in zip(lines, mask) if not m) + max(sum(not m for m in mask) - 1, 0)
+        return mask if kept >= self.keep_min_share * len("\n".join(lines)) else [False] * len(lines)
+
+    def apply(self, host: str, text: str) -> str:
+        lines = text.split("\n")
+        return "\n".join(ln for ln, m in zip(lines, self.template_mask(host, lines)) if not m)
 
 
 def split_passages(title: str, text: str, max_chars: int = 1500) -> list[str]:

@@ -9,3 +9,4 @@
 | recovered/cc_kernels_2026-10-22.jsonl | 8475600 | c56a20a3edaa46d0 | 2026-10-22 16:05 | Common Crawl CDX kernels (1.096 doc) |
 | recovered/direct_vi_2026-10-22.jsonl | 4074351 | 11eb2cf3376b9e32 | 2026-10-22 16:33 | kernel hytahy/vibiomir-recrawl-direct-vi (451 ok) |
 | recovered/pubmed_2026-10-22.jsonl | 286478 | 30fce99b7c8d11dd | 2026-10-22 16:06 | PubMed E-utilities (178 doc) |
+| recovered/wayback_vi_2026-10-22.jsonl | 9409701 | eec788dceb80b1e9 | 2026-10-22 18:56 | kernel noskaiser/vibiomir-recrawl-wb-vi (1.439 ok, chưa lọc rác) |

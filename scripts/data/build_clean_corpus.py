@@ -5,16 +5,15 @@ Writes:
   data/docs_clean.jsonl        one record per usable id
   runs/reports/excluded_docs.tsv   id, host, reason  (junk found in the raw crawl)
   runs/reports/recrawl_targets.tsv id, url, host, reason  (every id NOT in docs_clean)
-and, with --update-sqlite, sets crawl.sqlite ok=1 only for ids in docs_clean.
+data/raw/crawl/crawl.sqlite is frozen raw data and is never written (the old --update-sqlite flag is gone).
 
-    python scripts/data/build_clean_corpus.py --update-sqlite
+    python scripts/data/build_clean_corpus.py
 """
 
 from __future__ import annotations
 
 import argparse
 import hashlib
-import sqlite3
 import sys
 from collections import Counter
 from pathlib import Path
@@ -25,7 +24,7 @@ import pandas as pd
 
 sys.path.insert(0, str(next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())))
 from r2ai2026.cleaning import junk_reason  # noqa: E402
-from r2ai2026.paths import CRAWL_DB, DATA, DOCS_RAW, LINKS, REPORTS  # noqa: E402
+from r2ai2026.paths import DATA, DOCS_RAW, LINKS, REPORTS  # noqa: E402
 
 PUBMED = "pubmed.ncbi.nlm.nih.gov"
 
@@ -54,7 +53,6 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--src", type=Path, default=DOCS_RAW)
     ap.add_argument("--out", type=Path, default=DATA / "docs_clean.jsonl")
-    ap.add_argument("--update-sqlite", action="store_true")
     args = ap.parse_args()
     REPORTS.mkdir(parents=True, exist_ok=True)
 
@@ -100,16 +98,6 @@ def main() -> None:
                 columns=["id", "url", "host", "reason"])
     print(f"recrawl targets={len(miss):,} of {len(links):,}  ({100 * len(miss) / len(links):.1f}%)")
     print(miss.groupby("host").size().sort_values(ascending=False).head(15).to_string())
-
-    if args.update_sqlite:
-        con = sqlite3.connect(CRAWL_DB)
-        cur = con.cursor()
-        cur.execute("UPDATE docs SET ok=0")
-        cur.executemany("UPDATE docs SET ok=1 WHERE id=?", [(i,) for i in kept])
-        con.commit()
-        n_ok = cur.execute("SELECT count(*) FROM docs WHERE ok=1").fetchone()[0]
-        con.close()
-        print(f"sqlite ok=1 -> {n_ok:,}")
 
 
 if __name__ == "__main__":

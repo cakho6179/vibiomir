@@ -41,33 +41,46 @@ def _name_like(line: str) -> bool:
     return 2 <= len(w) <= 5 and all(t[:1].isupper() for t in w) and not re.search(r"[.?!:;,]", line)
 
 
+def furniture_kinds(lines: list[str]) -> list[str | None]:
+    """Label each (stripped, non-empty) line as page furniture ("references", "bio", "signature", "related",
+    "url", "cta") or None for content. clean_v4 drops exactly the labelled lines."""
+    kinds: list[str | None] = [None] * len(lines)
+    # references block: from a reference heading to the end
+    end = len(lines)
+    for i, l in enumerate(lines):
+        if i > 2 and REF_HEADING.match(l):
+            end = i
+            break
+    kinds[end:] = ["references"] * (len(lines) - end)
+    # author bio at the head (first 3 lines): bio sentence or bare name
+    head = 0
+    while head < min(3, end) and (BIO.search(lines[head]) and _short(lines[head], 45) or _name_like(lines[head])):
+        head += 1
+    if head and head < end:
+        kinds[:head] = ["bio"] * head
+    else:
+        head = 0
+    # signature / source lines at the tail
+    last = end
+    while last - head > 1 and (_name_like(lines[last - 1])
+                               or SIGNATURE.match(lines[last - 1]) and _short(lines[last - 1], 12)):
+        last -= 1
+        kinds[last] = "signature"
+    for i in range(head, last):
+        l = lines[i]
+        if RELATED_DATED.match(l) or TABLE_RELATED.match(l) or WIDGET.match(l):
+            kinds[i] = "related"
+        elif URL_LINE.search(l) and _short(l, 40):
+            kinds[i] = "url"
+        elif CTA.search(l) and _short(l, 60):
+            kinds[i] = "cta"
+    return kinds
+
+
 def clean_v4(text: str) -> str:
     lines = [l.strip() for l in text.split("\n")]
     lines = [l for l in lines if l]
-    # references block: from a reference heading to the end
-    for i, l in enumerate(lines):
-        if i > 2 and REF_HEADING.match(l):
-            lines = lines[:i]
-            break
-    # author bio at the head (first 3 lines): bio sentence or bare name
-    head = 0
-    while head < min(3, len(lines)) and (BIO.search(lines[head]) and _short(lines[head], 45)
-                                         or _name_like(lines[head])):
-        head += 1
-    if head and head < len(lines):
-        lines = lines[head:]
-    # signature / source lines at the tail
-    while len(lines) > 1 and (_name_like(lines[-1]) or SIGNATURE.match(lines[-1]) and _short(lines[-1], 12)):
-        lines.pop()
-    out = []
-    for l in lines:
-        if RELATED_DATED.match(l) or TABLE_RELATED.match(l) or WIDGET.match(l):
-            continue
-        if URL_LINE.search(l) and _short(l, 40):
-            continue
-        if CTA.search(l) and _short(l, 60):
-            continue
-        out.append(l)
+    out = [l for l, k in zip(lines, furniture_kinds(lines)) if k is None]
     return "\n".join(out) if out else text
 
 
