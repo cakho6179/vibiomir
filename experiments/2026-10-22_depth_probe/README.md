@@ -22,4 +22,19 @@
 1. Đi sâu là đòn bẩy lớn nhất: 0.1997 → 0.3108 (+0.111) chỉ nhờ 28 → 88 doc / 75 chunk.
 2. Từ hạng 29 đến 88 ước ~12 doc gold/query thêm ⇒ precision dải đó ≈ 0.2 — vẫn > F2/5 ≈ 0.06 ⇒ còn nên đi sâu hơn.
 3. Đưa reranker vào thứ tự (rdT2) **không** hơn giữ thứ tự w12 (−0.0054) dù thêm 15 doc; cần rd_VI_d150c90r và w12_VI_d150c90 để tách hiệu ứng.
+
+## Phân tích #6536 vs #6537 [ĐO offline + SUY] — `diff_6536_6537.py`
+| | #6536 w12T2 | #6537 rdT2 |
+|---|---|---|
+| doc/query | 88.2 | 103.4 |
+| chung | 86.8 | 86.8 |
+| chỉ có ở bài này | 1.4 (logit reranker trung vị −3.06) | **16.5** (logit trung vị −0.28; hạng w12 trung vị 215, 99% nằm ngoài top-150 w12) |
+| chunk/query (doc chung) | 75.4 (68.7) | 77.9 (68.7) |
+Hai bài gần như là **cùng một danh sách + 16,5 doc** reranker thích nhưng retriever xếp hạng 161–263.
+Ước lượng (giả định docs F2 và chunk F2 giảm đều, hiệu chỉnh macro bằng tỉ lệ đo ở #6536): #6536 trúng ≈ 22,0 doc gold/query;
+#6537 ≈ 22,7 ⇒ 16,5 doc thêm chỉ mang ≈ 0,7 gold ⇒ **precision ≈ 4%**, dưới ngưỡng có lợi F2/5 ≈ 6% ⇒ điểm giảm.
+Đường precision theo hạng (ước): hạng 1–28 ≈ 0.35 · hạng 29–88 (đã cắt) ≈ 0.20 · hạng 161–263 (logit ≥ −2) ≈ 0.04.
+⇒ (a) **hạng của retriever** là tín hiệu mạnh; reranker một mình không cứu được doc retriever xếp thấp;
+(b) gold dồn ở top retriever ⇒ đi sâu hơn trên *cùng* retriever có lợi giảm nhanh — gold còn thiếu (R chỉ 0.38) phần lớn
+**không nằm trong top ~250 của w12** ⇒ cần nguồn ứng viên khác (BM25 sâu/khác, truy vấn khác), không chỉ đào sâu.
 Số đã ghi `EXPERIMENTS.md` bảng A.

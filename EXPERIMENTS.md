@@ -90,6 +90,7 @@ Tham chiếu: admin BM25 FINAL 0.3764 (docs F2 0.5587, P/R 0.880/0.515, chunks F
 | URL rác (xổ số/bóng đá/thời tiết/tử vi/giá…) (22/10) | 3.2% corpus VI; 1.2–1.4% trong top-28/150 của BM25, w12, rd; tỉ lệ host top-28 gần như giống hệt giữa BM25 (P .178) và w12 (P .354) ⇒ loại tài liệu không phải đòn bẩy |
 | Khớp **mã ICD 3 ký tự** query–doc (tiêu đề+heading+600 ký tự đầu; chỉ 272/1200 query có mã) | top-28: BM25 .553 < w12 .615 < rd .640; theo hạng w12: 1–28 .615 > 29–90 .540 > 91–150 .477 ⇒ tín hiệu đơn điệu, nhưng độ phủ query thấp (cần LLM trích thực thể) |
 | Khớp **ý hỏi ↔ heading** (8 ý, luật từ khoá; 1005/1200 query có ý) | top-28: BM25 .682 < w12 .717 < rd .727; theo hạng: .717 > .663 > .634 ⇒ đơn điệu, biên độ nhỏ (luật thô) |
+| #6536 vs #6537 (22/10, `experiments/2026-10-22_depth_probe/diff_6536_6537.py`) | chung 86,8 doc/q; #6537 thêm 16,5 doc/q (hạng w12 161–263, logit reranker trung vị −0,28) ⇒ ước precision phần thêm ≈ 4% (< F2/5) ⇒ −0,0054. P theo hạng ước: 1–28 ≈ .35, 29–88 ≈ .20, 161–263 ≈ .04 |
 
 ## D. Bản đã dựng — từ 22/10 xem `submissions/MANIFEST.md` (bảng dưới là lịch sử, đường dẫn cũ)
 
