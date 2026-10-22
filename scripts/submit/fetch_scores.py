@@ -18,7 +18,8 @@ import httpx
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())
 BASE = "https://leaderboard.aiguru.com.vn"
 COMPETITION_ID = 15
-OWNER = "ca_kho"  # our Codabench username (team "Băng Cá Khô")
+OWNER = "ca_kho"  # our Codabench username; the leaderboard shows the team name instead
+TEAM = "Băng Cá Khô"
 COLS = ["FINAL_SCORE", "DOCS_F2MACRO", "CHUNKS_F2MACRO", "DOCS_PRECISION", "DOCS_RECALL", "CHUNKS_PRECISION",
         "CHUNKS_RECALL"]
 
@@ -47,7 +48,7 @@ def main() -> None:
         board = client.get(f"{BASE}/api/phases/{phase}/get_leaderboard/").json()["submissions"]
         subs = get_all(client, f"{BASE}/api/submissions/?phase={phase}")
     ranked = sorted(board, key=lambda s: -scores(s)["FINAL_SCORE"])
-    rank = next((i for i, s in enumerate(ranked, 1) if s["owner"] == OWNER), None)
+    rank = next((i for i, s in enumerate(ranked, 1) if s["owner"] in (OWNER, TEAM)), None)
     mine = sorted((s for s in subs if s["owner"] == OWNER), key=lambda s: s["created_when"])
     print(f"phase {phase}: {len(ranked)} teams; top {scores(ranked[0])['FINAL_SCORE']} ({ranked[0]['owner']}); "
           f"ours rank {rank}; our submissions visible: {len(mine)} ({'token' if headers else 'public API only'})")
