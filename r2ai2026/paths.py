@@ -16,7 +16,7 @@ CRAWL_DB = RAW / "crawl" / "crawl.sqlite"
 RECOVERED = RAW / "recovered"  # one append-only file per recovery source and date
 # Derived
 DOCS_CLEAN = DATA / "docs_clean.jsonl"  # corpus v2, 1,183,751 real docs, text as crawled
-DOCS_PROCESSED = DATA / "processed_v3"  # output of scripts/r2ai2026_build_processed_corpus.py
+DOCS_PROCESSED = DATA / "processed_v3"  # output of scripts/data/build_processed_corpus.py
 # Qwen2.5-7B translations (the old data/query_translated.parquet was garbage, moved to _temp)
 QUERIES_EN = Path(__file__).resolve().parents[1] / "kaggle" / "outputs" / "vibiomir-translate" / "query_en.parquet"
 QUERIES_ZH = QUERIES_EN.with_name("query_zh.parquet")

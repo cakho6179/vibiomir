@@ -6,7 +6,7 @@ over real sockets: real status codes, real headers, real charset decoding, real
 robots.txt fetching, real retry/backoff timings.
 
 The URLs in this file are localhost-only by design; anything that touches the
-public internet lives in ``scripts/r2ai2026_smoke_live.py`` instead.
+public internet lives in ``scripts/crawl/smoke_live.py`` instead.
 """
 
 from __future__ import annotations

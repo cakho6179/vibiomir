@@ -477,7 +477,7 @@ def render_readme(comp: dict, entries: list[dict], audit: dict | None) -> str:
         "```powershell",
         "python scripts/refresh_r2ai2026_workspace.py            # live refresh",
         "python scripts/refresh_r2ai2026_workspace.py --offline  # reuse cached API dumps",
-        "python scripts/r2ai2026_audit_corpus.py                 # corpus/query audit only",
+        "python scripts/analysis/audit_corpus.py                 # corpus/query audit only",
         "```",
         "",
     ]

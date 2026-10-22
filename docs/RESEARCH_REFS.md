@@ -46,7 +46,7 @@ thống kê tổng hợp (|G|, đường precision theo hạng) cho hiệu chỉ
 
 ## 4. Cách tổ chức dữ liệu của ta đã hiệu quả chưa?
 ### 4a. Phân nhóm theo hệ cơ quan (chương ICD-10, slide mentor tr.28–31, 45–46)
-`scripts/r2ai2026_icd_systems.py`: so khớp dài nhất trên ontology ICD-10 (5.452 cụm) + từ ngữ đời thường theo hệ.
+`scripts/analysis/icd_systems.py`: so khớp dài nhất trên ontology ICD-10 (5.452 cụm) + từ ngữ đời thường theo hệ.
 Query có chương: 823/1.200 (68,6%); nhiều nhất tiêu hoá 155, tiết niệu–sinh dục 147, thai sản 111, nhiễm trùng 92.
 Trên top-28 (tiêu đề doc) [ĐO, `runs/reports/icd_systems.md`]:
 | Hệ thống | P LB @28 | Trùng chương (cặp đều có chương) | Doc khác chương / query |

@@ -65,7 +65,7 @@ Trục chính: **bệnh/nhóm ICD × ý hỏi (loại mục)** — slide tr.23/4
 ```
 L0 DỮ LIỆU (Kaggle CPU)                     giữ text gốc cho chunk_text; mọi bước dưới chỉ phục vụ index
    corpus v3 → clean_v4 → đơn vị index: doc | section chunk (≤4500, theo mục, tiêu đề + heading) | passage
-   metadata: host, loại (hỏi-đáp/bài kiến thức/thuốc/tin), tiêu đề, heading, chương ICD-10 (`scripts/r2ai2026_icd_systems.py`),
+   metadata: host, loại (hỏi-đáp/bài kiến thức/thuốc/tin), tiêu đề, heading, chương ICD-10 (`scripts/analysis/icd_systems.py`),
    khía cạnh mục (nguyên nhân/triệu chứng/điều trị…), cụm trùng nội dung (`content_key`)
 L1 TRUY HỒI RỘNG (recall@200–300)
    BM25 bản sao BTC (biến thể thắng ở LB) · BGE-M3 dense (cách chunk thắng ở LB) · [M3 sparse/colbert]

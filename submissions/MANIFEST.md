@@ -1,6 +1,6 @@
 # Bài nộp ViBioMIR — một chỗ duy nhất
 
-Sinh bởi `scripts/r2ai2026_collect_submissions.py`; sửa `status`/`note` trong `manifest.json`, điểm LB ghi ở `EXPERIMENTS.md` bảng A rồi chạy lại script.
+Sinh bởi `scripts/submit/collect_submissions.py`; sửa `status`/`note` trong `manifest.json`, điểm LB ghi ở `EXPERIMENTS.md` bảng A rồi chạy lại script.
 
 | File | Trạng thái | Ghi chú / hệ thống | MB | doc/q | chunk/q | FINAL | Docs P / R | Chunks P / R | Nằm ở | Nguồn |
 |---|---|---|---|---|---|---|---|---|---|---|
