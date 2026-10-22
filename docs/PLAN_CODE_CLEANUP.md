@@ -40,10 +40,10 @@ vibiomir/
 | # | Việc | Rủi ro | Ghi chú |
 |---|---|---|---|
 | 0 | ✅ 22/10: `git init` cho `vibiomir/` (commit bffa280), dữ liệu gốc chuyển vào `data/raw/` (chỉ đọc, có MANIFEST sha256), `paths.py` trỏ về `raw/` | — | xong |
-| 1 | Chuyển vào `_temp`: 41 probe `research/results/_data/`, `research/_reveng.py`, `recrawl/dataset` + `recrawl/by_account` (bản cũ), kernel BM25 v1 (e1/e2/e3), `__pycache__` | rất thấp | không file nào tham chiếu |
-| 2 | Chuyển vào `_temp`: 18 script không còn tham chiếu (build_sota_v2, build_decision_v4, clean_corpus, kaggle_sync…) — Haiku kiểm lại từng file bằng grep trước | thấp | |
-| 3 | Viết `docs/CODEMAP.md` | không | làm trước cả bước 4 để có bản đồ |
-| 4 | Gom `scripts/` vào thư mục con, bỏ tiền tố `r2ai2026_`; ghi bảng tên cũ → mới trong CODEMAP | trung bình (WORKLOG trỏ tên cũ) | làm khi **không có** kernel nào đang chờ |
+| 1 | ✅ 22/10 — Chuyển vào `_temp`: 41 probe `research/results/_data/`, `research/_reveng.py`, `recrawl/dataset` + `recrawl/by_account` (bản cũ), kernel BM25 v1 (e1/e2/e3), `__pycache__` | rất thấp | không file nào tham chiếu |
+| 2 | ✅ 22/10 (21 script + `reproduce.py`) — Chuyển vào `_temp`: 18 script không còn tham chiếu (build_sota_v2, build_decision_v4, clean_corpus, kaggle_sync…) — Haiku kiểm lại từng file bằng grep trước | thấp | |
+| 3 | ✅ 22/10 — Viết `docs/CODEMAP.md` (+ `README.md`, `experiments/`) | không | làm trước cả bước 4 để có bản đồ |
+| 4 | ✅ 22/10 (commit b39a369) — Gom `scripts/` vào thư mục con, bỏ tiền tố `r2ai2026_`; ghi bảng tên cũ → mới trong CODEMAP | trung bình (WORKLOG trỏ tên cũ) | làm khi **không có** kernel nào đang chờ |
 | 5 | Nguồn kernel → `kaggle/src/`, bundle → `kaggle/bundles/` | trung bình (sổ kernel trỏ đường dẫn bundle) | cập nhật sổ cùng lúc; sau khi 7 kernel crawl xong |
 | 6 | `r2ai2026/common.py`: gom helper; **chỉ thay dần** khi một file được sửa vì lý do khác (không refactor ồ ạt) | thấp | kernel import qua bundle nhiều file (wrap đã hỗ trợ, như cc_columnar → cc_recover) |
 | 7 | Quy ước: docstring/comment trong code bằng tiếng Anh (ASCII cho kernel); tài liệu `.md` bằng tiếng Việt | không | áp dụng cho file mới/sửa |
