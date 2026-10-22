@@ -22,6 +22,7 @@
 | 2026-10-22_body_span_chunk_text | 22/10 | chunk_text = đoạn thân bài liên tục có giữ đủ nội dung và còn chỗ nhét thêm chunk không? | offline | Giữ 98.8% ký tự toàn văn (clean_v4 rời rạc 98.2%) ⇒ không đủ chỗ nhét thêm chunk | xong |
 | 2026-10-22_recovery_round2 | 22/10 | Vét doc còn thiếu (VI 12.183, ZH 24.363) qua Common Crawl, PubMed, tải trực tiếp, Wayback | Kaggle | CC CDX 1.096 · PubMed 178 · direct 451 → `data/raw/recovered/`; CC columnar ×5 + Wayback VI/ZH đang chạy | đang chạy |
 | [2026-10-22_frame_probe](2026-10-22_frame_probe/README.md) | 22/10 | Đúng bệnh / đúng ý có đơn điệu theo P và hạng? | offline | ICD .553→.615→.640; ý .682→.717→.727; rác URL ~1,3% | xong |
-| 2026-10-22_depth_probe | 22/10 | P(N) khi đi sâu 100/150/200 doc; lợi chunk 28→60→90; cắt ngưỡng reranker | Kaggle + LB | zip trong `submissions/` (w12_VI_d*, rd*, rdT1/T2, w12T2) | chờ LB |
+| [2026-10-22_depth_probe](2026-10-22_depth_probe/README.md) | 22/10 | P(N) khi đi sâu; cắt ngưỡng reranker; reranker vào thứ tự? | Kaggle + LB | w12T2 (88 doc/75 chunk) **0.3108** (#6536); rdT2 0.3054 (#6537); 7 bài chờ | đang chạy |
+| [2026-10-22_pool_ceiling](2026-10-22_pool_ceiling/README.md) | 22/10 | Tập ứng viên chứa bao nhiêu % gold (R@300/500)? BM25 top-2000 thêm gì? | Kaggle + LB | kernel build-pool + bm25-e1k2000 đã đẩy | đang chạy |
 
 Nguồn số liệu: EXPERIMENTS.md (bảng A/B/C/E). Thí nghiệm từ 22/10 trở đi có thư mục riêng.

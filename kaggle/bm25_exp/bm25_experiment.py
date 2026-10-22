@@ -14,7 +14,7 @@ indexes heading-aware section chunks (both from kaggle/common/docorg.py; doc sco
 
 Scoring is Lucene BM25 (k1=1.5, b=0.75) computed directly on a sparse count matrix, so a
 1M-document full-text index fits in a 30 GB kernel. Outputs in OUT_DIR:
-  ranking.parquet (qid, rank, doc_id, score; top 200), stats.json,
+  ranking.parquet (qid, rank, doc_id, score; top --topk, default 200), stats.json,
   submission_<exp>_n{28,45,70}.zip  (1 chunk = whole document text, uncapped)
 """
 
@@ -203,6 +203,7 @@ def main() -> None:
     ap.add_argument("--queries", type=Path, default=None)
     ap.add_argument("--max-docs", type=int, default=None)
     ap.add_argument("--max-queries", type=int, default=None)
+    ap.add_argument("--topk", type=int, default=TOPK, help="docs kept per query")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--k1", type=float, default=K1)
     ap.add_argument("--b", type=float, default=B)
@@ -255,7 +256,7 @@ def main() -> None:
         scores = (q_counts[lo:lo + 32] @ weights_t).toarray()
         for j, s in enumerate(scores):
             doc_score = np.maximum.reduceat(s, starts) if chunked else s
-            top = np.argpartition(-doc_score, min(TOPK, len(doc_score) - 1))[:TOPK]
+            top = np.argpartition(-doc_score, min(args.topk, len(doc_score) - 1))[:args.topk]
             top = top[np.argsort(-doc_score[top])]
             qid = int(queries["id"].iloc[lo + j])
             for rank, idx in enumerate(top):

@@ -160,5 +160,23 @@
     "state": "running",
     "bundle": "kaggle\\kernels_generic\\vibiomir-recrawl-wb-zh-acc4",
     "pushed": "2026-10-22 16:15:53"
+  },
+  "tthiutoko/vibiomir-build-pool": {
+    "acc": "acc2",
+    "user": "tthiutoko",
+    "slug": "vibiomir-build-pool",
+    "kind": "cpu",
+    "state": "queued",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-build-pool-acc2",
+    "pushed": "2026-10-22 17:54:36"
+  },
+  "tthiutoko/vibiomir-bm25-e1k2000": {
+    "acc": "acc2",
+    "user": "tthiutoko",
+    "slug": "vibiomir-bm25-e1k2000",
+    "kind": "cpu",
+    "state": "queued",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-bm25-e1k2000-acc2",
+    "pushed": "2026-10-22 17:55:27"
   }
 }

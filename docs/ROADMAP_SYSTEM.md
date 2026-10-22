@@ -4,6 +4,12 @@ Nhãn: **[ĐO]** số đo thật · **[LUẬT]** trang luật/nộp bài chính 
 
 ## 0. Mục tiêu và ràng buộc cứng
 - **Mục tiêu (user 22/10): vượt cả baseline BTC 0.3764 lẫn Top 1 — đích FINAL ≥ 0.45** (vd. docs F2 ≥ 0.47 + chunks F2 ≥ 0.43; baseline mạnh ở docs 0.5587 nhưng yếu ở chunks 0.1941, ta có lợi thế chunk toàn văn ⇒ chunk F2 ≈ docs F2).
+- **Cập nhật 22/10 tối: đích FINAL ≥ 0.6** (user). Hiện 0.3108 (hạng 6/50, w12T2: P .2495 R .3823); Top 1 ongthomiu 0.4871
+  (P .275 R .665 ≈ 170 doc/query). Toán: docs F2 = 5PR/(4P+R) ⇒ 0.6 cần ví dụ **P ≈ 0.35 và R ≈ 0.75** (cả hai), chunk F2 tương tự.
+  Ba nút thắt theo thứ tự: (1) **recall tập ứng viên** (đo: `experiments/2026-10-22_pool_ceiling`), (2) **xếp hạng/cắt** sao cho
+  P ≥ 0.35 ở ~150 doc (reranker trên ~400 ứng viên như slide BTC 22/10, đặc trưng đúng bệnh/đúng ý từ kho doc), (3) **chunk đủ
+  sâu** ~N doc trong 100 MB (cửa sổ đoạn liên quan thay vì toàn văn khi N > 105).
+  Tham chiếu lạ: BM25 Baseline của BTC P 0.88 / R 0.515 — BM25 của ta chỉ P 0.18 ⇒ khác biệt then chốt chưa rõ (truy vấn gốc? văn bản/tách từ của BTC?).
 - Vượt Top 1 `toptire` **0.4071** (docs P/R 0.232/0.571 ⇒ họ nộp ≈ 113 doc/query [SUY]). BM25 của BTC: FINAL 0.3764, docs F2 0.5587 (P 0.88 / R 0.515), chunks F2 0.1941.
 - **Model [LUẬT]:** chỉ model công khai trọng số, phát hành trước 01/08/2026, ≤ 15B. **Cấm LLM đóng** (GPT-4o, Gemini…)
   ⇒ Jev (TypeSafe, model đóng qua API) **không được nằm trong hệ thống nộp**; dùng đúng *mẫu thiết kế* của Jev
