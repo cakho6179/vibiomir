@@ -46,6 +46,19 @@
   "exists": true
  },
  {
+  "file": "w12T2_VI_win4500_n150.zip",
+  "status": "chưa nộp",
+  "note": "",
+  "from": "kaggle/outputs/vibiomir-build-win/w12T2_VI_win4500_n150.zip",
+  "sha12": "12d6a4b663a3",
+  "mb": 55.0,
+  "added": "2026-10-24 02:23",
+  "docs_per_query": 88.23,
+  "chunks_per_query": 88.22,
+  "where": "submissions",
+  "exists": true
+ },
+ {
   "file": "b1_n28.zip",
   "status": "không nộp",
   "note": "BM25 chunk 1000/200 — dừng hướng BM25 (22/10: các biến thể đều ~0.09–0.11)",

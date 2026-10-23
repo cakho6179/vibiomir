@@ -8,6 +8,7 @@ Sinh bởi `scripts/submit/collect_submissions.py`; sửa `status`/`note` trong 
 | `rd_VI_d150c90r_nb.zip` | chưa nộp | reranker vào thứ tự, 150 doc (ưu tiên thấp; chunk toàn văn theo luật cũ) | 76.8 |  |  |  |  |  | submissions |  |
 | `w12T2_VI_win1500_n150.zip` | chưa nộp |  | 23.3 | 88.23 | 88.22 |  |  |  | submissions | kaggle/outputs/vibiomir-build-win/w12T2_VI_win1500_n150.zip |
 | `w12T2_VI_win3000_n150.zip` | chưa nộp |  | 40.8 | 88.23 | 88.22 |  |  |  | submissions | kaggle/outputs/vibiomir-build-win/w12T2_VI_win3000_n150.zip |
+| `w12T2_VI_win4500_n150.zip` | chưa nộp |  | 55.0 | 88.23 | 88.22 |  |  |  | submissions | kaggle/outputs/vibiomir-build-win/w12T2_VI_win4500_n150.zip |
 | `b1_n28.zip` | không nộp | BM25 chunk 1000/200 — dừng hướng BM25 (22/10: các biến thể đều ~0.09–0.11) | 68.3 |  |  |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-bm25-b1/submission_b1_n28.zip |
 | `b2_n28.zip` | không nộp | BM25 b1 + pyvi — dừng hướng BM25 (22/10: các biến thể đều ~0.09–0.11) | 67.7 |  |  |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-bm25-b2/submission_b2_n28.zip |
 | `b3_VI_n28.zip` | đã nộp | BM25 doc-level k1 0.9 b 0.4 (Pyserini), LZMA | 32.4 | 28.0 |  | 0.0874 | 0.1415 / 0.0908 | 0.1411 / 0.0953 | temp_submission | kaggle/outputs/vibiomir-build-v2/b3_VI_n28.zip |
