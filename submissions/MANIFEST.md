@@ -4,21 +4,9 @@ Sinh bởi `scripts/submit/collect_submissions.py`; sửa `status`/`note` trong 
 
 | File | Trạng thái | Ghi chú / hệ thống | MB | doc/q | chunk/q | FINAL | Docs P / R | Chunks P / R | Nằm ở | Nguồn |
 |---|---|---|---|---|---|---|---|---|---|---|
-| `e1v2_m3_w12_lz_n70.zip` | chưa nộp | w12 70/70 LZMA (trước VI-only) — đã có depth probe thay | 67.6 |  |  |  |  |  | submissions | runs/submissions/e1v2_m3_w12_lz_n70.zip |
-| `m3L_VI_n28.zip` | chưa nộp | BGE-M3 chunk 4500; 96.6 MB | 96.6 | 28.0 |  |  |  |  | submissions | kaggle/outputs/vibiomir-build-v2/m3L_VI_n28.zip |
-| `m3c_VI_n28.zip` | chưa nộp | BGE-M3 chunk 1000 không tiêu đề | 76.2 | 28.0 |  |  |  |  | submissions | kaggle/outputs/vibiomir-build-v2/m3c_VI_n28.zip |
-| `rerank_r1_VI_n28.zip` | chưa nộp | bge-reranker-v2-m3 trên E1v2∪M3, VI | 32.6 |  |  |  |  |  | submissions | runs/submissions/rerank_r1_VI_n28.zip |
-| `w12_VI_d100c28.zip` | chưa nộp | Depth probe: w12 VI, 100 doc + 28 chunk ⇒ P(100) | 36.6 | 99.98 | 28.0 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-a/w12_VI_d100c28.zip |
-| `w12_VI_d150c28.zip` | chưa nộp | Depth probe: 150 doc + 28 chunk ⇒ P(150) — ưu tiên 1 | 36.9 | 149.94 | 28.0 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-a/w12_VI_d150c28.zip |
-| `w12_VI_d150c60.zip` | chưa nộp | 150 doc + 60 chunk toàn văn ⇒ lợi chunk theo độ sâu | 68.7 | 149.94 | 60.0 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-a/w12_VI_d150c60.zip |
-| `w12_VI_d150c90.zip` | chưa nộp | 150 doc + 90 chunk, 99.7 MB (dưới trần 102.6 MB đội khác chứng minh) — ứng viên mạnh | 99.7 | 149.94 | 89.99 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-b/w12_VI_d150c90.zip |
-| `w12_VI_d200c28.zip` | chưa nộp | Depth probe: 200 doc + 28 chunk ⇒ P(200) | 37.1 | 199.9 | 28.0 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-a/w12_VI_d200c28.zip |
-| `w12_VI_n28.zip` | chưa nộp | bản 0.1997 chỉ giữ doc VI | 33.7 |  |  |  |  |  | submissions | runs/submissions/w12_VI_n28.zip |
-| `w12_rr_VI_n28.zip` | chưa nộp | RRF w12 + reranker, VI | 33.7 |  |  |  |  |  | submissions | runs/submissions/w12_rr_VI_n28.zip |
-| `w12_rr_VI_n70.zip` | chưa nộp | như trên, 70 doc/chunk | 72.6 |  |  |  |  |  | submissions | runs/submissions/w12_rr_VI_n70.zip |
-| `rdT1_VI_d150c90r.zip` | chưa nộp | như rd + ngưỡng ≥ −1 (TB 86 doc, 69 chunk/query) — chặt hơn | 68.6 | 86.24 | 69.09 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-d/rdT1_VI_d150c90r.zip |
-| `rdT2_VI_d150c90r.zip` | chưa nộp | như rd + cắt theo ngưỡng reranker ≥ −2 (TB 103 doc, 78 chunk/query) — số doc biến thiên | 71.5 | 103.37 | 77.9 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-c/rdT2_VI_d150c90r.zip |
-| `rd_VI_d150c90r.zip` | chưa nộp | RRF(E1v2, M3, reranker) 1:2:3, 150 doc + 90 chunk, xếp lại query (85.4 MB) — reranker trong thứ tự | 85.4 | 149.94 | 89.99 |  |  |  | submissions | kaggle/outputs/vibiomir-build-depth-c/rd_VI_d150c90r.zip |
+| `pool_VI_d300c75r_nb.zip` | chưa nộp | Docs R pool 300 doc/query (tuỳ chọn, sau d500) | 64.4 |  |  |  |  |  | submissions |  |
+| `pool_VI_d500c75r_nb.zip` | chưa nộp | ƯU TIÊN 1 — Docs R của pool 500 doc/query (trần recall L1); đã bỏ chunk nhị phân | 65.2 |  |  |  |  |  | submissions |  |
+| `rd_VI_d150c90r_nb.zip` | chưa nộp | reranker vào thứ tự, 150 doc (ưu tiên thấp; chunk toàn văn theo luật cũ) | 76.8 |  |  |  |  |  | submissions |  |
 | `b1_n28.zip` | không nộp | BM25 chunk 1000/200 — dừng hướng BM25 (22/10: các biến thể đều ~0.09–0.11) | 68.3 |  |  |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-bm25-b1/submission_b1_n28.zip |
 | `b2_n28.zip` | không nộp | BM25 b1 + pyvi — dừng hướng BM25 (22/10: các biến thể đều ~0.09–0.11) | 67.7 |  |  |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-bm25-b2/submission_b2_n28.zip |
 | `b3_VI_n28.zip` | đã nộp | BM25 doc-level k1 0.9 b 0.4 (Pyserini), LZMA | 32.4 | 28.0 |  | 0.0874 | 0.1415 / 0.0908 | 0.1411 / 0.0953 | temp_submission | kaggle/outputs/vibiomir-build-v2/b3_VI_n28.zip |
@@ -38,4 +26,7 @@ Sinh bởi `scripts/submit/collect_submissions.py`; sửa `status`/`note` trong 
 | `w12VI_n120.zip` | không nộp | build cũ 129.0 MB > trần upload | 129.0 | 119.97 |  |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-build-w12vi/w12VI_n120.zip |
 | `w12_VI_d150c120.zip` | không nộp | 129 MB > trần upload | 129.2 | 149.94 | 119.97 |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-build-depth-b/w12_VI_d150c120.zip |
 | `w12_VI_d150c120r.zip` | không nộp | 116.7 MB > trần (xếp lại query giảm 10%) | 116.7 | 149.94 | 119.97 |  |  |  | temp_submission/khong_nop | kaggle/outputs/vibiomir-build-depth-b/w12_VI_d150c120r.zip |
+| `rdT2_VI_d150c90r.zip` | đã nộp | như rd + cắt theo ngưỡng reranker ≥ −2 (TB 103 doc, 78 chunk/query) — số doc biến thiên | 71.5 | 103.37 | 77.9 | 0.3054 | 0.2225 / 0.3900 | 0.2586 / 0.3722 | temp_submission | kaggle/outputs/vibiomir-build-depth-c/rdT2_VI_d150c90r.zip |
 | `w12T2_VI_d150c90r.zip` | đã nộp | w12 (không reranker trong thứ tự) + ngưỡng ≥ −2 (TB 88 doc, 75 chunk) — tách hiệu ứng cắt | 71.3 | 88.23 | 75.42 | 0.3108 | 0.2495 / 0.3823 | 0.2635 / 0.3698 | temp_submission | kaggle/outputs/vibiomir-build-depth-d/w12T2_VI_d150c90r.zip |
+
+16 bài cũ đã lưu trữ ở `_temp/*/old_submissions/` (README.md trong đó; vẫn có trong manifest.json).

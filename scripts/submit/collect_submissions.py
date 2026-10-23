@@ -111,8 +111,11 @@ def main() -> None:
         if sub and (DEST / name).exists():
             sub.mkdir(parents=True, exist_ok=True)
             shutil.move(str(DEST / name), sub / name)
-        e["where"] = next((str(d.relative_to(ROOT)).replace("\\", "/") for d in (DEST, DONE, DONE / "khong_nop")
-                           if (d / name).exists()), "")
+        archived = sorted((ROOT / "_temp").glob(f"*/old_submissions/{name}"))
+        if archived and not (DEST / name).exists():
+            e["status"] = "lưu trữ"
+        e["where"] = next((str(d.relative_to(ROOT)).replace("\\", "/") for d in
+                           (DEST, DONE, DONE / "khong_nop", *(a.parent for a in archived)) if (d / name).exists()), "")
         e["exists"] = bool(e["where"])
 
     entries = sorted(manifest.values(), key=lambda e: (e["status"] != "chưa nộp", e.get("added", ""), e["file"]))
@@ -122,10 +125,14 @@ def main() -> None:
              "`EXPERIMENTS.md` bảng A rồi chạy lại script.", "",
              "| File | Trạng thái | Ghi chú / hệ thống | MB | doc/q | chunk/q | FINAL | Docs P / R | Chunks P / R | Nằm ở | Nguồn |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]
-    for e in entries:
+    shown = [e for e in entries if e["status"] != "lưu trữ"]
+    for e in shown:
         lines.append(f"| `{e['file']}`{'' if e.get('exists', True) else ' (mất)'} | {e['status']} | {e.get('note', '')} | "
                      f"{e.get('mb', '')} | {e.get('docs_per_query', '')} | {e.get('chunks_per_query', '')} | "
                      f"{e.get('final', '')} | {e.get('docs_pr', '')} | {e.get('chunks_pr', '')} | {e.get('where', '')} | {e.get('from', '')} |")
+    n_arch = len(entries) - len(shown)
+    if n_arch:
+        lines += ["", f"{n_arch} bài cũ đã lưu trữ ở `_temp/*/old_submissions/` (README.md trong đó; vẫn có trong manifest.json)."]
     (DEST / "MANIFEST.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"{len(entries)} entries -> submissions/MANIFEST.md")
 
