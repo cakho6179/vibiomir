@@ -60,6 +60,17 @@ BLOCK_PAGE_RE = re.compile(
 )
 
 MIN_WEB_CHARS = 200
+BINARY_HEAD_CHARS = 2000
+BINARY_MIN_REPLACEMENT = 20
+
+
+def is_binary_text(text: str) -> bool:
+    """A binary file (docx/jpeg/png...) or a wrongly decoded page saved as text: NUL bytes or many U+FFFD near the start.
+
+    Such "documents" are millions of junk tokens; one of them as a chunk made the leaderboard scorer fail (22/10).
+    """
+    head = (text or "")[:BINARY_HEAD_CHARS]
+    return "\x00" in head or head.count("\ufffd") >= BINARY_MIN_REPLACEMENT
 DUP_TEMPLATE_MIN_IDS = 3
 
 
@@ -75,6 +86,8 @@ def junk_reason(text: str, *, is_pubmed: bool, dup_count: int = 1) -> str | None
         return "empty" if n < 30 else None
     if n < MIN_WEB_CHARS:
         return "too_short"
+    if is_binary_text(text):
+        return "binary"
     if n < 3000 and BLOCK_PAGE_RE.search(text[:800]):
         return "blocked_or_404"
     if dup_count >= DUP_TEMPLATE_MIN_IDS:

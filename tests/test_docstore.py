@@ -76,3 +76,12 @@ def test_real_docs_tile():
             d = json.loads(line)
             _, body = prepare_body(d.get("title") or "", d.get("text") or "")
             assert_tiles(body, passage_spans(body.split("\n")))
+
+
+def test_binary_documents_are_junk():
+    from r2ai2026.cleaning import is_binary_text, junk_reason
+    docx = "PK\x03\x04\x14\x00\x06\x00" + "x" * 500
+    mojibake = "��标题" * 30 + "y" * 500
+    assert is_binary_text(docx) and is_binary_text(mojibake)
+    assert junk_reason(docx, is_pubmed=False) == "binary"
+    assert not is_binary_text("Sốt xuất huyết là bệnh truyền nhiễm. " * 20)

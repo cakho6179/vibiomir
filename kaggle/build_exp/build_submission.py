@@ -140,6 +140,7 @@ def main() -> None:
         log(f"fused {job['name']}: {len(fused):,} rows")
 
     texts: dict[int, str] = {}
+    binary: set[int] = set()  # binary/mis-decoded docs (scorer fails on them): kept in relevant_docs, no chunk_text
     for part in sorted(glob.glob(f"{args.data}/**/part-*.jsonl*", recursive=True)):
         opener = gzip.open if part.endswith(".gz") else open
         with opener(part, "rt", encoding="utf-8") as f:
@@ -147,7 +148,10 @@ def main() -> None:
                 d = json.loads(line)
                 if d["id"] in need and d["id"] not in texts:
                     texts[d["id"]] = f"{d['t']}\n{d['x']}".strip()
-    log(f"collected {len(texts):,}/{len(need):,} texts")
+                    head = d["x"][:2000]
+                    if "\x00" in head or head.count("�") >= 20:
+                        binary.add(d["id"])
+    log(f"collected {len(texts):,}/{len(need):,} texts; {len(binary):,} binary (no chunk)")
 
     stats = {}
     for job, by_q in plans:
@@ -160,7 +164,8 @@ def main() -> None:
             for q in order:
                 top = [d for d in by_q.get(q, []) if d in texts][:n_docs]
                 records.append({"id": q, "relevant_docs": top,
-                                "relevant_chunks": [{"doc_id": d, "chunk_text": texts[d]} for d in top[:n_chunks]]})
+                                "relevant_chunks": [{"doc_id": d, "chunk_text": texts[d]} for d in top[:n_chunks]
+                                                    if d not in binary]})
             tag = f"n{n_docs}" if n_docs == n_chunks else f"d{n_docs}c{n_chunks}"
             path = args.out / f"{job['name']}_{tag}{'r' if job.get('reorder') else ''}.zip"
             write_zip(records, path, job.get("zip", "lzma"))
