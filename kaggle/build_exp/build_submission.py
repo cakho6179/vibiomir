@@ -98,6 +98,78 @@ def write_zip(records: list, path: Path, method: str = "lzma") -> None:
         assert z.read("submission.json") == payload, path
 
 
+RR_PASSAGE_CHARS = 1500  # kaggle/rerank_exp/rerank.py PASSAGE_CHARS
+
+
+def rr_split(title: str, text: str) -> list[str]:
+    """Exact copy of kaggle/rerank_exp/rerank.py split_passages (its best_passage indexes this list)."""
+    pieces = []
+    for para in text.split("\n"):
+        while len(para) > RR_PASSAGE_CHARS:
+            pieces.append(para[:RR_PASSAGE_CHARS])
+            para = para[RR_PASSAGE_CHARS:]
+        if para.strip():
+            pieces.append(para)
+    out, buf = [], ""
+    for p in pieces:
+        if buf and len(buf) + len(p) > RR_PASSAGE_CHARS:
+            out.append(buf)
+            buf = ""
+        buf = f"{buf}\n{p}" if buf else p
+    if buf or not out:
+        out.append(buf)
+    return [f"{title}\n{p}".strip() for p in out]
+
+
+def rr_spans(text: str) -> list[tuple[int, int]]:
+    """(start, end) in text of each rr_split passage body (same pieces, but as contiguous spans)."""
+    pieces, pos = [], 0
+    for para in text.split("\n"):
+        s, n = pos, len(para)
+        while n > RR_PASSAGE_CHARS:
+            pieces.append((s, s + RR_PASSAGE_CHARS))
+            s, n = s + RR_PASSAGE_CHARS, n - RR_PASSAGE_CHARS
+        if text[s:s + n].strip():
+            pieces.append((s, s + n))
+        pos += len(para) + 1
+    out, cur, cur_len = [], None, 0
+    for a, b in pieces:
+        if cur and cur_len + (b - a) > RR_PASSAGE_CHARS:
+            out.append(cur)
+            cur = None
+        if cur is None:
+            cur, cur_len = (a, b), b - a
+        else:
+            cur, cur_len = (cur[0], b), cur_len + 1 + (b - a)
+    if cur or not out:
+        out.append(cur or (0, 0))
+    return out
+
+
+def lexical_best(query: str, title: str, text: str, spans: list[tuple[int, int]]) -> int:
+    """Passage sharing the most distinct query syllables (fallback when the reranker never saw the doc)."""
+    q = {w for w in query.lower().split() if len(w) > 1}
+    scores = [len(q & set(f"{title}\n{text[a:b]}".lower().split())) for a, b in spans]
+    return max(range(len(spans)), key=lambda k: (scores[k], -k))
+
+
+def window_chunk(title: str, text: str, best: int, spans: list[tuple[int, int]], size: int, whole_max: int) -> str:
+    """Contiguous window of <= size chars grown from passage ``best`` (next, then previous, alternately);
+    the whole document when it is <= whole_max chars. The title is kept only when the window starts the text."""
+    full = f"{title}\n{text}".strip()
+    if len(full) <= whole_max:
+        return full
+    i = j = min(best, len(spans) - 1)
+    grew = True
+    while grew:
+        grew = False
+        for ni, nj in ((i, j + 1), (i - 1, j)):
+            if 0 <= ni and nj < len(spans) and spans[nj][1] - spans[ni][0] <= size:
+                i, j, grew = ni, nj, True
+    start, end = spans[i][0], spans[j][1]
+    return f"{title}\n{text[:end]}".strip() if start == 0 else text[start:end].strip()
+
+
 def chain_order(qids: list[int], sets: dict[int, set]) -> list[int]:
     """Greedy nearest neighbour by shared docs, so a doc's repeats land close together in the stream."""
     left = set(qids)
@@ -119,7 +191,9 @@ def main() -> None:
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     jobs = json.loads(args.jobs if args.jobs.lstrip().startswith("[") else Path(find(args.jobs)).read_text())
-    qids = pd.read_parquet(glob.glob(f"{args.data}/**/query.parquet", recursive=True)[0])["id"].astype(int).tolist()
+    queries = pd.read_parquet(glob.glob(f"{args.data}/**/query.parquet", recursive=True)[0])
+    qids = queries["id"].astype(int).tolist()
+    qtext = dict(zip(queries["id"].astype(int), queries["query"]))
 
     plans = []
     need: set[int] = set()
@@ -140,6 +214,7 @@ def main() -> None:
         log(f"fused {job['name']}: {len(fused):,} rows")
 
     texts: dict[int, str] = {}
+    raw: dict[int, tuple[str, str]] = {}  # (title, body) for window chunks
     binary: set[int] = set()  # binary/mis-decoded docs (scorer fails on them): kept in relevant_docs, no chunk_text
     for part in sorted(glob.glob(f"{args.data}/**/part-*.jsonl*", recursive=True)):
         opener = gzip.open if part.endswith(".gz") else open
@@ -148,10 +223,44 @@ def main() -> None:
                 d = json.loads(line)
                 if d["id"] in need and d["id"] not in texts:
                     texts[d["id"]] = f"{d['t']}\n{d['x']}".strip()
+                    raw[d["id"]] = (d["t"], d["x"])
                     head = d["x"][:2000]
-                    if "\x00" in head or head.count("�") >= 20:
+                    if "\x00" in head or head.count("\ufffd") >= 20:
                         binary.add(d["id"])
     log(f"collected {len(texts):,}/{len(need):,} texts; {len(binary):,} binary (no chunk)")
+
+    best: dict[tuple[int, int], int] = {}
+    spec = next((j["chunk"]["best"] for j in jobs if j.get("chunk", {}).get("best")), None)
+    if spec:
+        bp = pd.read_parquet(find(spec))
+        best = {(int(q), int(d)): int(k) for q, d, k in zip(bp["qid"], bp["doc_id"], bp["best_passage"])}
+        log(f"best passages: {len(best):,}")
+    spans_cache: dict[int, list[tuple[int, int]]] = {}
+    n_lexical = 0
+
+    def chunk_text(job: dict, q: int, d: int) -> str:
+        """Whole document, or with job["chunk"] = {"window": S, "whole_max": W, "best": file} a window around the
+        reranker's best passage (lexical fallback). Every chunk is verbatim text of the document."""
+        nonlocal n_lexical
+        cfg = job.get("chunk")
+        if not cfg:
+            return texts[d]
+        title, body = raw[d]
+        if d not in spans_cache:
+            spans = rr_spans(body)
+            ref = rr_split(title, body)
+            assert len(ref) == len(spans), d
+            for (a, b), r in zip(spans, ref):  # same words as the reranker's passages (newlines may differ)
+                assert "".join(r.split()) == "".join(f"{title}\n{body[a:b]}".strip().split()), d
+            spans_cache[d] = spans
+        spans = spans_cache[d]
+        k = best.get((q, d))
+        if k is None:
+            k = lexical_best(qtext[q], title, body, spans)
+            n_lexical += 1
+        out = window_chunk(title, body, k, spans, cfg["window"], cfg.get("whole_max", cfg["window"]))
+        assert out in texts[d], (q, d)
+        return out
 
     stats = {}
     for job, by_q in plans:
@@ -164,8 +273,8 @@ def main() -> None:
             for q in order:
                 top = [d for d in by_q.get(q, []) if d in texts][:n_docs]
                 records.append({"id": q, "relevant_docs": top,
-                                "relevant_chunks": [{"doc_id": d, "chunk_text": texts[d]} for d in top[:n_chunks]
-                                                    if d not in binary]})
+                                "relevant_chunks": [{"doc_id": d, "chunk_text": chunk_text(job, q, d)}
+                                                    for d in top[:n_chunks] if d not in binary]})
             tag = f"n{n_docs}" if n_docs == n_chunks else f"d{n_docs}c{n_chunks}"
             path = args.out / f"{job['name']}_{tag}{'r' if job.get('reorder') else ''}.zip"
             write_zip(records, path, job.get("zip", "lzma"))
@@ -173,7 +282,9 @@ def main() -> None:
             stats[path.name] = {"zip_mb": mb,
                                 "docs_per_query": round(sum(len(r["relevant_docs"]) for r in records) / len(records), 2),
                                 "chunks_per_query": round(sum(len(r["relevant_chunks"]) for r in records) / len(records), 2)}
-            log(f"wrote {path.name} {mb} MB")
+            stats[path.name]["chunk_chars_median"] = int(pd.Series(
+                [len(c["chunk_text"]) for r in records for c in r["relevant_chunks"]] or [0]).median())
+            log(f"wrote {path.name} {mb} MB; lexical fallbacks so far {n_lexical:,}")
     (args.out / "build_stats.json").write_text(json.dumps(stats, indent=2))
     log("done")
 

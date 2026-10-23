@@ -18,16 +18,17 @@ bằng script trong git.
 | `recovered/pubmed_2026-10-22.jsonl` | PubMed E-utilities | 178 doc |
 | *(đang chạy)* | Wayback VI/ZH, Common Crawl columnar p0–p4 | sẽ thành file mới trong `recovered/` |
 
-### Luật chấm chunk (`knowledge/pages/01_Evaluation.md` §3.2) [ĐO]
+### Luật chấm chunk — **đổi ngày 23/10** (email BTC; trang Evaluation trên web chưa cập nhật) [ĐO]
 - Hai phía được chuẩn hoá: NFKC, giải mã HTML entity, chữ thường, gộp khoảng trắng.
-- overlap(c, g) = LCS_token(c, g) / |g|, trong đó LCS là dãy con chung **không cần liên tiếp**. Chunk nộp c đúng nếu overlap ≥ 0,4
-  với **ít nhất một** gold chunk g cùng doc_id.
+- **Luật mới:** c đúng với gold chunk g cùng doc_id khi **cả hai** LCS_token(c, g) / |g| ≥ 0,4 **và** LCS_token(c, g) / |c| ≥ 0,4
+  (LCS = dãy con chung, không cần liên tiếp). Luật cũ (đến 22/10) chỉ có điều kiện thứ nhất.
 - P = số chunk nộp đúng / số chunk nộp. R = số gold chunk được tìm thấy / tổng gold chunk.
-- Hệ quả:
-  1. Mẫu số là |g| ⇒ chunk dài **không bị phạt**. Chunk toàn văn chứa trọn mọi gold chunk của doc đó (overlap = 1): 1 chunk nộp
-     tìm được *mọi* gold chunk của doc. Toàn văn là tối ưu về điểm; cửa sổ chỉ dùng để **nhét thêm doc vào trần ~100 MB**.
-  2. Có furniture trong chunk cũng không mất gì ⇒ chunk nộp **luôn giữ nguyên văn đầy đủ**; furniture chỉ bỏ ở text index.
-  3. Cửa sổ chỉ đúng khi chứa ≥ 40% token của g theo thứ tự ⇒ phải chọn cửa sổ khớp query, đủ rộng (thử 1,5k và 3k ký tự).
+- ~~Toàn văn là tối ưu; furniture trong chunk không mất gì~~ — **sai theo luật mới** (đã rút lại 24/10). Hệ quả mới:
+  1. Chunk dài bị phạt: nếu c chứa trọn g thì cần |c| ≤ 2,5·|g|. Cửa sổ cỡ s khớp được gold cỡ ~0,4s–2,5s nếu đặt đúng chỗ.
+     Gold chưa biết cỡ; proxy MedKB: trung vị ~3,3–3,5k ký tự, max ~4,8k. Chunk toàn văn của #6536: trung vị 5,6k, 92% ≤ 8,75k.
+  2. Furniture **làm mất điểm** (tăng |c|, giảm LCS/|c|) ⇒ cửa sổ nên tránh furniture ở hai mép; không ghép các dòng rời nhau.
+  3. Một doc có thể cần nhiều chunk (mỗi gold chunk phải có một c riêng khớp); khởi đầu 1 chunk/doc.
+  4. Thử nghiệm cỡ cửa sổ: kernel `tthiutoko/vibiomir-build-win` (1,5k / 3k / 4,5k quanh best passage của reranker r1, danh sách doc giữ như #6536).
   4. Chuẩn hoá Unicode/khoảng trắng phía ta là an toàn vì bộ chấm cũng chuẩn hoá.
 
 Độ phủ hiện tại (so với links): VI 98,35% (thiếu 12.183), ZH 89,85% (thiếu 24.363), EN 99,87%. 14.803 doc VI < 500 ký tự.
@@ -143,5 +144,5 @@ Nếu v1 trễ quá 26/10: bài chính vẫn dựng từ corpus cũ, kho doc ch�
 ## 5. Quyết định còn mở
 1. **Ưu tiên khi một id có nhiều nguồn** (crawl gốc vs Wayback vs Common Crawl): đề xuất lấy bản crawl gốc nếu qua lọc rác, nếu không
    thì bản dài nhất qua lọc.
-2. **Furniture:** chunk nộp luôn giữ (luật chấm không phạt, xem §1). Text index bỏ hay giữ quyết định bằng bước 4b.
+2. **Furniture:** theo luật mới (23/10) furniture trong chunk làm giảm LCS/|c| ⇒ cửa sổ chunk tránh furniture ở mép. Text index bỏ hay giữ quyết định bằng bước 4b.
 3. **Đoạn ~1.500 ký tự hay theo mục:** chọn theo mục, cận 1.500; mentor BTC dùng ~3.200 đoạn/400 doc ≈ 8 đoạn/doc — khớp cỡ này.
