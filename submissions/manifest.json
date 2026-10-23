@@ -10,22 +10,38 @@
   "exists": true
  },
  {
-  "file": "pool_VI_d500c75r_nb.zip",
-  "status": "chưa nộp",
-  "note": "ƯU TIÊN 1 — Docs R của pool 500 doc/query (trần recall L1); đã bỏ chunk nhị phân",
-  "sha12": "24ebe52f0348",
-  "mb": 65.2,
-  "added": "2026-10-24 01:20",
-  "where": "submissions",
-  "exists": true
- },
- {
   "file": "rd_VI_d150c90r_nb.zip",
   "status": "chưa nộp",
   "note": "reranker vào thứ tự, 150 doc (ưu tiên thấp; chunk toàn văn theo luật cũ)",
   "sha12": "03f9e30898cb",
   "mb": 76.8,
   "added": "2026-10-24 01:20",
+  "where": "submissions",
+  "exists": true
+ },
+ {
+  "file": "w12T2_VI_win1500_n150.zip",
+  "status": "chưa nộp",
+  "note": "",
+  "from": "kaggle/outputs/vibiomir-build-win/w12T2_VI_win1500_n150.zip",
+  "sha12": "cbb5c7b33256",
+  "mb": 23.3,
+  "added": "2026-10-24 02:09",
+  "docs_per_query": 88.23,
+  "chunks_per_query": 88.22,
+  "where": "submissions",
+  "exists": true
+ },
+ {
+  "file": "w12T2_VI_win3000_n150.zip",
+  "status": "chưa nộp",
+  "note": "",
+  "from": "kaggle/outputs/vibiomir-build-win/w12T2_VI_win3000_n150.zip",
+  "sha12": "407b49c375fd",
+  "mb": 40.8,
+  "added": "2026-10-24 02:09",
+  "docs_per_query": 88.23,
+  "chunks_per_query": 88.22,
   "where": "submissions",
   "exists": true
  },
@@ -453,9 +469,9 @@
   "chunks_per_query": 75.42,
   "where": "temp_submission",
   "exists": true,
-  "final": "0.3108",
-  "docs_pr": "0.2495 / 0.3823",
-  "chunks_pr": "0.2635 / 0.3698"
+  "final": "≥ 0,4): nộp lại nguyên file #6536. Docs F2 0.3132 (không đổi), chunks F2 0.3084 → 0.2242",
+  "docs_pr": "88/75",
+  "chunks_pr": "0.2687"
  },
  {
   "file": "pool_VI_d300c75r.zip",
@@ -482,5 +498,18 @@
   "chunks_per_query": 75.0,
   "where": "_temp/2026-10-24/old_submissions",
   "exists": true
+ },
+ {
+  "file": "pool_VI_d500c75r_nb.zip",
+  "status": "đã nộp",
+  "note": "ƯU TIÊN 1 — Docs R của pool 500 doc/query (trần recall L1); đã bỏ chunk nhị phân",
+  "sha12": "24ebe52f0348",
+  "mb": 65.2,
+  "added": "2026-10-24 01:20",
+  "where": "temp_submission",
+  "exists": true,
+  "final": "0.2433",
+  "docs_pr": "0.0904 / 0.6568",
+  "chunks_pr": "0.2167 / 0.2726"
  }
 ]

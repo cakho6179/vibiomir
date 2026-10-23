@@ -22,6 +22,8 @@ Metric: FINAL = mean(DOCS_F2, CHUNKS_F2). Chunk = toàn văn doc (không cắt) 
 | 22/10 | submissions/b3_VI_n28.zip | BM25 doc-level k1 0.9 b 0.4 (kiểu Pyserini), VI, **LZMA được chấm** | 28 | 0.0874 | 0.1415 / 0.0908 | 0.1411 / 0.0953 |
 | 22/10 | submissions/w12T2_VI_d150c90r.zip | **#6536, nộp 16:53.** w12 (E1v2+M3 1:2) giữ thứ tự, cắt ngưỡng reranker ≥ −2 (tối thiểu 20 doc), TB 88 doc / 75 chunk, xếp lại query, LZMA 71.3 MB — hạng 6/50 | 88/75 | **0.3108** | 0.2495 / 0.3823 | 0.2635 / 0.3698 |
 | 22/10 | submissions/rdT2_VI_d150c90r.zip | **#6537, nộp 16:54.** RRF(E1v2, M3, reranker) 1:2:3 (reranker vào thứ tự), cùng ngưỡng ≥ −2, TB 103 doc / 78 chunk, LZMA 71.5 MB; docs F2 0.3051, chunks F2 0.3056 | 103/78 | 0.3054 | 0.2225 / 0.3900 | 0.2586 / 0.3722 |
+| 24/10 | submissions/pool_VI_d500c75r_nb.zip | **#6739, nộp 01:12, LUẬT CHUNK MỚI.** Pool RRF(E1v2 : M3 : M3L = 1:2:1) 500 doc/query + 75 chunk toàn văn, đã bỏ chunk nhị phân (bản gốc #6550/#6551/#6600 Failed). Docs F2 0.2601, chunks F2 0.2265 ⇒ **trần recall ứng viên @500 = 0.657** | 500/75 | 0.2433 | 0.0904 / 0.6568 | 0.2167 / 0.2726 |
+| 24/10 | temp_submission/w12T2_VI_d150c90r.zip | **#6740, nộp 01:12, LUẬT CHUNK MỚI** (LCS/|c| ≥ 0,4): nộp lại nguyên file #6536. Docs F2 0.3132 (không đổi), chunks F2 0.3084 → **0.2242** | 88/75 | 0.2687 | 0.2495 / 0.3823 | 0.2032 / 0.2636 |
 
 Tham chiếu: admin BM25 FINAL 0.3764 (docs F2 0.5587, P/R 0.880/0.515, chunks F2 0.1941); Top 1 `toptire` 0.4071 (docs P/R 0.232/0.571).
 
@@ -92,6 +94,7 @@ Tham chiếu: admin BM25 FINAL 0.3764 (docs F2 0.5587, P/R 0.880/0.515, chunks F
 | Khớp **ý hỏi ↔ heading** (8 ý, luật từ khoá; 1005/1200 query có ý) | top-28: BM25 .682 < w12 .717 < rd .727; theo hạng: .717 > .663 > .634 ⇒ đơn điệu, biên độ nhỏ (luật thô) |
 | #6536 vs #6537 (22/10, `experiments/2026-10-22_depth_probe/diff_6536_6537.py`) | chung 86,8 doc/q; #6537 thêm 16,5 doc/q (hạng w12 161–263, logit reranker trung vị −0,28) ⇒ ước precision phần thêm ≈ 4% (< F2/5) ⇒ −0,0054. **Đo LB:** Docs R .3823→.3900 (+.0077 × |G|≈71 ≈ +0,55 gold/q cho 16,5 doc thêm) ⇒ precision phần thêm ≈ **3,3%** [ĐO+SUY, macro xấp xỉ], khớp ước tính. P theo hạng ước: 1–28 ≈ .35, 29–88 ≈ .20, 161–263 ≈ .04 |
 | **Bài Failed** (#6496, 6530, 6540, 6550, 6551, 6554, 6600; 24/10) | Cấu trúc JSON giống hệt bài chấm được. Cặp (query 1009, doc **660649**) có trong cả 4 zip Failed, không có trong zip nào chấm được. 660649 (thaythuocvietnam) là file **.docx nhị phân** 5.010.161 ký tự (186.681 token, có NUL) ⇒ bộ chấm LCS(c, g) hỏng khi doc đó là gold của query. Corpus có 1.020 doc nhị phân/mã hoá sai (wujue 708, cnkang 196, thaythuocvietnam 101) — `runs/reports/binary_docs_2026-10-24.json`. Sửa: `is_binary_text` ⇒ không gửi làm chunk (builder + `scripts/submit/drop_binary_chunks.py`), loại khỏi kho doc (`junk_reason='binary'`) |
+| Luật chunk mới (23/10) & trần ứng viên (24/10) | Cùng file #6536→#6740: chunk P .2635→.2032, R .3698→.2636 ⇒ ~28% chunk toàn văn mất khớp; FINAL .3108→.2687. Pool @500: R .6568 ⇒ ~46,6 gold/q nằm trong top-500, nhưng w12T2 chỉ lấy ~27 ở 88 doc ⇒ hạng 89–500 chứa ~19,5 gold/412 doc ≈ **4,7%** (TB, < ngưỡng 6%) ⇒ nút thắt chính là **xếp hạng/cắt (L2–L3)**, L1 mở rộng là thứ yếu cho đến khi R@500 hết dùng |
 
 ## D. Bản đã dựng — từ 22/10 xem `submissions/MANIFEST.md` (bảng dưới là lịch sử, đường dẫn cũ)
 

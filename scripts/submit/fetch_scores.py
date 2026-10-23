@@ -1,9 +1,11 @@
 """Fetch leaderboard and our submission scores from the Codabench server (read-only, never submits).
 
-    python scripts/submit/fetch_scores.py                 # public API: leaderboard + our leaderboard entry
-    $env:CODABENCH_TOKEN="..."; python scripts/submit/fetch_scores.py   # also every submission of ours
+    python scripts/submit/fetch_scores.py      # leaderboard + every submission of ours when credentials exist
 
-Without a token the server only exposes each team's leaderboard entry. Writes runs/reports/codabench_scores.json
+Credentials (never printed, never in the repo), first found wins:
+  $env:CODABENCH_TOKEN | ~/.codabench_token (one line) | ~/.codabench.json {"username": "...", "password": "..."}
+(the last one is exchanged for a token at /api/api-token-auth/). Without them the server only exposes each team's
+leaderboard entry. Writes runs/reports/codabench_scores.json
 and prints rows in the format of EXPERIMENTS.md table A.
 """
 from __future__ import annotations
@@ -37,12 +39,30 @@ def get_all(client: httpx.Client, url: str) -> list[dict]:
     return out
 
 
+def auth_token(client: httpx.Client) -> str | None:
+    if os.environ.get("CODABENCH_TOKEN"):
+        return os.environ["CODABENCH_TOKEN"].strip()
+    token_file = Path.home() / ".codabench_token"
+    if token_file.exists():
+        return token_file.read_text(encoding="utf-8").strip()
+    cred_file = Path.home() / ".codabench.json"
+    if cred_file.exists():
+        cred = json.loads(cred_file.read_text(encoding="utf-8"))
+        r = client.post(f"{BASE}/api/api-token-auth/", data={"username": cred["username"], "password": cred["password"]})
+        if r.status_code != 200:
+            raise SystemExit(f"login failed: HTTP {r.status_code} (check ~/.codabench.json)")
+        return r.json()["token"]
+    return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--phase", type=int, default=0, help="phase id (default: the current one)")
     args = ap.parse_args()
-    headers = {"Authorization": f"Token {os.environ['CODABENCH_TOKEN']}"} if os.environ.get("CODABENCH_TOKEN") else {}
-    with httpx.Client(timeout=60, headers=headers) as client:
+    with httpx.Client(timeout=60) as client:
+        token = auth_token(client)
+        headers = {"Authorization": f"Token {token}"} if token else {}
+        client.headers.update(headers)
         comp = client.get(f"{BASE}/api/competitions/{COMPETITION_ID}/").json()
         phase = args.phase or next(p["id"] for p in comp["phases"] if p.get("status") == "Current")
         board = client.get(f"{BASE}/api/phases/{phase}/get_leaderboard/").json()["submissions"]
