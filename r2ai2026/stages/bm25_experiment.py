@@ -13,7 +13,11 @@ every passage) with doc score = max passage; --seg uses pyvi/jieba word segmenta
 indexes heading-aware section chunks (both from r2ai2026/stages/docorg.py; doc score = max chunk).
 
 Scoring is Lucene BM25 (k1=1.5, b=0.75) computed directly on a sparse count matrix, so a
-1M-document full-text index fits in a 30 GB kernel. Outputs in OUT_DIR:
+1M-document full-text index fits in a 30 GB kernel. --save-index DIR also writes the index (weights_t.npz:
+BM25 weights vocab x units, vocab.json, doc_ids.npy, unit_doc.npy, meta.json); --load-index DIR scores queries
+against a saved index without reading the corpus (CORPUS_DIR is then only searched for the query file). A query
+file with a `variant` column (and `id` or `qid`) is ranked per (qid, variant); ranking.parquet keeps the column.
+Outputs in OUT_DIR:
   ranking.parquet (qid, rank, doc_id, score; top --topk, default 200), stats.json,
   submission_<exp>_n{28,45,70}.zip  (1 chunk = whole document text, uncapped)
 """
@@ -47,6 +51,8 @@ ZH_MAX_ID = 4392214  # then Chinese; English ids are above this
 
 def lang_of(doc_id: int) -> str:
     return "vi" if doc_id <= VI_MAX_ID else "zh" if doc_id <= ZH_MAX_ID else "en"
+
+
 MAX_CHUNK_TEXT = None  # whole-document chunk, no cap (user decision 2026-10-20)
 TOKEN_PATTERN = r"(?u)\b\w+\b"
 CJK_RANGE = f"{chr(0x4E00)}-{chr(0x9FFF)}"  # built from code points: keep this file pure ASCII
@@ -195,6 +201,59 @@ def bm25_weights(counts: sp.csr_matrix, k1: float = K1, b: float = B) -> sp.csr_
     return sp.csr_matrix((data, counts.indices, counts.indptr), shape=counts.shape)
 
 
+def qid_col(queries: pd.DataFrame) -> str:
+    return "id" if "id" in queries.columns else "qid"
+
+
+def score(queries: pd.DataFrame, vec, weights_t, doc_ids, unit_doc_arr, chunked: bool, seg: bool,
+          topk: int) -> pd.DataFrame:
+    """Top-k documents per query row (doc score = max unit score when units are passages)."""
+    qtexts = queries["query" if "query" in queries.columns else "text"].astype(str).tolist()
+    if seg:
+        qtexts = [segment(q) for q in qtexts]
+    q_counts = vec.transform(qtexts).astype(np.float32)
+    starts = np.flatnonzero(np.r_[True, unit_doc_arr[1:] != unit_doc_arr[:-1]])
+    owners = unit_doc_arr[starts]
+    qids = queries[qid_col(queries)].astype(int).tolist()
+    variants = queries["variant"].astype(str).tolist() if "variant" in queries.columns else None
+    rows = []
+    for lo in range(0, q_counts.shape[0], 32):
+        scores = (q_counts[lo:lo + 32] @ weights_t).toarray()
+        for j, s in enumerate(scores):
+            doc_score = np.maximum.reduceat(s, starts) if chunked else s
+            top = np.argpartition(-doc_score, min(topk, len(doc_score) - 1))[:topk]
+            top = top[np.argsort(-doc_score[top])]
+            extra = (variants[lo + j],) if variants else ()
+            for rank, idx in enumerate(top):
+                row = owners[idx] if chunked else idx
+                if doc_score[idx] > 0:
+                    rows.append((qids[lo + j], *extra, rank, int(doc_ids[row]), float(doc_score[idx])))
+        if lo // 32 % 10 == 0:
+            log(f"scored {min(lo + 32, q_counts.shape[0])}/{q_counts.shape[0]} queries")
+    cols = ["qid", *(["variant"] if variants else []), "rank", "doc_id", "score"]
+    return pd.DataFrame(rows, columns=cols)
+
+
+def save_index(out: Path, vec, weights_t, doc_ids, unit_doc_arr, meta: dict) -> None:
+    out.mkdir(parents=True, exist_ok=True)
+    sp.save_npz(out / "weights_t.npz", weights_t, compressed=False)
+    vocab = {t: int(i) for t, i in vec.vocabulary_.items()}
+    (out / "vocab.json").write_text(json.dumps(vocab, ensure_ascii=True), encoding="utf-8")
+    np.save(out / "doc_ids.npy", np.asarray(doc_ids, dtype=np.int64))
+    np.save(out / "unit_doc.npy", np.asarray(unit_doc_arr, dtype=np.int32))
+    (out / "meta.json").write_text(json.dumps(meta, indent=1))
+    log(f"saved index to {out}")
+
+
+def load_index(path: Path):
+    root = Path(glob.glob(f"{path}/**/meta.json", recursive=True)[0]).parent
+    meta = json.loads((root / "meta.json").read_text())
+    vec = vectorizer(meta["seg"])
+    vec.set_params(vocabulary=json.loads((root / "vocab.json").read_text(encoding="utf-8")))
+    weights_t = sp.load_npz(root / "weights_t.npz").tocsr()
+    return vec, weights_t, np.load(root / "doc_ids.npy"), np.load(root / "unit_doc.npy"), meta
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("exp", help="label; e1/e2/e3 are presets")
@@ -215,6 +274,8 @@ def main() -> None:
     ap.add_argument("--ns", default=",".join(map(str, NS)))
     ap.add_argument("--clean", action="store_true", help="index clean_v4 text (docorg.py)")
     ap.add_argument("--sections", default="", help="MAX,MIN chars: heading-aware section chunks (docorg.py)")
+    ap.add_argument("--save-index", type=Path, default=None, help="also write the index to this directory")
+    ap.add_argument("--load-index", type=Path, default=None, help="score against a saved index, no corpus read")
     args = ap.parse_args()
     args.seg = args.seg or args.exp == "e3"
     args.langs = frozenset(x for x in (["vi"] if args.vi_only else args.lang.split(",")) if x)
@@ -230,44 +291,38 @@ def main() -> None:
         f"seg={args.seg} langs={sorted(args.langs) or 'all'}")
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
-    doc_ids: list[int] = []
-    unit_doc: list[int] = []
-    vec = vectorizer(args.seg)
-    log(f"{args.exp}: vectorizing ...")
-    stream = units(args, corpus_dir, doc_ids, unit_doc)
-    if args.seg:
-        stream = parallel_segment(stream, args.workers)
-    counts = vec.fit_transform(stream)
-    unit_doc_arr = np.asarray(unit_doc, dtype=np.int32)
-    log(f"units={counts.shape[0]:,} docs={len(doc_ids):,} vocab={counts.shape[1]:,} nnz={counts.nnz:,}")
-    weights_t = bm25_weights(counts, args.k1, args.b).T.tocsr()  # (vocab, units)
-    del counts
-    log("weights ready")
+    if args.load_index:
+        vec, weights_t, doc_ids, unit_doc_arr, meta = load_index(args.load_index)
+        args.seg, chunked, args.langs = meta["seg"], meta["chunked"], frozenset(meta["langs"])
+        log(f"loaded index {args.load_index}: {meta}")
+    else:
+        doc_ids: list[int] = []
+        unit_doc: list[int] = []
+        vec = vectorizer(args.seg)
+        log(f"{args.exp}: vectorizing ...")
+        stream = units(args, corpus_dir, doc_ids, unit_doc)
+        if args.seg:
+            stream = parallel_segment(stream, args.workers)
+        counts = vec.fit_transform(stream)
+        unit_doc_arr = np.asarray(unit_doc, dtype=np.int32)
+        log(f"units={counts.shape[0]:,} docs={len(doc_ids):,} vocab={counts.shape[1]:,} nnz={counts.nnz:,}")
+        weights_t = bm25_weights(counts, args.k1, args.b).T.tocsr()  # (vocab, units)
+        del counts
+        log("weights ready")
+        if args.save_index:
+            meta = {"exp": args.exp, "seg": args.seg, "chunked": chunked, "langs": sorted(args.langs),
+                    "k1": args.k1, "b": args.b, "chunk_chars": args.chunk_chars, "overlap": args.overlap,
+                    "clean": args.clean, "sections": list(args.sections), "corpus": str(corpus_dir)}
+            save_index(args.save_index, vec, weights_t, doc_ids, unit_doc_arr, meta)
 
     queries = pd.read_parquet(qpath)
     if args.max_queries:
-        queries = queries.head(args.max_queries)
-    qtexts = queries["query"].tolist()
-    if args.seg:
-        qtexts = [segment(q) for q in qtexts]
-    q_counts = vec.transform(qtexts).astype(np.float32)
-    starts = np.flatnonzero(np.r_[True, unit_doc_arr[1:] != unit_doc_arr[:-1]])
-    owners = unit_doc_arr[starts]
-    rows = []
-    for lo in range(0, q_counts.shape[0], 32):
-        scores = (q_counts[lo:lo + 32] @ weights_t).toarray()
-        for j, s in enumerate(scores):
-            doc_score = np.maximum.reduceat(s, starts) if chunked else s
-            top = np.argpartition(-doc_score, min(args.topk, len(doc_score) - 1))[:args.topk]
-            top = top[np.argsort(-doc_score[top])]
-            qid = int(queries["id"].iloc[lo + j])
-            for rank, idx in enumerate(top):
-                row = owners[idx] if chunked else idx
-                if doc_score[idx] > 0:
-                    rows.append((qid, rank, doc_ids[row], float(doc_score[idx])))
-        log(f"scored {min(lo + 32, q_counts.shape[0])}/{q_counts.shape[0]} queries")
-    ranking = pd.DataFrame(rows, columns=["qid", "rank", "doc_id", "score"])
+        keep = queries[qid_col(queries)].drop_duplicates().head(args.max_queries)
+        queries = queries[queries[qid_col(queries)].isin(keep)]
+    ranking = score(queries, vec, weights_t, doc_ids, unit_doc_arr, chunked, args.seg, args.topk)
     ranking.to_parquet(args.out_dir / "ranking.parquet", index=False)
+    unit_doc = unit_doc_arr
+    queries = queries.rename(columns={qid_col(queries): "id"}).drop_duplicates("id")
 
     stats = {"exp": args.exp, "units": int(len(unit_doc)), "docs": len(doc_ids), "vocab": int(weights_t.shape[0]),
              "k1": args.k1, "b": args.b, "chunk_chars": args.chunk_chars, "overlap": args.overlap,
