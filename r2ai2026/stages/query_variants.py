@@ -87,11 +87,14 @@ def variants(qid: int, query: str, frame: dict | None, table: dict) -> list[tupl
     return rows
 
 
-def build(queries: pd.DataFrame, frames: pd.DataFrame | None, table: dict) -> pd.DataFrame:
+def build(queries: pd.DataFrame, frames: pd.DataFrame | None, table: dict,
+          langs: set[str] | None = None) -> pd.DataFrame:
     by_qid = {} if frames is None else {int(r["qid"]): r.to_dict() for _, r in frames.iterrows()}
     rows = []
     for qid, query in zip(queries["id"].astype(int), queries["query"].astype(str)):
         rows += variants(qid, query, by_qid.get(qid), table)
+    if langs:
+        rows = [r for r in rows if r[2] in langs]
     return pd.DataFrame(rows, columns=["qid", "variant", "lang", "text"])
 
 
@@ -100,11 +103,13 @@ def main() -> None:
     ap.add_argument("--queries", type=Path, required=True, help="parquet with id, query")
     ap.add_argument("--frame", type=Path, default=None, help="query_frame.parquet (optional)")
     ap.add_argument("--table", type=Path, default=TABLE)
+    ap.add_argument("--langs", default="", help="comma list of vi,zh,en (default: all)")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
     table = json.loads(args.table.read_text(encoding="utf-8"))
     frames = pd.read_parquet(args.frame) if args.frame else None
-    df = build(pd.read_parquet(args.queries), frames, table)
+    langs = {x for x in args.langs.split(",") if x}
+    df = build(pd.read_parquet(args.queries), frames, table, langs)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(args.out, index=False)
     print(json.dumps({"queries": int(df["qid"].nunique()), "rows": len(df),

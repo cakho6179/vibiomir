@@ -66,7 +66,8 @@ def score(pairs: pd.DataFrame, queries: dict[int, str], args) -> tuple[pd.DataFr
             idx = order[b:b + args.batch]
             enc = tok.pad({"input_ids": [ids[i] for i in idx]}, padding=True, return_tensors="pt").to("cuda")
             with torch.inference_mode():
-                last = model(**enc).logits[:, -1, :].float()
+                # last position only: full (batch, seq, vocab) logits ran out of T4 memory on the longest batches
+                last = model(**enc, logits_to_keep=1).logits[:, -1, :].float()
             diff = (last[:, yes] - last[:, no]).cpu().tolist()
             for i, d in zip(idx, diff):
                 res[i] = d

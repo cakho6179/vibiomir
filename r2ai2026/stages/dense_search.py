@@ -1,6 +1,6 @@
 """Dense search over saved passage embeddings (dense_embed.py --save-emb) for query variants.
 
-    python dense_search.py --model BAAI/bge-m3 --emb "/kaggle/input/**/emb.npy" --variants query_variants.parquet \
+    python dense_search.py --model BAAI/bge-m3 --emb "INDEX_ROOT/**/emb.npy" --variants query_variants.parquet \
                            --out DIR [--only orig,sub0,hyde,zh_q] [--topk 3000] [--query-prompt "..."]
 
 Each emb.npy sits next to its ids.npy (owning doc per passage). Every embedding file is loaded to the GPU in turn
@@ -30,27 +30,54 @@ def log(msg: str) -> None:
     print(f"[{time.time() - T0:7.0f}s] {msg}", flush=True)
 
 
-def top_docs(q, emb, ids, topk: int, device: str, batch: int = 64) -> list[list[tuple[int, float]]]:
-    """Per query row: up to topk (doc_id, score) by best passage, from one embedding file."""
+def top_docs(q, emb, ids, topk: int, device: str, batch: int = 64,
+             block: int = 0) -> list[list[tuple[int, float]]]:
+    """Per query row: up to topk (doc_id, score) by best passage, from one embedding file.
+
+    The passage matrix is streamed in blocks instead of being copied to the GPU in
+    one piece: a full VI matrix is 4.3 GiB and does not fit on an 8 GiB card next
+    to the query encoder. Per block we keep the best ``topk*10`` passages, which
+    is exact because a passage outside a block's top-k cannot be in the global
+    top-k.
+    """
     import torch
     dtype = torch.float16 if device.startswith("cuda") else torch.float32
-    docs_t = torch.from_numpy(emb).to(device=device, dtype=dtype)
-    k = min(topk * 10, len(ids))  # passages; doc score = best passage
+    nq, npass = len(q), len(ids)
+    k = min(topk * 10, npass)  # passages; doc score = best passage
+    block = block or (200_000 if device.startswith("cuda") else 100_000)
+    acc_s = torch.full((nq, k), float("-inf"), dtype=dtype, device=device)
+    acc_i = torch.zeros((nq, k), dtype=torch.int32, device=device)
+    for start in range(0, npass, block):
+        end = min(start + block, npass)
+        block_t = torch.from_numpy(np.array(emb[start:end], copy=True)).to(device=device, dtype=dtype)
+        for lo in range(0, nq, batch):
+            hi = min(lo + batch, nq)
+            qt = torch.from_numpy(q[lo:hi]).to(device=device, dtype=dtype)
+            scores = qt @ block_t.T
+            m = min(k, scores.shape[1])
+            vals, idx = torch.topk(scores, m, dim=1)
+            idx = idx.to(torch.int32) + start
+            if start == 0:
+                acc_s[lo:hi, :m] = vals
+                acc_i[lo:hi, :m] = idx
+            else:
+                vals, sel = torch.topk(torch.cat([acc_s[lo:hi], vals], dim=1), k, dim=1)
+                acc_s[lo:hi] = vals
+                acc_i[lo:hi] = torch.gather(torch.cat([acc_i[lo:hi], idx], dim=1), 1, sel)
+        del block_t
+    scores_np = acc_s.float().cpu().numpy()
+    idx_np = acc_i.cpu().numpy()
     out = []
-    for lo in range(0, len(q), batch):
-        qt = torch.from_numpy(q[lo:lo + batch]).to(device=device, dtype=dtype)
-        scores, idx = torch.topk(qt @ docs_t.T, k, dim=1)
-        scores, idx = scores.float().cpu().numpy(), idx.cpu().numpy()
-        for j in range(len(qt)):
-            best: dict[int, float] = {}
-            for i, s in zip(idx[j], scores[j]):
-                doc = int(ids[i])
-                if doc not in best:
-                    best[doc] = float(s)
-                    if len(best) >= topk:
-                        break
-            out.append(list(best.items()))
-    del docs_t
+    for row in range(nq):
+        best: dict[int, float] = {}
+        for i, s in zip(idx_np[row], scores_np[row]):
+            doc = int(ids[i])
+            if doc not in best:
+                best[doc] = float(s)
+                if len(best) >= topk:
+                    break
+        out.append(list(best.items()))
+    del acc_s, acc_i
     if device.startswith("cuda"):
         torch.cuda.empty_cache()
     return out
@@ -105,7 +132,7 @@ def main() -> None:
         raise SystemExit(f"no embeddings match {args.emb}")
     per_file, passages = [], 0
     for f in files:
-        emb, ids = np.load(f), np.load(Path(f).with_name("ids.npy"))
+        emb, ids = np.load(f, mmap_mode="r"), np.load(Path(f).with_name("ids.npy"))
         per_file.append(top_docs(q, emb, ids, args.topk, device))
         passages += len(ids)
         log(f"{f}: {emb.shape}")

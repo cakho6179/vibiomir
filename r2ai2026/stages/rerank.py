@@ -50,9 +50,25 @@ def split_passages(title: str, text: str) -> list[str]:
     return [f"{title}\n{p}".strip() for p in out]
 
 
+def find_input(name: str) -> Path:
+    """Resolve a file relative to the working tree or a sibling ``input`` mount."""
+    if Path(name).exists():
+        return Path(name)
+    roots = [Path.cwd()]
+    for parent in (Path.cwd(), *Path.cwd().parents):
+        mount = parent / "input"
+        if mount.is_dir():
+            roots.append(mount)
+    for root in roots:
+        hits = sorted(root.glob(f"**/{name}"))
+        if hits:
+            return Path(hits[0])
+    raise FileNotFoundError(name)
+
+
 def load_inputs(args):
-    if not args.cands.exists():  # bare file name: look under the Kaggle inputs
-        args.cands = Path(glob.glob(f"/kaggle/input/**/{args.cands.name}", recursive=True)[0])
+    if not args.cands.exists():  # bare file name: look under the input mounts
+        args.cands = find_input(args.cands.name)
     cands = pd.read_parquet(args.cands)
     qids = sorted(cands["qid"].unique())
     i, n = (int(x) for x in args.part.split("/"))

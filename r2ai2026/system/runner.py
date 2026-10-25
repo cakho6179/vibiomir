@@ -13,7 +13,7 @@ Config keys (see configs/system_v1.yaml):
   queries   query.parquet (id, query)
   work      run folder; stage outputs go to <work>/<stage>/
   prepare   true: stage a data root <work>/data = query.parquet + a link to ``data`` (the scripts expect both
-            under one root); false: ``data`` already holds query.parquet (e.g. /kaggle/input)
+            under one root); false: ``data`` already holds query.parquet (e.g. a mounted input root)
   vars      extra template values
   stages    ordered mapping name -> {script, args, outputs, gpu, smoke_args} or {builtin, ...}
 Templates in args and builtin options: {root} repo, {data} staged data root, {queries}, {work}, {out} this
@@ -67,7 +67,7 @@ def fill(value, ctx: dict):
 
 
 def resolve(p: str | Path, base: Path = ROOT) -> Path:
-    """Absolute path; a pattern with * (e.g. /kaggle/input/**/query.parquet) resolves to its first match."""
+    """Absolute path; a pattern with * (e.g. INPUT_ROOT/**/query.parquet) resolves to its first match."""
     s = str(p)
     if "*" in s:
         import glob

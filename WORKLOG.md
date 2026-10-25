@@ -392,3 +392,8 @@ Công cụ mới: `scripts/r2ai2026_recrawl.py` (curl_cffi, `--method direct|way
   - Decide v2 (8B helps, 4B direct/graded) xong, số đo ở EXPERIMENTS B.
   - Đẩy `tthiutoko/vibiomir-v21-m3-vi-a` (GPU acc2). GPU thứ 2 của acc2 đang bị `vibiomir-embed-sections` của agent B chiếm (từ 14:02). 9 kernel v2.1 còn lại chờ dataset `vibiomir-docstore-v21` sẵn sàng ở từng tài khoản (mỗi lượt upload ~37 phút), một hàng đợi tự đẩy khi có slot.
   - Test: 107 pass + 7 test mới (query_variants, dense_search).
+- 25/10 22:15: **v2.1 dựng xong toàn bộ dense + BM25.**
+  - 10 kernel v2.1 xong. Embedding VI/ZH/EN phủ đủ 732.246 / 220.532 / 239.895 doc; embedding và index BM25 để ở output kernel từng tài khoản. Ranking gộp lưu `data/rankings_v21/` (m3_vi top 3000, m3_zh/m3_en top 1500, bm25_vi_doc/sec top 3000, bm25_zh/en chấm bằng câu tiếng Việt).
+  - Lỗi tải: `kernels output` bỏ qua file đã có, kể cả file 0 byte do lần tải bị dừng ⇒ xoá file 0 byte rồi tải lại. Lệnh chờ và hàng đợi bị Claude Code dừng vì máy thiếu RAM; `vi-b` vẫn được đẩy lúc 19:14.
+  - query-frame v2 (Qwen3.5-9B) xong: 1.187/1.200 parse. Thêm `loads()` chịu dấu phẩy thừa và xuống dòng trong chuỗi ⇒ 1.194. Đẩy `hytahy/vibiomir-query-frame-v3` (Qwen3.5-9B + query_zh/keywords_zh/keywords_en, max_new 1300) sau khi chạy thử local với Qwen2.5-1.5B.
+  - `g0-judge-s1` OOM sau 3,3 giờ ⇒ `judge.py` dùng `logits_to_keep=1`, đẩy lại v2 trên acc4. s0/s2 vẫn chạy bản cũ (có thể gặp cùng lỗi ở các batch dài cuối).

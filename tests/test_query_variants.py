@@ -42,6 +42,9 @@ def test_build_joins_frame_by_qid():
     assert list(df.columns) == ["qid", "variant", "lang", "text"]
     assert set(df[df.qid == 2]["variant"]) == {"orig", "kw"}
     assert set(df[df.qid == 1]["variant"]) == {"orig", "zh_kw"}
+    vi = qv.build(queries, frames, TABLE, {"vi"})
+    assert set(vi["lang"]) == {"vi"}
+    assert "zh_kw" not in set(vi["variant"])
 
 
 def test_query_frame_normalise_new_fields():
@@ -58,3 +61,10 @@ def test_query_frame_parse_skips_reasoning():
     from r2ai2026.stages import query_frame as qf
     raw = 'Thinking Process: use {braces} here.\n{"entities": [], "keywords": "x", "hyde": "y"}'
     assert qf.parse(raw)["keywords"] == "x"
+
+
+def test_query_frame_parse_repairs_small_json_slips():
+    from r2ai2026.stages import query_frame as qf
+    raw = '{"entities": [{"text": "zona", "aliases": ["herpes zoster",]}], "keywords": "a\nb", "hyde": "c"}'
+    obj = qf.parse(raw)
+    assert obj["entities"][0]["aliases"] == ["herpes zoster"] and obj["keywords"] == "a\nb"

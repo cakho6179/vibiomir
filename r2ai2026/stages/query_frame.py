@@ -58,13 +58,22 @@ def parse(raw: str) -> dict | None:
     first = re.search(r'\{\s*"entities"', raw)
     raw = raw[first.start():] if first else raw
     m = re.search(r"\{.*\}", raw, re.S)
-    try:
-        obj = json.loads(m.group(0)) if m else None
-    except json.JSONDecodeError:
-        obj = None
+    obj = loads(m.group(0)) if m else None
     if obj is None:
         obj = salvage(raw)
     return obj if isinstance(obj, dict) else None
+
+
+def loads(text: str):
+    """json.loads that tolerates raw newlines inside strings and trailing commas (common small-model slips)."""
+    try:
+        return json.loads(text, strict=False)
+    except json.JSONDecodeError:
+        pass
+    try:
+        return json.loads(re.sub(r",(\s*[\]}])", r"\1", text), strict=False)
+    except json.JSONDecodeError:
+        return None
 
 
 def salvage(raw: str) -> dict | None:
@@ -72,9 +81,8 @@ def salvage(raw: str) -> dict | None:
     start, cut = raw.find("{"), raw.rfind('"hyde"')
     if start < 0 or cut < start:
         return None
-    try:
-        obj = json.loads(raw[start:cut].rstrip().rstrip(",") + "}")
-    except json.JSONDecodeError:
+    obj = loads(raw[start:cut].rstrip().rstrip(",") + "}")
+    if not isinstance(obj, dict):
         return None
     tail = re.match(r'"hyde"\s*:\s*"(.*)', raw[cut:], re.S)
     obj["hyde"] = tail.group(1).rsplit(".", 1)[0] + "." if tail else ""
