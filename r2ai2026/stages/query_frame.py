@@ -8,7 +8,10 @@ One JSON object per query (greedy decoding). Fields:
   aspects   subset of ASPECTS
   subqueries 1-5 short self-contained Vietnamese questions (one per asked point)
   keywords  Vietnamese keyword query for BM25
-  hyde      ~120-word Vietnamese passage that would answer the question (for dense retrieval)
+  query_zh  the question in Simplified Chinese, as a Chinese patient would ask it (Chinese health Q&A sites)
+  keywords_zh / keywords_en  Chinese / English medical keywords for lexical search
+  hyde      ~120-word Vietnamese passage that would answer the question (for dense retrieval); kept last so an
+            answer cut by --max-new loses only part of it (salvage)
 Writes query_frame.parquet (qid, raw, ok, + fields as JSON strings) and stats.json. Prompt is English so the
 source stays ASCII (Kaggle decodes non-ASCII kernel source badly); outputs are Vietnamese.
 """
@@ -37,8 +40,13 @@ SYSTEM = (
     '"aspects": list from [' + ", ".join(ASPECTS) + '] that the question asks about;\n'
     '"subqueries": 1 to 5 short self-contained Vietnamese questions, one per point asked, each naming the entity;\n'
     '"keywords": Vietnamese keywords for lexical search (entities, aliases, key symptoms), space separated;\n'
+    '"query_zh": the question translated into natural Simplified Chinese, as a patient would ask it;\n'
+    '"keywords_zh": Simplified Chinese medical keywords (standard disease, symptom, drug and test names), '
+    'space separated;\n'
+    '"keywords_en": English medical keywords (standard terms), space separated;\n'
     '"hyde": a factual Vietnamese passage of about 120 words, written like a health article, that answers the '
-    "question.\nAll text values in Vietnamese except English aliases.")
+    "question. Put hyde last.\nAll other text values in Vietnamese, except English aliases and the _zh / _en "
+    "fields.")
 
 
 def log(msg: str) -> None:
@@ -46,6 +54,9 @@ def log(msg: str) -> None:
 
 
 def parse(raw: str) -> dict | None:
+    """The JSON object, skipping any reasoning text printed before it ("Thinking Process: ...")."""
+    first = re.search(r'\{\s*"entities"', raw)
+    raw = raw[first.start():] if first else raw
     m = re.search(r"\{.*\}", raw, re.S)
     try:
         obj = json.loads(m.group(0)) if m else None
@@ -70,6 +81,25 @@ def salvage(raw: str) -> dict | None:
     return obj
 
 
+FIELDS = ("entities", "aspects", "subqueries", "keywords", "query_zh", "keywords_zh", "keywords_en", "hyde")
+
+
+def aliases_of(value) -> list[str]:
+    """A list of names; a bare string ("a, b; c") is split, never iterated character by character."""
+    items = re.split(r"[,;\n]", value) if isinstance(value, str) else (value or [])
+    return [str(a).strip() for a in items if str(a).strip()][:4]
+
+
+def text_of(value) -> str:
+    if isinstance(value, list):  # keywords sometimes come back as a list of terms
+        return " ".join(str(v).strip() for v in value if str(v).strip())
+    return str(value or "").strip()
+
+
+def empty_frame() -> dict:
+    return {k: [] if k in ("entities", "aspects", "subqueries") else "" for k in FIELDS}
+
+
 def normalise(obj: dict, query: str) -> dict:
     low = query.lower()
     ents = []
@@ -77,8 +107,7 @@ def normalise(obj: dict, query: str) -> dict:
         if isinstance(e, dict) and str(e.get("text", "")).strip():
             text = str(e["text"]).strip()
             ents.append({"text": text, "type": e.get("type") if e.get("type") in TYPES else "other",
-                         "aliases": [str(a).strip() for a in (e.get("aliases") or []) if str(a).strip()][:4],
-                         "in_query": text.lower() in low})
+                         "aliases": aliases_of(e.get("aliases")), "in_query": text.lower() in low})
     subs = []
     for s in obj.get("subqueries") or []:
         if isinstance(s, dict):  # small models sometimes wrap each question: {"text": "..."}
@@ -87,8 +116,7 @@ def normalise(obj: dict, query: str) -> dict:
             subs.append(str(s).strip())
     subs = subs[:5]
     return {"entities": ents, "aspects": [a for a in (obj.get("aspects") or []) if a in ASPECTS],
-            "subqueries": subs, "keywords": str(obj.get("keywords") or "").strip(),
-            "hyde": str(obj.get("hyde") or "").strip()}
+            "subqueries": subs, **{k: text_of(obj.get(k)) for k in FIELDS[3:]}}
 
 
 def load(name: str):
@@ -129,7 +157,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--model", default="Qwen/Qwen3.5-9B")
     ap.add_argument("--batch", type=int, default=16)
-    ap.add_argument("--max-new", type=int, default=1100)
+    ap.add_argument("--max-new", type=int, default=1300)
     ap.add_argument("--max-queries", type=int, default=None)
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
@@ -151,7 +179,7 @@ def main() -> None:
     rows = []
     for i, (qid, q) in enumerate(zip(queries["id"], texts)):
         obj = parse(raw[i])
-        frame = normalise(obj, q) if obj else {"entities": [], "aspects": [], "subqueries": [], "keywords": "", "hyde": ""}
+        frame = normalise(obj, q) if obj else empty_frame()
         rows.append({"qid": int(qid), "ok": obj is not None, "raw": raw[i],
                      **{k: json.dumps(v, ensure_ascii=False) if not isinstance(v, str) else v for k, v in frame.items()}})
     df = pd.DataFrame(rows)
@@ -161,7 +189,8 @@ def main() -> None:
              "entities_per_q": round(len(ents) / len(df), 2),
              "entities_in_query": round(sum(e["in_query"] for e in ents) / max(len(ents), 1), 3),
              "subqueries_per_q": round(sum(len(json.loads(r["subqueries"])) for r in rows) / len(df), 2),
-             "with_hyde": int(sum(bool(r["hyde"]) for r in rows)), "seconds": round(time.time() - T0)}
+             **{f"with_{k}": int(sum(bool(r[k]) for r in rows)) for k in FIELDS[3:]},
+             "seconds": round(time.time() - T0)}
     (args.out / "stats.json").write_text(json.dumps(stats, indent=1))
     log(json.dumps(stats))
 

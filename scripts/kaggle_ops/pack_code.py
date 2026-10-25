@@ -16,7 +16,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-INCLUDE = ["r2ai2026/**/*.py", "configs/*.yaml", "pyproject.toml", "vendor/*"]
+INCLUDE = ["r2ai2026/**/*.py", "configs/*.yaml", "configs/*.json", "pyproject.toml", "vendor/*"]
 
 
 def git(*args: str) -> str:

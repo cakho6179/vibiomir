@@ -218,9 +218,10 @@
     "user": "hytahy",
     "slug": "vibiomir-query-frame",
     "kind": "gpu",
-    "state": "queued",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-query-frame-acc1",
-    "pushed": "2026-10-25 14:49:46"
+    "pushed": "2026-10-25 14:49:46",
+    "finished": "2026-10-25 17:44:57"
   },
   "tthiutoko/vibiomir-ner-tag": {
     "acc": "acc2",
@@ -260,16 +261,18 @@
     "user": "tthiutoko",
     "slug": "vibiomir-hf-recover",
     "kind": "cpu",
-    "state": "queued",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-hf-recover-acc2",
-    "pushed": "2026-10-25 15:04:14"
+    "pushed": "2026-10-25 15:04:14",
+    "finished": "2026-10-25 16:01:22",
+    "out": "kaggle\\outputs\\vibiomir-hf-recover"
   },
   "noskaiser/vibiomir-g0-judge-s0": {
     "acc": "acc3",
     "user": "noskaiser",
     "slug": "vibiomir-g0-judge-s0",
     "kind": "gpu",
-    "state": "queued",
+    "state": "running",
     "bundle": "kaggle\\kernels_generic\\vibiomir-g0-judge-s0-acc3",
     "pushed": "2026-10-25 15:12:39"
   },
@@ -278,7 +281,7 @@
     "user": "lanpana",
     "slug": "vibiomir-g0-judge-s1",
     "kind": "gpu",
-    "state": "queued",
+    "state": "running",
     "bundle": "kaggle\\kernels_generic\\vibiomir-g0-judge-s1-acc4",
     "pushed": "2026-10-25 15:12:46"
   },
@@ -287,8 +290,48 @@
     "user": "hytahy",
     "slug": "vibiomir-g0-judge-s2",
     "kind": "gpu",
-    "state": "queued",
+    "state": "running",
     "bundle": "kaggle\\kernels_generic\\vibiomir-g0-judge-s2-acc1",
     "pushed": "2026-10-25 15:12:53"
+  },
+  "noskaiser/vibiomir-decide-q3-8b": {
+    "acc": "acc3",
+    "user": "noskaiser",
+    "slug": "vibiomir-decide-q3-8b",
+    "kind": "gpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-decide-q3-8b",
+    "pushed": "2026-10-25 16:43:39",
+    "finished": "2026-10-25 17:45:09"
+  },
+  "lanpana/vibiomir-decide-q3-4b": {
+    "acc": "acc4",
+    "user": "lanpana",
+    "slug": "vibiomir-decide-q3-4b",
+    "kind": "gpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-decide-q3-4b",
+    "pushed": "2026-10-25 16:25:45",
+    "finished": "2026-10-25 16:46:55"
+  },
+  "lanpana/vibiomir-decide-q3-4b-v2": {
+    "acc": "acc4",
+    "user": "lanpana",
+    "slug": "vibiomir-decide-q3-4b-v2",
+    "kind": "gpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-decide-q3-4b-v2",
+    "pushed": "2026-10-25 16:50:14",
+    "finished": "2026-10-25 17:45:12"
+  },
+  "tthiutoko/vibiomir-rebuild-best": {
+    "acc": "acc2",
+    "user": "tthiutoko",
+    "slug": "vibiomir-rebuild-best",
+    "kind": "cpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-rebuild-best-acc2",
+    "pushed": "2026-10-25 17:03:58",
+    "finished": "2026-10-25 17:45:15"
   }
 }
