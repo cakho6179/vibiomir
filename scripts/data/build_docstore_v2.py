@@ -63,11 +63,11 @@ import pyarrow.parquet as pq
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())
 sys.path.insert(0, str(ROOT))
-from r2ai2026.cleaning import junk_reason  # noqa: E402
-from r2ai2026.docstore import (THIN_CHARS, as_doc, content_chars, furniture_spans,  # noqa: E402
+from r2ai2026.corpus.cleaning import junk_reason  # noqa: E402
+from r2ai2026.corpus.docstore import (THIN_CHARS, as_doc, content_chars, furniture_spans,  # noqa: E402
                                passage_spans, pack_sections)
 from r2ai2026.paths import DOCSTORE  # noqa: E402
-from r2ai2026.processing import TemplateModel, content_key, lang_of, line_key, prepare_body  # noqa: E402
+from r2ai2026.corpus.processing import TemplateModel, content_key, lang_of, line_key, prepare_body  # noqa: E402
 
 VI_MAX_ID = 766_441
 DEFAULT_SOURCES = [

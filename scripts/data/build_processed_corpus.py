@@ -24,7 +24,7 @@ import pandas as pd
 
 sys.path.insert(0, str(next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())))
 from r2ai2026.paths import DOCS_CLEAN, DOCS_PROCESSED  # noqa: E402
-from r2ai2026.processing import TemplateModel, prepare_body, process_document  # noqa: E402
+from r2ai2026.corpus.processing import TemplateModel, prepare_body, process_document  # noqa: E402
 
 SHARD_DOCS = 150_000
 

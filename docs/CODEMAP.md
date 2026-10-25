@@ -8,17 +8,17 @@ Cập nhật 22/10 sau đợt dọn cấu trúc (commit "Restructure scripts…"
 |---|---|---|
 | Đường dẫn dùng chung | `r2ai2026/paths.py` | `RAW`, `QUERIES`, `LINKS`, `DOCS_RAW`, `CRAWL_DB`, `RECOVERED`, `DOCS_CLEAN`, `DOCS_PROCESSED` |
 | Corpus sạch v2 | `scripts/data/build_clean_corpus.py` | raw/crawl/docs.jsonl → data/docs_clean.jsonl |
-| Corpus processed v3 | `scripts/data/build_processed_corpus.py` + `r2ai2026/processing.py` | gỡ template theo host, content_key, dup_of → data/processed_v3/ |
+| Corpus processed v3 | `scripts/data/build_processed_corpus.py` + `r2ai2026/corpus/processing.py` | gỡ template theo host, content_key, dup_of → data/processed_v3/ |
 | Gói dataset Kaggle | `scripts/data/pack_corpus_dataset.py` | → kaggle/corpus_dataset (part-*.jsonl.gz + query.parquet) |
 | Gói phần bổ sung | `scripts/data/pack_corpus_delta.py --tag dN` | doc chưa có trong dataset đã tải lên |
 
 ## 2. Crawl / khôi phục (đầu ra vào data/raw)
 | Việc | File |
 |---|---|
-| Crawler async | `r2ai2026/fetch.py`, `r2ai2026/store.py`, `scripts/crawl/fetch.py` |
-| Recrawl (direct / Wayback) | `scripts/crawl/recrawl.py`, `r2ai2026/wayback.py`; kernel: `kaggle/recrawl_driver/kernel_recrawl.py` |
+| Crawler async | `r2ai2026/crawl/fetch.py`, `r2ai2026/crawl/store.py`, `scripts/crawl/fetch.py` |
+| Recrawl (direct / Wayback) | `scripts/crawl/recrawl.py`, `r2ai2026/crawl/wayback.py`; kernel: `kaggle/recrawl_driver/kernel_recrawl.py` |
 | Common Crawl | `kaggle/cc_recover/cc_recover.py` (CDX), `kaggle/cc_recover/cc_columnar.py` (columnar index) |
-| PubMed | `r2ai2026/pubmed.py` |
+| PubMed | `r2ai2026/crawl/pubmed.py` |
 | Gộp kết quả crawl cũ | `scripts/crawl/merge_crawled.py`, `scripts/crawl/merge_kaggle_recrawl.py` (lịch sử; raw/crawl nay đã đóng băng) |
 | Kiểm tra sống | `scripts/crawl/smoke_live.py`, `scripts/crawl/host_report.py` |
 
@@ -44,7 +44,7 @@ Cập nhật 22/10 sau đợt dọn cấu trúc (commit "Restructure scripts…"
 |---|---|
 | Gom zip + MANIFEST | `scripts/submit/collect_submissions.py` (điểm lấy từ EXPERIMENTS.md bảng A) |
 | Dựng zip local từ ranking (nhỏ) | `scripts/submit/build_from_rankings.py` |
-| Đóng gói / kiểm định dạng | `r2ai2026/submit.py`; chấm local: `r2ai2026/scoring.py` |
+| Đóng gói / kiểm định dạng | `r2ai2026/core/submission.py`; chấm local: `r2ai2026/core/scoring.py` |
 
 ## 6. Phân tích
 | Việc | File |
@@ -69,3 +69,24 @@ Kết quả probe (json/txt/png) giữ ở `research/results/crawl_probes/`.
 
 Lưu ý: kernel recrawl tìm `code/scripts/r2ai2026_recrawl.py` trong dataset — `prep_kaggle_recrawl.py` chép
 `scripts/crawl/recrawl.py` vào đúng tên đó. Script tự tìm gốc dự án bằng thư mục chứa `r2ai2026/`.
+
+## Cấu trúc gói `r2ai2026/` (25/10, commit tái cấu trúc)
+```
+r2ai2026/
+├── __main__.py        python -m r2ai2026 run --config configs/<system>.yaml
+├── paths.py           đường dẫn dùng chung
+├── core/              text.py (chuẩn hoá, tách token) · scoring.py (bản sao metric F2 của BTC) · submission.py (đóng gói, kiểm zip)
+├── corpus/            links.py (danh sách link BTC) · cleaning.py · processing.py · docstore.py (kho v1, section) · audit.py
+├── crawl/             fetch.py (crawler) · store.py (lưu tiếp được) · wayback.py · pubmed.py
+└── system/            runner.py (bộ điều phối stage, cache theo hash cấu hình)
+```
+Các stage truy hồi/xếp hạng là script nhận đường dẫn (`kaggle/*_exp/*.py`, ASCII để chạy làm kernel), do `configs/*.yaml` gọi.
+
+| Tên cũ | Tên mới |
+|---|---|
+| `r2ai2026.text` / `scoring` / `submit` | `r2ai2026.core.text` / `core.scoring` / `core.submission` |
+| `r2ai2026.corpus` / `cleaning` / `processing` / `docstore` / `corpus_audit` | `r2ai2026.corpus.links` / `corpus.cleaning` / `corpus.processing` / `corpus.docstore` / `corpus.audit` |
+| `r2ai2026.fetch` / `store` / `wayback` / `pubmed` | `r2ai2026.crawl.fetch` / `crawl.store` / `crawl.wayback` / `crawl.pubmed` |
+| `r2ai2026.system` | `r2ai2026.system.runner` |
+
+Cất vào `_temp/2026-10-25/cleanup/` (không còn trên đường chạy của hệ thống): `cli`, `pipeline`, `bm25`, `chunking`, `devproxy` (baseline v0), `decision`, `multistack`, `clir_transfer`, `query_expansion`, `translate`, `fusion` (không file nào dùng), `scripts/analysis/eval_retrieval.py`, `scripts/analysis/compare_chunk_policies.py` và 13 test của chúng (`tests/test_r2ai2026_pipeline.py` → `tests/test_core_basics.py` giữ 11 test còn lại).

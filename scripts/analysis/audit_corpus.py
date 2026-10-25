@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())
 sys.path.insert(0, str(ROOT))
 
-from r2ai2026.corpus_audit import (  # noqa: E402
+from r2ai2026.corpus.audit import (  # noqa: E402
     audit_retrieval_data,
     render_audit_markdown,
 )

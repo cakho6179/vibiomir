@@ -1,4 +1,4 @@
-from r2ai2026.processing import (
+from r2ai2026.corpus.processing import (
     TemplateModel,
     content_key,
     lang_of,

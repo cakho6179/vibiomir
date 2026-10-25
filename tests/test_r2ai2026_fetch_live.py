@@ -100,8 +100,8 @@ def local_server(respond) -> Iterator[tuple[str, _State]]:
 
 def crawl(urls: list[tuple[int, str]], *, respect_robots: bool = False, **kwargs) -> list[dict]:
     """Crawl ``(doc_id, url)`` pairs with the production crawler, synchronously."""
-    from r2ai2026.corpus import classify, host_of
-    from r2ai2026.fetch import Crawler
+    from r2ai2026.corpus.links import classify, host_of
+    from r2ai2026.crawl.fetch import Crawler
 
     records: list[dict] = []
 
@@ -345,7 +345,7 @@ def test_short_pages_are_kept_when_min_text_chars_allows_it():
 def test_crawl_writes_records_through_the_sink(tmp_path: Path):
     """The real path from HTTP response to resumable JSONL + SQLite state."""
 
-    from r2ai2026.store import CrawlSink
+    from r2ai2026.crawl.store import CrawlSink
 
     def respond(path: str, count: int) -> _Response:
         return _Response(200, ARTICLE_HTML)
@@ -421,7 +421,7 @@ LIVE_CHALLENGE_HTML = (
 
 
 def test_cookie_challenge_parser_matches_the_live_laodong_wall():
-    from r2ai2026.fetch import parse_js_cookie_challenge
+    from r2ai2026.crawl.fetch import parse_js_cookie_challenge
 
     assert parse_js_cookie_challenge(LIVE_CHALLENGE_HTML) == {"D1N": "3dd97c956221517d5c899caa866f54be"}
     # concatenated literal form ("a="+"b")
@@ -429,7 +429,7 @@ def test_cookie_challenge_parser_matches_the_live_laodong_wall():
 
 
 def test_cookie_challenge_parser_never_fires_on_a_real_page():
-    from r2ai2026.fetch import parse_js_cookie_challenge
+    from r2ai2026.crawl.fetch import parse_js_cookie_challenge
 
     assert parse_js_cookie_challenge("") == {}
     # a real article with an analytics script that writes cookies
@@ -476,7 +476,7 @@ def _wayback_record(base: str, url: str, *, direct: bool = False, min_chars: int
 
     import httpx
 
-    from r2ai2026.wayback import wayback_record
+    from r2ai2026.crawl.wayback import wayback_record
 
     async def run() -> dict:
         async with httpx.AsyncClient() as client:
@@ -594,7 +594,7 @@ def test_append_never_blocks_on_a_locked_database(tmp_path: Path):
     import sqlite3
     import time as time_module
 
-    from r2ai2026.store import CrawlSink
+    from r2ai2026.crawl.store import CrawlSink
 
     jsonl_path = tmp_path / "docs.jsonl"
     sqlite_path = tmp_path / "crawl.sqlite"
@@ -631,7 +631,7 @@ def test_two_concurrent_sinks_append_intact_records(tmp_path: Path):
 
     import threading
 
-    from r2ai2026.store import CrawlSink, iter_jsonl
+    from r2ai2026.crawl.store import CrawlSink, iter_jsonl
 
     jsonl_path = tmp_path / "docs.jsonl"
     sqlite_path = tmp_path / "crawl.sqlite"

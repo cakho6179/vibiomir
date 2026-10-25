@@ -28,7 +28,7 @@ import httpx
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())
 sys.path.insert(0, str(ROOT))
 
-from r2ai2026.corpus import (  # noqa: E402
+from r2ai2026.corpus.links import (  # noqa: E402
     classify,
     host_of,
     interleave_by_host,
@@ -37,10 +37,10 @@ from r2ai2026.corpus import (  # noqa: E402
     pending_links,
     sample_links,
 )
-from r2ai2026.fetch import DEFAULT_HEADERS, DEFAULT_USER_AGENT, Crawler  # noqa: E402
-from r2ai2026.pubmed import EFetchClient  # noqa: E402
-from r2ai2026.store import CrawlSink  # noqa: E402
-from r2ai2026.wayback import wayback_record  # noqa: E402
+from r2ai2026.crawl.fetch import DEFAULT_HEADERS, DEFAULT_USER_AGENT, Crawler  # noqa: E402
+from r2ai2026.crawl.pubmed import EFetchClient  # noqa: E402
+from r2ai2026.crawl.store import CrawlSink  # noqa: E402
+from r2ai2026.crawl.wayback import wayback_record  # noqa: E402
 
 DEFAULT_DATA_DIR = ROOT / "data"
 DEFAULT_LINKS = DEFAULT_DATA_DIR / "raw" / "btc" / "links_corpus_vi_en_zh.parquet"

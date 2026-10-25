@@ -6,7 +6,7 @@ import sys
 import pandas as pd
 import pytest
 
-from r2ai2026 import system
+from r2ai2026.system import runner as system
 
 
 def make_cfg(tmp_path, script_args):

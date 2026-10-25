@@ -30,11 +30,11 @@ import pandas as pd
 from curl_cffi.requests import AsyncSession
 
 sys.path.insert(0, str(next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())))
-from r2ai2026.cleaning import junk_reason  # noqa: E402
-from r2ai2026.corpus import classify  # noqa: E402
-from r2ai2026.fetch import clean_extracted_text, decode_html, extract_article  # noqa: E402
+from r2ai2026.corpus.cleaning import junk_reason  # noqa: E402
+from r2ai2026.corpus.links import classify  # noqa: E402
+from r2ai2026.crawl.fetch import clean_extracted_text, decode_html, extract_article  # noqa: E402
 from r2ai2026.paths import DOCS_RAW, REPORTS  # noqa: E402
-from r2ai2026.text import detect_lang  # noqa: E402
+from r2ai2026.core.text import detect_lang  # noqa: E402
 
 TARGETS = REPORTS / "recrawl_targets.tsv"
 STATE = REPORTS / "recrawl_state.tsv"

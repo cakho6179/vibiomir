@@ -22,7 +22,7 @@ import pandas as pd
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())
 sys.path.insert(0, str(ROOT))
-from r2ai2026.submit import read_submission_zip, write_submission_zip  # noqa: E402
+from r2ai2026.core.submission import read_submission_zip, write_submission_zip  # noqa: E402
 
 RD = ROOT / "kaggle" / "rankings_ds"
 VI_MAX_ID = 766_441

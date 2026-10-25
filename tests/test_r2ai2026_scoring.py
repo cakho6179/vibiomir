@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 
 def test_normalize_text_applies_official_pipeline():
-    from r2ai2026.scoring import normalize_text
+    from r2ai2026.core.scoring import normalize_text
 
     assert normalize_text("  BỆNH\tTim   Mạch \n") == "bệnh tim mạch"
     assert normalize_text("Nhồi&nbsp;máu cơ tim") == "nhồi máu cơ tim"
@@ -17,7 +17,7 @@ def test_normalize_text_applies_official_pipeline():
 
 
 def test_lcs_length_matches_dynamic_programming():
-    from r2ai2026.scoring import _lcs_dp, lcs_length
+    from r2ai2026.core.scoring import _lcs_dp, lcs_length
 
     rng = random.Random(20261018)
     for _ in range(50):
@@ -31,7 +31,7 @@ def test_lcs_length_matches_dynamic_programming():
 
 
 def test_chunk_overlap_uses_gold_length_as_denominator():
-    from r2ai2026.scoring import chunk_overlap, tokenize
+    from r2ai2026.core.scoring import chunk_overlap, tokenize
 
     gold = tokenize("đau ngực khi gắng sức kèm khó thở")
     assert chunk_overlap(gold, gold) == 1.0
@@ -44,7 +44,7 @@ def test_chunk_overlap_uses_gold_length_as_denominator():
 
 
 def test_score_query_document_level_precision_recall_f2():
-    from r2ai2026.scoring import score_query
+    from r2ai2026.core.scoring import score_query
 
     score = score_query(
         predicted_docs=[1, 2, 3, 4],
@@ -60,7 +60,7 @@ def test_score_query_document_level_precision_recall_f2():
 
 
 def test_score_query_empty_prediction_scores_zero():
-    from r2ai2026.scoring import score_query
+    from r2ai2026.core.scoring import score_query
 
     score = score_query([], [1, 2], [], [(1, "đau đầu kéo dài")])
     assert score.docs_precision == 0.0 and score.docs_recall == 0.0 and score.docs_f2 == 0.0
@@ -68,7 +68,7 @@ def test_score_query_empty_prediction_scores_zero():
 
 
 def test_chunk_level_threshold_boundary_and_recall_accounting():
-    from r2ai2026.scoring import score_query
+    from r2ai2026.core.scoring import score_query
 
     gold = "một hai ba bốn năm sáu bảy tám chín mười"  # 10 tokens
     # 4/10 = 0.40 -> counts as correct (rule is ">= 0.40")
@@ -87,7 +87,7 @@ def test_chunk_level_threshold_boundary_and_recall_accounting():
 
 def test_whole_document_chunk_finds_all_gold_chunks():
     """A verbatim full document submitted as one chunk recovers every gold span in it."""
-    from r2ai2026.scoring import score_query
+    from r2ai2026.core.scoring import score_query
 
     doc = " ".join(f"t{i}" for i in range(1, 500))
     gold_chunks = [
@@ -100,7 +100,7 @@ def test_whole_document_chunk_finds_all_gold_chunks():
 
 
 def test_mismatched_doc_id_never_matches():
-    from r2ai2026.scoring import score_query
+    from r2ai2026.core.scoring import score_query
 
     score = score_query(
         [1], [1], [(2, "đau ngực khi gắng sức")], [(1, "đau ngực khi gắng sức")]
@@ -110,7 +110,7 @@ def test_mismatched_doc_id_never_matches():
 
 
 def test_score_submission_macro_average_and_final_score():
-    from r2ai2026.scoring import score_submission
+    from r2ai2026.core.scoring import score_submission
 
     references = {
         1: {"relevant_docs": [10], "relevant_chunks": [{"doc_id": 10, "chunk_text": "sốt cao co giật"}]},
@@ -128,7 +128,7 @@ def test_score_submission_macro_average_and_final_score():
 
 
 def test_f_beta_weights_recall_more_than_precision():
-    from r2ai2026.scoring import f_beta
+    from r2ai2026.core.scoring import f_beta
 
     assert abs(f_beta(1.0, 0.5, 2.0) - 5 * 0.5 / 4.5) < 1e-9
     assert f_beta(1.0, 0.0) == 0.0

@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())
 sys.path.insert(0, str(ROOT))
 
-from r2ai2026.scoring import score_submission  # noqa: E402
+from r2ai2026.core.scoring import score_submission  # noqa: E402
 
 rng = random.Random(7)
 VOCAB = [f"t{i}" for i in range(30000)]

@@ -1,15 +1,9 @@
-"""Enable python -m r2ai2026 execution.
-
-``python -m r2ai2026 run ...`` is the end-to-end system (r2ai2026/system.py); other commands go to the
-older tooling CLI (r2ai2026/cli.py).
-"""
+"""python -m r2ai2026 run --config configs/<system>.yaml  (see r2ai2026/system/runner.py, docs/SYSTEM_RUN.md)."""
 import sys
 
 if __name__ == "__main__":
-    if sys.argv[1:2] == ["run"]:
-        from r2ai2026.system import main as system_main
+    if sys.argv[1:2] != ["run"]:
+        sys.exit("usage: python -m r2ai2026 run --config configs/system_v1.yaml [--stages ...] [--dry-run]")
+    from r2ai2026.system.runner import main
 
-        sys.exit(system_main(sys.argv[2:]))
-    from r2ai2026.cli import main
-
-    sys.exit(main())
+    sys.exit(main(sys.argv[2:]))

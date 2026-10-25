@@ -35,11 +35,11 @@ import pyarrow.parquet as pq
 
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())
 sys.path.insert(0, str(ROOT))
-from r2ai2026.cleaning import junk_reason  # noqa: E402
-from r2ai2026.docstore import (PUBMED_HOST, THIN_CHARS, as_doc, content_chars, furniture_spans, host_of,  # noqa: E402
+from r2ai2026.corpus.cleaning import junk_reason  # noqa: E402
+from r2ai2026.corpus.docstore import (PUBMED_HOST, THIN_CHARS, as_doc, content_chars, furniture_spans, host_of,  # noqa: E402
                                passage_spans, pick_recovered, source_of, text_hash)
 from r2ai2026.paths import DOCS_RAW, DOCSTORE, RECOVERED  # noqa: E402
-from r2ai2026.processing import TemplateModel, content_key, lang_of, prepare_body  # noqa: E402
+from r2ai2026.corpus.processing import TemplateModel, content_key, lang_of, prepare_body  # noqa: E402
 
 N_PARTS = 8
 EXPECTED_CRAWL_DOCS = 1_183_751  # data/docs_clean.jsonl, 2026-10-20

@@ -1,6 +1,6 @@
 """Build the canonical clean corpus from data/docs.jsonl (raw real crawl output).
 
-Keeps only genuine page content (see ``r2ai2026.cleaning.junk_reason``), never edits text.
+Keeps only genuine page content (see ``r2ai2026.corpus.cleaning.junk_reason``), never edits text.
 Writes:
   data/docs_clean.jsonl        one record per usable id
   runs/reports/excluded_docs.tsv   id, host, reason  (junk found in the raw crawl)
@@ -23,7 +23,7 @@ import orjson
 import pandas as pd
 
 sys.path.insert(0, str(next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())))
-from r2ai2026.cleaning import junk_reason  # noqa: E402
+from r2ai2026.corpus.cleaning import junk_reason  # noqa: E402
 from r2ai2026.paths import DATA, DOCS_RAW, LINKS, REPORTS  # noqa: E402
 
 PUBMED = "pubmed.ncbi.nlm.nih.gov"

@@ -3,7 +3,7 @@
     python scripts/submit/submit.py submissions/a.zip [submissions/b.zip ...] [--dry-run] [--no-wait]
 
 Same credentials as fetch_scores.py (never printed). Every zip is checked before upload: readable, 1200 unique query
-ids, well formed (r2ai2026.submit.validate_submission), no binary chunk text (they make the scorer fail), <= 100 MB.
+ids, well formed (r2ai2026.core.submission.validate_submission), no binary chunk text (they make the scorer fail), <= 100 MB.
 The public phase allows 10 submissions a day; the script stops before going over --max-today (non-Failed
 submissions of ours created today, UTC; if the server also counts Failed ones it simply rejects the extra upload).
 The private phase (5 in total) is refused unless --private-ok is given,
@@ -26,8 +26,8 @@ ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_d
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).parent))
 from fetch_scores import BASE, COMPETITION_ID, OWNER, auth_token, get_all, scores  # noqa: E402
-from r2ai2026.cleaning import is_binary_text  # noqa: E402
-from r2ai2026.submit import read_submission_zip, submission_stats, validate_submission  # noqa: E402
+from r2ai2026.corpus.cleaning import is_binary_text  # noqa: E402
+from r2ai2026.core.submission import read_submission_zip, submission_stats, validate_submission  # noqa: E402
 
 PUBLIC_PHASE, PRIVATE_PHASE = 44, 45
 N_QUERIES = 1200

@@ -27,10 +27,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 import httpx  # noqa: E402
 
-from r2ai2026.corpus import host_of, load_links, sample_links  # noqa: E402
-from r2ai2026.fetch import Crawler  # noqa: E402
-from r2ai2026.pubmed import EFetchClient  # noqa: E402
-from r2ai2026.wayback import wayback_record  # noqa: E402
+from r2ai2026.corpus.links import host_of, load_links, sample_links  # noqa: E402
+from r2ai2026.crawl.fetch import Crawler  # noqa: E402
+from r2ai2026.crawl.pubmed import EFetchClient  # noqa: E402
+from r2ai2026.crawl.wayback import wayback_record  # noqa: E402
 
 DEFAULT_LINKS = "data/raw/btc/links_corpus_vi_en_zh.parquet"
 # hosts that returned 403 in the real crawl probe -> the Wayback path matters most

@@ -12,8 +12,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())))
-from r2ai2026.cleaning import is_binary_text  # noqa: E402
-from r2ai2026.submit import read_submission_zip, write_submission_zip  # noqa: E402
+from r2ai2026.corpus.cleaning import is_binary_text  # noqa: E402
+from r2ai2026.core.submission import read_submission_zip, write_submission_zip  # noqa: E402
 
 
 def main() -> None:

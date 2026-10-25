@@ -10,7 +10,7 @@ vibiomir/
 ├── README.md            ← file này
 ├── EXPERIMENTS.md       sổ số đo: điểm LB (A), kernel (B), phân tích offline (C), dữ liệu (E)
 ├── WORKLOG.md           nhật ký hành động theo ngày
-├── r2ai2026/            thư viện Python dùng chung (paths, text, cleaning, fetch, scoring, submit…)
+├── r2ai2026/            gói hệ thống: core/ corpus/ crawl/ system/ (entry point: python -m r2ai2026 run, xem docs/SYSTEM_RUN.md)
 ├── scripts/             lệnh chạy local, theo giai đoạn
 │   ├── data/            dựng corpus dẫn xuất từ data/raw (clean → processed_v3 → gói dataset Kaggle)
 │   ├── crawl/           crawl / recrawl / gộp kết quả crawl (tạo ra data/raw/crawl, data/raw/recovered)

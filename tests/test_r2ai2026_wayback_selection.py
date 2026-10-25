@@ -19,8 +19,8 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from r2ai2026.corpus import load_links, pending_links  # noqa: E402
-from r2ai2026.store import CrawlSink  # noqa: E402
+from r2ai2026.corpus.links import load_links, pending_links  # noqa: E402
+from r2ai2026.crawl.store import CrawlSink  # noqa: E402
 
 
 @pytest.fixture()
@@ -128,7 +128,7 @@ def test_store_state_survives_a_second_process_writing(tmp_path: Path, links_par
 
 def test_interleave_by_host_keeps_every_item_and_mixes_hosts():
     """The published list is host-grouped; crawling it in order idles 88/96 slots."""
-    from r2ai2026.corpus import interleave_by_host
+    from r2ai2026.corpus.links import interleave_by_host
 
     rows = [
         (1, "https://a.vn/1", "a.vn", "vi"),

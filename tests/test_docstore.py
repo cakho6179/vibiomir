@@ -2,9 +2,9 @@ import json
 import random
 from pathlib import Path
 
-from r2ai2026.docstore import (as_doc, content_chars, furniture_spans, pack_sections, passage_spans, pick_recovered,
+from r2ai2026.corpus.docstore import (as_doc, content_chars, furniture_spans, pack_sections, passage_spans, pick_recovered,
                                 source_of)
-from r2ai2026.processing import TemplateModel, prepare_body
+from r2ai2026.corpus.processing import TemplateModel, prepare_body
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -80,7 +80,7 @@ def test_real_docs_tile():
 
 
 def test_binary_documents_are_junk():
-    from r2ai2026.cleaning import is_binary_text, junk_reason
+    from r2ai2026.corpus.cleaning import is_binary_text, junk_reason
     docx = "PK\x03\x04\x14\x00\x06\x00" + "x" * 500
     mojibake = "��标题" * 30 + "y" * 500
     assert is_binary_text(docx) and is_binary_text(mojibake)

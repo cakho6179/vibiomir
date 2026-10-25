@@ -16,7 +16,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
-from r2ai2026.docstore import pack_sections  # noqa: E402
+from r2ai2026.corpus.docstore import pack_sections  # noqa: E402
 
 
 def main() -> None:

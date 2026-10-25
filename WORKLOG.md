@@ -357,3 +357,17 @@ Công cụ mới: `scripts/r2ai2026_recrawl.py` (curl_cffi, `--method direct|way
   - quyen244 +22 commit: nhãn 2 tầng (bge-reranker → Qwen3-8B-AWQ, thang 0–3, có cổng same_subject; doc chưa chấm KHÔNG coi là negative); điểm tốt nhất của họ 0.2316.
   - Platypus27: chỉ hạ tầng embed nhiều tài khoản.
 - G0: `kaggle/decide_exp/build_pairs.py` (179.928 cặp w12 top-150 × section khớp nhất, trung vị 1.497 ký tự), `judge.py` (Qwen3-Reranker yes/no; ask A = cùng chủ đề, ask B = trả lời ý hỏi; 2 GPU = 2 tiến trình). Dry-run 0.6B: A và B tương quan .96. Kernel `noskaiser/vibiomir-g0-judge-s0`, `lanpana/...-s1`, `hytahy/...-s2` (4B, max_len 512).
+- 25/10 tối: **entry point** `python -m r2ai2026 run --config configs/system_v1.yaml` (`r2ai2026/system/runner.py`, `docs/SYSTEM_RUN.md`).
+  - Smoke chạy đủ 5 stage trên máy (bm25 → dense → cands → rerank → build): zip hợp lệ.
+  - Commit a9a20d0.
+- 25/10 tối: **tái cấu trúc gói `r2ai2026/`** thành 4 gói con:
+  - `core/`: text, scoring, submission.
+  - `corpus/`: links, cleaning, processing, docstore, audit.
+  - `crawl/`: fetch, store, wayback, pubmed.
+  - `system/`: runner.
+
+  Các thay đổi khác:
+  - Đã cất vào `_temp/2026-10-25/cleanup/`: 11 module không nằm trên đường chạy (baseline v0 cli/pipeline/bm25/chunking/devproxy; decision/multistack/clir_transfer/query_expansion/translate/fusion), 2 script analysis và 13 test của chúng.
+  - Kết quả test: 92 pass (trước: 105).
+  - Bảng tên cũ → mới ở `docs/CODEMAP.md`.
+  - Lưu ý cho agent khác: import đổi thành `r2ai2026.corpus.docstore`, `r2ai2026.core.submission`, …
