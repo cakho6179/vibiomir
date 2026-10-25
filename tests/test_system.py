@@ -70,3 +70,13 @@ def test_main_entry_dry_run(tmp_path, capsys, monkeypatch):
     monkeypatch.setattr(sys, "argv", ["x"])
     assert system.main(["--config", str(path), "--dry-run"]) == 0
     assert "a: would run" in capsys.readouterr().out
+
+
+def test_builtin_cands_quota_per_language(tmp_path):
+    # ids: 10, 11 VI; 800000, 800001 ZH; 5000000 EN
+    a = pd.DataFrame({"qid": [1] * 5, "doc_id": [800000, 10, 5000000, 800001, 11], "score": [5.0, 4, 3, 2, 1]})
+    a.to_parquet(tmp_path / "a.parquet")
+    system.builtin_cands({"systems": [str(tmp_path / "a.parquet")], "quota": {"vi": 2, "zh": 1}}, tmp_path)
+    c = pd.read_parquet(tmp_path / "cands.parquet")
+    assert c["doc_id"].tolist() == [800000, 10, 11]  # EN not asked for, second ZH over its quota
+    assert c["lang"].tolist() == ["zh", "vi", "vi"] and c["rank"].tolist() == [0, 1, 2]

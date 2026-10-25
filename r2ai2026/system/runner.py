@@ -32,6 +32,7 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -101,8 +102,17 @@ def prepare_data(cfg: dict, work: Path) -> Path:
     return root
 
 
+def lang_of(doc_id: pd.Series) -> pd.Series:
+    """Official id blocks: Vietnamese <= 766441 < Chinese <= 4392214 < English."""
+    return pd.Series(np.select([doc_id <= 766441, doc_id <= 4392214], ["vi", "zh"], "en"), index=doc_id.index)
+
+
 def builtin_cands(opts: dict, out: Path) -> None:
-    """Weighted RRF (k=60) of ranking files -> cands.parquet (qid, doc_id, score, rank), top ``k`` per query."""
+    """Weighted RRF (k=60) of ranking files -> cands.parquet (qid, doc_id, score, rank, lang).
+
+    Top ``k`` per query, or with ``quota: {vi: 3000, zh: 1500, en: 1500}`` the top N of each language (RRF is
+    computed over all systems, then cut per language); rank stays the order of the fused score. ``vi_only``
+    keeps only Vietnamese ids before fusing."""
     parts = []
     for spec, w in zip(opts["systems"], opts.get("weights") or [1] * len(opts["systems"])):
         r = pd.read_parquet(spec, columns=["qid", "doc_id", "score"])
@@ -114,8 +124,15 @@ def builtin_cands(opts: dict, out: Path) -> None:
         parts.append(r.assign(score=w / (RRF_K + r["rank"] + 1))[["qid", "doc_id", "score"]])
     fused = pd.concat(parts).groupby(["qid", "doc_id"], as_index=False)["score"].sum()
     fused = fused.sort_values(["qid", "score"], ascending=[True, False])
+    fused["lang"] = lang_of(fused["doc_id"])
+    if opts.get("quota"):
+        quota = {str(k): int(v) for k, v in opts["quota"].items()}
+        fused = fused[fused["lang"].isin(quota)]
+        fused = fused[fused.groupby(["qid", "lang"]).cumcount() < fused["lang"].map(quota)]
+    else:
+        fused = fused[fused.groupby("qid").cumcount() < opts["k"]]
     fused["rank"] = fused.groupby("qid").cumcount()
-    fused[fused["rank"] < opts["k"]].to_parquet(out / "cands.parquet", index=False)
+    fused[["qid", "doc_id", "score", "rank", "lang"]].to_parquet(out / "cands.parquet", index=False)
 
 
 BUILTINS = {"cands": builtin_cands}

@@ -183,3 +183,11 @@ def test_validate_submission_reports_problems():
 
 
 # ----------------------------------------------------------------- devproxy
+
+
+def test_stage_lang_blocks():
+    from r2ai2026.stages.bm25_experiment import lang_of
+    from r2ai2026.stages.dense_embed import lang_of as dense_lang_of
+
+    for f in (lang_of, dense_lang_of):
+        assert [f(i) for i in (1, 766441, 766442, 4392214, 4392215)] == ["vi", "vi", "zh", "zh", "en"]

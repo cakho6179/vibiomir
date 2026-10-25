@@ -374,3 +374,13 @@ Công cụ mới: `scripts/r2ai2026_recrawl.py` (curl_cffi, `--method direct|way
 - 25/10 tối: 14 script stage của hệ thống chuyển từ `kaggle/*_exp/` và `kaggle/common/` vào **`r2ai2026/stages/`** (bảng ở CODEMAP).
   - `configs/system_v1.yaml`, các test và `pack_code.py` đã trỏ sang vị trí mới.
   - Khi wrap kernel từ bây giờ: `kaggle_acc.py wrap r2ai2026/stages/<script>.py ...`. Riêng bm25 thêm `--module r2ai2026/stages/docorg.py`.
+- 25/10 tối: **anyjev[hf] (training-free decision model)** thay cho sinh văn bản bằng LLM.
+  - Vendored `vendor/anyjev-0.3.0-py3-none-any.whl` (Apache-2.0) + LICENSE + sha256; import thẳng từ wheel, không cài. `pack_code.py` gói thêm `vendor/*`. Chỉ dùng `Decider` với Qwen3; **không dùng Tacit** (ra sau 01/08).
+  - Stage mới `r2ai2026/stages/decide.py`: cùng input với judge.py (pairs + query.parquet); câu hỏi `helps` / `direct` (Yes/No) và `graded` (thang 5 mức). prior batch tắt (phụ thuộc thứ tự batch ⇒ không tái lập). Đường `decide_shared`: anyjev nhóm prompt theo thứ tự id nhãn nên Yes/No luôn chạy 2 forward đầy đủ; stage gọi `score_shared` trực tiếp, cùng kết quả với Decider (test), ~1 forward/cặp.
+  - Phát hiện: Qwen3-Reranker không dùng được với anyjev (chat template bỏ lượt user) ⇒ stage báo lỗi; anyjev 0.3.0 `score_shared` lỗi thiết bị khi `device_map` chia nhiều GPU ⇒ vá trên instance (`fix_sharded`).
+  - Offline: local `HF_HUB_OFFLINE=1` ổn; Kaggle **internet tắt** (`lanpana/vibiomir-decide-q3-4b`) ổn, model từ `/kaggle/input/models/qwen-lm/qwen-3/transformers/4b/1`. Số đo ở EXPERIMENTS B. Câu `helps` quá dễ dãi ⇒ chạy lại `direct`,`graded` (`lanpana/vibiomir-decide-q3-4b-v2`); Qwen3-8B 2 GPU (`noskaiser/vibiomir-decide-q3-8b` v2).
+  - Kernel builder: `scripts/kaggle_ops/make_decide_kernel.py` (shim ASCII nhúng decide.py + wheel base64, `enable_internet: false`).
+- 25/10 tối: tầng lấy doc theo ngôn ngữ (`docs/PLAN_RETRIEVAL_POOL_2026-10-25.md`).
+  - `bm25_experiment.py`, `dense_embed.py`: thêm `--lang vi,zh,en` (`--vi-only` = `--lang vi`). `builtin_cands`: `quota: {vi: 3000, zh: 1500, en: 1500}`, cands.parquet thêm cột `lang`.
+  - Probe EN/ZH 20/10 không công bằng: BM25 ZH tách từng chữ, truy vấn là nguyên câu dịch, chỉ 14 doc/ngôn ngữ. Bản dịch Qwen2.5-7B ZH chỉ 11/1200 câu lỗi (EN 84). MedKB (thống kê đã lưu) cho 9% ZH ⇒ đáng đo lại ZH bằng bge-m3 (query VI) + BM25 jieba (`e3 --lang zh`, smoke ổn).
+  - Test: 100 pass.

@@ -80,6 +80,7 @@ Tham chiếu: admin BM25 FINAL 0.3764 (docs F2 0.5587, P/R 0.880/0.515, chunks F
 | vibiomir-bm25-c1 (acc2) / s1 (acc4) / s2 (acc2) | BM25 VI-only + clean_v4: c1 doc-level; s1 section 4500/1500; s2 section 4500/600 | 1632 / 1874 / 2084 s; units 728k / 1.37M / 1.95M; zip n28 deflate 77.0 / 72.7 / 74.8 MB |
 | vibiomir-build-depth-a / -b (acc2) | w12 VI (RRF E1v2+M3 1:2), LZMA 256 MiB, [docs, chunks] | d100c28 36.6, d150c28 36.9, d200c28 37.1, d150c60 68.7, **d150c90 99.7**, d150c120 129.2, d150c120 xếp lại query 116.7 MB; 2388 s / 4258 s |
 | vibiomir-build-v2 (acc2) | builder Kaggle: m3c_VI, m3L_VI, e3v2_VI (deflate), b3_VI (LZMA) n28 | 22 phút; 76.2 / **96.6** / 75.8 / **32.4** MB (LZMA b3: 124 → 32 MB) |
+| vibiomir-decide-q3-4b (acc4, **internet tắt**) | anyjev 0.3.0 Decider L0, prior none, Qwen3-4B fp16 từ Kaggle Models, câu hỏi `helps`, 6.000 cặp G0 shard 0 (40 query × top 150) | 1.094 s trên 2×T4 (≈5,5 cặp/s), 0 lần phải chạy lại đầy đủ, khối lượng Yes+No ≈ 1,0. **Yes trên 97,6%** cặp; tỉ lệ Yes theo hạng 1–28 / 29–88 / 89–150 = .995 / .983 / .962 (precision thật ước .35 / .20 / ~.04) ⇒ câu hỏi quá dễ dãi; Spearman(logodds, −hạng fused) trung vị .23 |
 
 ## C. Phân tích offline (không tốn lượt nộp)
 

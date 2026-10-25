@@ -1,7 +1,7 @@
 """ViBioMIR BM25 experiments (Kaggle CPU kernel; also runs locally on a sample).
 
     python bm25_experiment.py EXP CORPUS_DIR OUT_DIR [--max-docs N] [--max-queries N]
-        [--k1 1.5] [--b 0.75] [--chunk-chars N] [--overlap N] [--seg] [--vi-only] [--ns 28]
+        [--k1 1.5] [--b 0.75] [--chunk-chars N] [--overlap N] [--seg] [--vi-only | --lang vi,zh,en] [--ns 28]
 
 EXP is a label; e1/e2/e3 are presets, any other label uses only the flags:
   e1  document-level BM25, syllable tokens, diacritics KEPT, full text (title + body)
@@ -9,7 +9,7 @@ EXP is a label; e1/e2/e3 are presets, any other label uses only the flags:
   e3  e1 with word segmentation: pyvi for Vietnamese, jieba for Chinese
 Flags: --chunk-chars > 0 indexes overlapping passages (--overlap chars carried over, title on
 every passage) with doc score = max passage; --seg uses pyvi/jieba word segmentation;
---vi-only indexes only Vietnamese ids (<= 766441); --clean indexes clean_v4 text; --sections MAX,MIN
+--vi-only indexes only Vietnamese ids (<= 766441), --lang any of the vi/zh/en id blocks; --clean indexes clean_v4 text; --sections MAX,MIN
 indexes heading-aware section chunks (both from r2ai2026/stages/docorg.py; doc score = max chunk).
 
 Scoring is Lucene BM25 (k1=1.5, b=0.75) computed directly on a sparse count matrix, so a
@@ -42,6 +42,11 @@ TOPK = 200
 NS = (28, 45, 70)
 CHUNK_CHARS = 1200
 VI_MAX_ID = 766441  # official id blocks: Vietnamese ids come first
+ZH_MAX_ID = 4392214  # then Chinese; English ids are above this
+
+
+def lang_of(doc_id: int) -> str:
+    return "vi" if doc_id <= VI_MAX_ID else "zh" if doc_id <= ZH_MAX_ID else "en"
 MAX_CHUNK_TEXT = None  # whole-document chunk, no cap (user decision 2026-10-20)
 TOKEN_PATTERN = r"(?u)\b\w+\b"
 CJK_RANGE = f"{chr(0x4E00)}-{chr(0x9FFF)}"  # built from code points: keep this file pure ASCII
@@ -57,7 +62,7 @@ def norm(text: str) -> str:
     return unicodedata.normalize("NFC", text or "").lower()
 
 
-def iter_corpus(corpus_dir: Path, max_docs: int | None, vi_only: bool = False):
+def iter_corpus(corpus_dir: Path, max_docs: int | None, langs: frozenset = frozenset()):
     n = 0
     # every part-* below corpus_dir (base corpus + delta datasets); Kaggle stores uploaded .gz decompressed
     for part in sorted(Path(p) for p in glob.glob(f"{corpus_dir}/**/part-*.jsonl*", recursive=True)):
@@ -65,7 +70,7 @@ def iter_corpus(corpus_dir: Path, max_docs: int | None, vi_only: bool = False):
         with opener(part, "rt", encoding="utf-8") as f:
             for line in f:
                 d = json.loads(line)
-                if vi_only and d["id"] > VI_MAX_ID:
+                if langs and lang_of(d["id"]) not in langs:
                     continue
                 yield d["id"], d["t"], d["x"]
                 n += 1
@@ -141,7 +146,7 @@ def overlapping_passages(title: str, text: str, size: int, overlap: int) -> list
 
 def units(args, corpus_dir: Path, doc_ids: list[int], unit_doc: list[int]):
     """Yield index units (documents or passages); record the owning doc row of each."""
-    for row, (doc_id, title, text) in enumerate(iter_corpus(corpus_dir, args.max_docs, args.vi_only)):
+    for row, (doc_id, title, text) in enumerate(iter_corpus(corpus_dir, args.max_docs, args.langs)):
         doc_ids.append(doc_id)
         if args.clean:  # index side only: submissions keep the original text
             text = clean_v4(text)
@@ -205,12 +210,14 @@ def main() -> None:
     ap.add_argument("--chunk-chars", type=int, default=0, help="> 0: overlapping passages, doc = max")
     ap.add_argument("--overlap", type=int, default=0)
     ap.add_argument("--seg", action="store_true", help="pyvi / jieba word segmentation")
-    ap.add_argument("--vi-only", action="store_true")
+    ap.add_argument("--vi-only", action="store_true", help="same as --lang vi")
+    ap.add_argument("--lang", default="", help="comma list of vi,zh,en: index only these id blocks (default all)")
     ap.add_argument("--ns", default=",".join(map(str, NS)))
     ap.add_argument("--clean", action="store_true", help="index clean_v4 text (docorg.py)")
     ap.add_argument("--sections", default="", help="MAX,MIN chars: heading-aware section chunks (docorg.py)")
     args = ap.parse_args()
     args.seg = args.seg or args.exp == "e3"
+    args.langs = frozenset(x for x in (["vi"] if args.vi_only else args.lang.split(",")) if x)
     args.sections = tuple(int(x) for x in args.sections.split(",")) if args.sections else ()
     chunked = args.chunk_chars > 0 or args.exp == "e2" or bool(args.sections)
     ns = [int(n) for n in args.ns.split(",") if n]
@@ -220,7 +227,7 @@ def main() -> None:
         name = qpath.name if qpath else "query.parquet"
         qpath = Path(glob.glob(f"{args.corpus_dir}/**/{name}", recursive=True)[0])
     log(f"queries: {qpath}; k1={args.k1} b={args.b} chunk={args.chunk_chars}/{args.overlap} "
-        f"seg={args.seg} vi_only={args.vi_only}")
+        f"seg={args.seg} langs={sorted(args.langs) or 'all'}")
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
     doc_ids: list[int] = []
@@ -264,11 +271,11 @@ def main() -> None:
 
     stats = {"exp": args.exp, "units": int(len(unit_doc)), "docs": len(doc_ids), "vocab": int(weights_t.shape[0]),
              "k1": args.k1, "b": args.b, "chunk_chars": args.chunk_chars, "overlap": args.overlap,
-             "seg": args.seg, "vi_only": args.vi_only, "clean": args.clean, "sections": list(args.sections)}
+             "seg": args.seg, "langs": sorted(args.langs), "clean": args.clean, "sections": list(args.sections)}
     if ns:
         need = set(ranking.loc[ranking["rank"] < max(ns), "doc_id"])
         texts = {}
-        for doc_id, title, text in iter_corpus(corpus_dir, args.max_docs, args.vi_only):
+        for doc_id, title, text in iter_corpus(corpus_dir, args.max_docs, args.langs):
             if doc_id in need:
                 texts[doc_id] = f"{title}\n{text}"[:MAX_CHUNK_TEXT]
         log(f"collected {len(texts):,} document texts for chunks")

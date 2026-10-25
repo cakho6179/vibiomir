@@ -56,6 +56,11 @@ def split_passages(title: str, text: str) -> list[str]:
 
 
 VI_MAX_ID = 766441  # official id blocks: Vietnamese ids come first
+ZH_MAX_ID = 4392214  # then Chinese; English ids are above this
+
+
+def lang_of(doc_id: int) -> str:
+    return "vi" if doc_id <= VI_MAX_ID else "zh" if doc_id <= ZH_MAX_ID else "en"
 
 
 def overlapping_passages(title: str, text: str, size: int, overlap: int, with_title: bool) -> list[str]:
@@ -83,7 +88,7 @@ def overlapping_passages(title: str, text: str, size: int, overlap: int, with_ti
     return [f"{title}\n{p}".strip() if with_title else (p.strip() or title) for p in out]
 
 
-CHUNKING: dict = {}  # set from the command line: size, overlap, with_title, vi_only
+CHUNKING: dict = {}  # set from the command line: size, overlap, with_title, langs
 
 
 def passages_of(title: str, text: str) -> list[str]:
@@ -106,7 +111,7 @@ def load_docs(data: Path, shards: list[int], max_docs: int | None,
         with opener(part, "rt", encoding="utf-8") as f:
             for line in f:
                 d = json.loads(line)
-                if CHUNKING.get("vi_only") and d["id"] > VI_MAX_ID:
+                if CHUNKING.get("langs") and lang_of(d["id"]) not in CHUNKING["langs"]:
                     continue
                 ps = passages_of(d["t"], d["x"])
                 owner.extend([d["id"]] * len(ps))
@@ -164,9 +169,11 @@ def main() -> None:
                          "(measured: <= 1518 BGE-M3 tokens, 3.72 chars/token on Vietnamese)")
     ap.add_argument("--overlap", type=int, default=0)
     ap.add_argument("--no-title", action="store_true", help="do not prefix passages with the title")
-    ap.add_argument("--vi-only", action="store_true", help="only Vietnamese ids (<= 766441)")
+    ap.add_argument("--vi-only", action="store_true", help="only Vietnamese ids (<= 766441); same as --lang vi")
+    ap.add_argument("--lang", default="", help="comma list of vi,zh,en: embed only these id blocks (default all)")
     args = ap.parse_args()
-    CHUNKING.update(size=args.chunk_chars, overlap=args.overlap, with_title=not args.no_title, vi_only=args.vi_only)
+    CHUNKING.update(size=args.chunk_chars, overlap=args.overlap, with_title=not args.no_title,
+                    langs=sorted(x for x in (["vi"] if args.vi_only else args.lang.split(",")) if x))
     args.shard_list = [int(s) for s in args.shards.split(",")]
     args.out.mkdir(parents=True, exist_ok=True)
 
