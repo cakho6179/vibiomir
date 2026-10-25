@@ -371,3 +371,6 @@ Công cụ mới: `scripts/r2ai2026_recrawl.py` (curl_cffi, `--method direct|way
   - Kết quả test: 92 pass (trước: 105).
   - Bảng tên cũ → mới ở `docs/CODEMAP.md`.
   - Lưu ý cho agent khác: import đổi thành `r2ai2026.corpus.docstore`, `r2ai2026.core.submission`, …
+- 25/10 tối: 14 script stage của hệ thống chuyển từ `kaggle/*_exp/` và `kaggle/common/` vào **`r2ai2026/stages/`** (bảng ở CODEMAP).
+  - `configs/system_v1.yaml`, các test và `pack_code.py` đã trỏ sang vị trí mới.
+  - Khi wrap kernel từ bây giờ: `kaggle_acc.py wrap r2ai2026/stages/<script>.py ...`. Riêng bm25 thêm `--module r2ai2026/stages/docorg.py`.

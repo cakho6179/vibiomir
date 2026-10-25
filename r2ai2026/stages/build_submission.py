@@ -163,11 +163,11 @@ def write_zip(records: list, path: Path, method: str = "lzma") -> None:
         assert z.read("submission.json") == payload, path
 
 
-RR_PASSAGE_CHARS = 1500  # kaggle/rerank_exp/rerank.py PASSAGE_CHARS
+RR_PASSAGE_CHARS = 1500  # r2ai2026/stages/rerank.py PASSAGE_CHARS
 
 
 def rr_split(title: str, text: str) -> list[str]:
-    """Exact copy of kaggle/rerank_exp/rerank.py split_passages (its best_passage indexes this list)."""
+    """Exact copy of r2ai2026/stages/rerank.py split_passages (its best_passage indexes this list)."""
     pieces = []
     for para in text.split("\n"):
         while len(para) > RR_PASSAGE_CHARS:

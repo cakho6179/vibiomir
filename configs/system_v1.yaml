@@ -12,13 +12,13 @@ prepare: true
 
 stages:
   bm25:
-    script: kaggle/bm25_exp/bm25_experiment.py
+    script: r2ai2026/stages/bm25_experiment.py
     args: [e1, "{data}", "{out}", --queries, "{queries}", --vi-only, --topk, 200, --ns, "28"]
     smoke_args: [--max-docs, 3000, --max-queries, 20]
     outputs: [ranking.parquet]
   dense:
     gpu: true
-    script: kaggle/dense_exp/dense_embed.py
+    script: r2ai2026/stages/dense_embed.py
     args: [--model, BAAI/bge-m3, --data, "{data}", --out, "{out}", --vi-only, --topk, 200]
     smoke_args: [--max-docs, 2000, --max-queries, 20]
     outputs: [ranking.parquet]
@@ -32,12 +32,12 @@ stages:
     outputs: [cands.parquet]
   rerank:
     gpu: true
-    script: kaggle/rerank_exp/rerank.py
+    script: r2ai2026/stages/rerank.py
     args: [--data, "{data}", --cands, "{cands}/cands.parquet", --out, "{out}"]
     smoke_args: [--max-queries, 5]
     outputs: [rerank.parquet]
   build:
-    script: kaggle/build_exp/build_submission.py
+    script: r2ai2026/stages/build_submission.py
     args: [--data, "{data}", --out, "{out}"]
     job:
       name: system_v1

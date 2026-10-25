@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "kaggle" / "common"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "r2ai2026" / "stages"))
 
 from docorg import clean_v4, section_chunks  # noqa: E402
 

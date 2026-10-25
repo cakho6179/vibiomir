@@ -10,7 +10,7 @@ EXP is a label; e1/e2/e3 are presets, any other label uses only the flags:
 Flags: --chunk-chars > 0 indexes overlapping passages (--overlap chars carried over, title on
 every passage) with doc score = max passage; --seg uses pyvi/jieba word segmentation;
 --vi-only indexes only Vietnamese ids (<= 766441); --clean indexes clean_v4 text; --sections MAX,MIN
-indexes heading-aware section chunks (both from kaggle/common/docorg.py; doc score = max chunk).
+indexes heading-aware section chunks (both from r2ai2026/stages/docorg.py; doc score = max chunk).
 
 Scoring is Lucene BM25 (k1=1.5, b=0.75) computed directly on a sparse count matrix, so a
 1M-document full-text index fits in a 30 GB kernel. Outputs in OUT_DIR:
@@ -35,12 +35,7 @@ import pandas as pd
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import CountVectorizer
 
-try:  # kaggle/common/docorg.py, shipped next to this script by the kernel wrapper
-    from docorg import clean_v4, section_chunks
-except ImportError:  # local run from the repo
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
-    from docorg import clean_v4, section_chunks
+from docorg import clean_v4, section_chunks  # sibling file here; the kernel wrapper ships it next to this script
 
 K1, B = 1.5, 0.75
 TOPK = 200

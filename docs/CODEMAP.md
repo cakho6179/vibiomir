@@ -78,9 +78,23 @@ r2ai2026/
 ├── core/              text.py (chuẩn hoá, tách token) · scoring.py (bản sao metric F2 của BTC) · submission.py (đóng gói, kiểm zip)
 ├── corpus/            links.py (danh sách link BTC) · cleaning.py · processing.py · docstore.py (kho v1, section) · audit.py
 ├── crawl/             fetch.py (crawler) · store.py (lưu tiếp được) · wayback.py · pubmed.py
-└── system/            runner.py (bộ điều phối stage, cache theo hash cấu hình)
+├── system/            runner.py (bộ điều phối stage, cache theo hash cấu hình)
+└── stages/            script stage nhận đường dẫn, do configs/*.yaml gọi; chạy được làm kernel Kaggle (ASCII)
 ```
-Các stage truy hồi/xếp hạng là script nhận đường dẫn (`kaggle/*_exp/*.py`, ASCII để chạy làm kernel), do `configs/*.yaml` gọi.
+
+| Script stage (mới) | Vị trí cũ |
+|---|---|
+| `r2ai2026/stages/bm25_experiment.py`, `build_section_index.py` | `kaggle/bm25_exp/` |
+| `r2ai2026/stages/dense_embed.py`, `embed_sections.py` | `kaggle/dense_exp/` |
+| `r2ai2026/stages/rerank.py` | `kaggle/rerank_exp/` |
+| `r2ai2026/stages/build_submission.py` | `kaggle/build_exp/` |
+| `r2ai2026/stages/docorg.py` | `kaggle/common/` (khi wrap kernel bm25: `--module r2ai2026/stages/docorg.py`) |
+| `r2ai2026/stages/query_frame.py` | `kaggle/query_exp/` (`llm_smoke.py` vẫn ở đó, là thí nghiệm) |
+| `r2ai2026/stages/ner_tag.py`, `entity_index.py` | `kaggle/ner_exp/` |
+| `r2ai2026/stages/near_dups.py`, `hf_recover.py` | `kaggle/data_exp/` |
+| `r2ai2026/stages/build_pairs.py`, `judge.py` | `kaggle/decide_exp/` |
+
+`scripts/kaggle_ops/prep_kaggle_bm25.py` / `prep_kaggle_dense.py` (tạo bundle kiểu cũ) cất vào `_temp`; dùng `kaggle_acc.py wrap` thay thế.
 
 | Tên cũ | Tên mới |
 |---|---|

@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("build_submission", ROOT / "kaggle" / "build_exp" / "build_submission.py")
+spec = importlib.util.spec_from_file_location("build_submission", ROOT / "r2ai2026" / "stages" / "build_submission.py")
 bs = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bs)
 

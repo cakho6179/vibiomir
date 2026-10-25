@@ -2,8 +2,8 @@
 
     python scripts/kaggle_ops/pack_code.py --user tthiutoko [--out kaggle/datasets/code_<user>]
 
-Copies r2ai2026/, configs/, the stage scripts under kaggle/*_exp/ and kaggle/common/ (no bundles, outputs or
-data) into OUT/vibiomir-code.zip plus dataset-metadata.json and CODE_VERSION (git commit + dirty flag). Upload
+Copies r2ai2026/ (library + stage scripts) and configs/ (no bundles, outputs or data) into
+OUT/vibiomir-code.zip plus dataset-metadata.json and CODE_VERSION (git commit + dirty flag). Upload
 with `kaggle datasets create -p OUT` (first time) or `kaggle datasets version -p OUT -m <commit>`.
 A kernel then runs: unzip to /kaggle/working/code, `cd` there, `python -m r2ai2026 run --config ... --var ...`.
 """
@@ -16,7 +16,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-INCLUDE = ["r2ai2026/**/*.py", "configs/*.yaml", "kaggle/*_exp/*.py", "kaggle/common/*.py", "pyproject.toml"]
+INCLUDE = ["r2ai2026/**/*.py", "configs/*.yaml", "pyproject.toml"]
 
 
 def git(*args: str) -> str:

@@ -15,6 +15,7 @@ import gc
 import glob
 import json
 import shutil
+import sys
 import time
 from pathlib import Path
 
@@ -22,7 +23,8 @@ import pandas as pd
 import torch
 import transformers
 
-from query_frame import generate, load, normalise, parse
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "r2ai2026" / "stages"))  # local runs; wrap ships it
+from query_frame import generate, load, normalise, parse  # noqa: E402
 
 DEFAULT = "Qwen/Qwen3.5-9B,Qwen/Qwen3.5-4B,Qwen/Qwen3-8B,Qwen/Qwen3-14B"
 
