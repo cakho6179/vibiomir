@@ -131,6 +131,27 @@ def passage_spans(lines: list[str], max_chars: int = 1500, min_chars: int = 400)
     return [(s, pieces[k + 1][0] if k + 1 < len(pieces) else total, h) for k, (s, h) in enumerate(pieces)]
 
 
+def pack_sections(passages: list[tuple[int, int, str]], max_chars: int = 4800,
+                  min_chars: int = 2000) -> list[tuple[int, int, int, int]]:
+    """Group consecutive passages of one doc into sections (pid_first, pid_last, start, end) of <= ``max_chars``.
+
+    Sections are the chunk unit (gold chunks look like KB sections: median ~3.3k, max ~4.8k chars). A new section
+    starts when adding the next passage would exceed ``max_chars``, or at a new heading once the current section
+    holds ``min_chars``. A single passage longer than ``max_chars`` stays one section. Sections tile the passages.
+    """
+    out: list[tuple[int, int, int, int]] = []
+    first = 0
+    for k in range(1, len(passages) + 1):
+        if k < len(passages):
+            s0, e, head = passages[first][0], passages[k][1], passages[k][2]
+            new_head = head and head != passages[k - 1][2]
+            if e - s0 <= max_chars and not (new_head and passages[k - 1][1] - s0 >= min_chars):
+                continue
+        out.append((first, k - 1, passages[first][0], passages[k - 1][1]))
+        first = k
+    return out
+
+
 def content_chars(start: int, end: int, furniture: list[tuple[int, int, str]]) -> int:
     """Characters of [start, end) outside furniture spans."""
     covered = sum(max(0, min(end, fe) - max(start, fs)) for fs, fe, _ in furniture)

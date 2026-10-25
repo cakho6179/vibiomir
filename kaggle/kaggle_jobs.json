@@ -92,45 +92,53 @@
     "user": "snnguynvnk19hl",
     "slug": "vibiomir-ccc-p0",
     "kind": "cpu",
-    "state": "running",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-ccc-p0-main",
-    "pushed": "2026-10-22 16:55:39"
+    "pushed": "2026-10-22 16:55:39",
+    "finished": "2026-10-24 01:14:14",
+    "out": "kaggle\\outputs\\vibiomir-ccc-p0"
   },
   "snnguynvnk19hl/vibiomir-ccc-p1": {
     "acc": "main",
     "user": "snnguynvnk19hl",
     "slug": "vibiomir-ccc-p1",
     "kind": "cpu",
-    "state": "running",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-ccc-p1-main",
-    "pushed": "2026-10-22 16:55:48"
+    "pushed": "2026-10-22 16:55:48",
+    "finished": "2026-10-24 01:14:45",
+    "out": "kaggle\\outputs\\vibiomir-ccc-p1"
   },
   "snnguynvnk19hl/vibiomir-ccc-p2": {
     "acc": "main",
     "user": "snnguynvnk19hl",
     "slug": "vibiomir-ccc-p2",
     "kind": "cpu",
-    "state": "running",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-ccc-p2-main",
-    "pushed": "2026-10-22 16:55:55"
+    "pushed": "2026-10-22 16:55:55",
+    "finished": "2026-10-24 01:15:26",
+    "out": "kaggle\\outputs\\vibiomir-ccc-p2"
   },
   "snnguynvnk19hl/vibiomir-ccc-p3": {
     "acc": "main",
     "user": "snnguynvnk19hl",
     "slug": "vibiomir-ccc-p3",
     "kind": "cpu",
-    "state": "running",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-ccc-p3-main",
-    "pushed": "2026-10-22 16:56:04"
+    "pushed": "2026-10-22 16:56:04",
+    "finished": "2026-10-25 13:51:07"
   },
   "snnguynvnk19hl/vibiomir-ccc-p4": {
     "acc": "main",
     "user": "snnguynvnk19hl",
     "slug": "vibiomir-ccc-p4",
     "kind": "cpu",
-    "state": "running",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-ccc-p4-main",
-    "pushed": "2026-10-22 16:56:12"
+    "pushed": "2026-10-22 16:56:12",
+    "finished": "2026-10-25 13:51:10"
   },
   "hytahy/vibiomir-recrawl-direct-vi": {
     "acc": "acc1",
@@ -148,35 +156,139 @@
     "user": "noskaiser",
     "slug": "vibiomir-recrawl-wb-vi",
     "kind": "cpu",
-    "state": "running",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-recrawl-wb-vi-acc3",
-    "pushed": "2026-10-22 16:15:48"
+    "pushed": "2026-10-22 16:15:48",
+    "finished": "2026-10-22 18:55:38"
   },
   "lanpana/vibiomir-recrawl-wb-zh": {
     "acc": "acc4",
     "user": "lanpana",
     "slug": "vibiomir-recrawl-wb-zh",
     "kind": "cpu",
-    "state": "running",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-recrawl-wb-zh-acc4",
-    "pushed": "2026-10-22 16:15:53"
+    "pushed": "2026-10-22 16:15:53",
+    "finished": "2026-10-25 13:51:12"
   },
   "tthiutoko/vibiomir-build-pool": {
     "acc": "acc2",
     "user": "tthiutoko",
     "slug": "vibiomir-build-pool",
     "kind": "cpu",
-    "state": "queued",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-build-pool-acc2",
-    "pushed": "2026-10-22 17:54:36"
+    "pushed": "2026-10-22 17:54:36",
+    "finished": "2026-10-22 18:39:31",
+    "out": "kaggle\\outputs\\vibiomir-build-pool"
   },
   "tthiutoko/vibiomir-bm25-e1k2000": {
     "acc": "acc2",
     "user": "tthiutoko",
     "slug": "vibiomir-bm25-e1k2000",
     "kind": "cpu",
-    "state": "queued",
+    "state": "complete",
     "bundle": "kaggle\\kernels_generic\\vibiomir-bm25-e1k2000-acc2",
-    "pushed": "2026-10-22 17:55:27"
+    "pushed": "2026-10-22 18:13:34",
+    "finished": "2026-10-22 18:25:54"
+  },
+  "tthiutoko/vibiomir-build-mix": {
+    "acc": "acc2",
+    "user": "tthiutoko",
+    "slug": "vibiomir-build-mix",
+    "kind": "cpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-build-mix-acc2",
+    "pushed": "2026-10-25 12:08:05",
+    "finished": "2026-10-25 13:51:14"
+  },
+  "tthiutoko/vibiomir-build-mix2": {
+    "acc": "acc2",
+    "user": "tthiutoko",
+    "slug": "vibiomir-build-mix2",
+    "kind": "cpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-build-mix2-acc2",
+    "pushed": "2026-10-25 12:47:43",
+    "finished": "2026-10-25 14:30:49",
+    "out": "kaggle\\outputs\\vibiomir-build-mix2"
+  },
+  "hytahy/vibiomir-query-frame": {
+    "acc": "acc1",
+    "user": "hytahy",
+    "slug": "vibiomir-query-frame",
+    "kind": "gpu",
+    "state": "queued",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-query-frame-acc1",
+    "pushed": "2026-10-25 14:49:46"
+  },
+  "tthiutoko/vibiomir-ner-tag": {
+    "acc": "acc2",
+    "user": "tthiutoko",
+    "slug": "vibiomir-ner-tag",
+    "kind": "gpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-ner-tag-acc2",
+    "pushed": "2026-10-25 13:52:11",
+    "finished": "2026-10-25 14:42:25",
+    "out": "kaggle\\outputs\\vibiomir-ner-tag"
+  },
+  "tthiutoko/vibiomir-near-dups": {
+    "acc": "acc2",
+    "user": "tthiutoko",
+    "slug": "vibiomir-near-dups",
+    "kind": "cpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-near-dups-acc2",
+    "pushed": "2026-10-25 13:52:18",
+    "finished": "2026-10-25 13:59:56",
+    "out": "kaggle\\outputs\\vibiomir-near-dups"
+  },
+  "noskaiser/vibiomir-llm-smoke": {
+    "acc": "acc3",
+    "user": "noskaiser",
+    "slug": "vibiomir-llm-smoke",
+    "kind": "gpu",
+    "state": "complete",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-llm-smoke-acc3",
+    "pushed": "2026-10-25 14:13:00",
+    "finished": "2026-10-25 14:42:39",
+    "out": "kaggle\\outputs\\vibiomir-llm-smoke"
+  },
+  "tthiutoko/vibiomir-hf-recover": {
+    "acc": "acc2",
+    "user": "tthiutoko",
+    "slug": "vibiomir-hf-recover",
+    "kind": "cpu",
+    "state": "queued",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-hf-recover-acc2",
+    "pushed": "2026-10-25 15:04:14"
+  },
+  "noskaiser/vibiomir-g0-judge-s0": {
+    "acc": "acc3",
+    "user": "noskaiser",
+    "slug": "vibiomir-g0-judge-s0",
+    "kind": "gpu",
+    "state": "queued",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-g0-judge-s0-acc3",
+    "pushed": "2026-10-25 15:12:39"
+  },
+  "lanpana/vibiomir-g0-judge-s1": {
+    "acc": "acc4",
+    "user": "lanpana",
+    "slug": "vibiomir-g0-judge-s1",
+    "kind": "gpu",
+    "state": "queued",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-g0-judge-s1-acc4",
+    "pushed": "2026-10-25 15:12:46"
+  },
+  "hytahy/vibiomir-g0-judge-s2": {
+    "acc": "acc1",
+    "user": "hytahy",
+    "slug": "vibiomir-g0-judge-s2",
+    "kind": "gpu",
+    "state": "queued",
+    "bundle": "kaggle\\kernels_generic\\vibiomir-g0-judge-s2-acc1",
+    "pushed": "2026-10-25 15:12:53"
   }
 }

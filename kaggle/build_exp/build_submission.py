@@ -8,6 +8,15 @@ An entry of "n" is N (N docs, N whole-doc chunks) or [N_docs, N_chunks]: relevan
 so doc depth costs almost no bytes; chunks come only from the top of relevant_docs.
 "cut": {"spec": "rerank_r1.parquet", "tau": -2.0, "min": 20} keeps, in fused order, only docs whose score in
 that ranking is >= tau (at least "min" docs), so the doc count varies per query; N_docs is then a cap.
+"keep" / "exclude" restrict the list to a stratum (see doc_lists), e.g. union docs found by >= 2 families that are
+not in the top 88 of w12: {"keep": {"spec": "union_scored_v1.parquet", "query": "n_families >= 2"},
+"exclude": {"systems": [...], "weights": [1, 2], "n": 88}}.
+"append": {<stratum job keys incl. "n">, "k": K, "gate_min_n": G, "chunks": C} adds the first K stratum docs not
+yet listed after the list, only for queries whose list has >= G docs; N_chunks then counts base docs only and the
+first C appended docs also get chunks (default 0: a doc-only change). "chunk_append": {<stratum job keys>, "k": K} adds chunks
+(not docs) for the first K stratum docs outside relevant_docs. A list is cut at "list_depth" (default max(n)) and each system
+is read only to "depth", so a stratum needs both >= the rank it filters on; with "append", set N_docs above the
+final length and "list_depth" to the base depth, or the cap truncates the appended docs.
 "reorder": write queries in a greedy chain of overlapping doc sets so repeats sit inside the LZMA window.
 A system is one or more ranking parquet files (qid, doc_id, score; found anywhere under /kaggle/input)
 joined by "+", merged by score; several systems are fused by weighted RRF (k=60).
@@ -70,6 +79,62 @@ def fuse(job: dict) -> pd.DataFrame:
     fused = fused.sort_values(["qid", "score"], ascending=[True, False])
     fused["rank"] = fused.groupby("qid").cumcount()
     return fused
+
+
+def doc_lists(job: dict, fused: pd.DataFrame | None = None) -> dict[int, list[int]]:
+    """Per-query doc list of a job: fused order, top depth, then "cut", "keep" and "exclude" filters.
+    "keep": {"spec": file, "query": "n_families >= 2 and rank <= 500"} keeps pairs whose row in that file passes
+    the pandas query; "exclude": {<job keys: systems, weights, depth, vi_only, cut>, "n": N} drops the top N of
+    another list, so a stratum outside the main submission can be probed on its own."""
+    fused = fuse(job) if fused is None else fused
+    caps = [max(n) if isinstance(n, list) else n for n in job.get("n", [job.get("depth", 200)])]
+    depth = job.get("list_depth") or max(caps)
+    top = fused[fused["rank"] < depth]
+    by_q = {int(q): [int(d) for d in g["doc_id"]] for q, g in top.groupby("qid")}
+    if job.get("cut"):
+        cut = job["cut"]
+        sc = load_system(cut["spec"], 10 ** 6, False)
+        ok = {(int(q), int(d)) for q, d, v in zip(sc["qid"], sc["doc_id"], sc["score"]) if v >= cut["tau"]}
+        lo = cut.get("min", 0)
+        by_q = {q: ds[:lo] + [d for d in ds[lo:] if (q, d) in ok] for q, ds in by_q.items()}
+    if job.get("keep"):
+        sc = pd.read_parquet(find(job["keep"]["spec"])).query(job["keep"]["query"])
+        ok = set(zip(sc["qid"].astype(int), sc["doc_id"].astype(int)))
+        by_q = {q: [d for d in ds if (q, d) in ok] for q, ds in by_q.items()}
+    if job.get("exclude"):
+        ex = job["exclude"]
+        drop = {(q, d) for q, ds in doc_lists({**ex, "n": [ex["n"]]}).items() for d in ds[:ex["n"]]}
+        by_q = {q: [d for d in ds if (q, d) not in drop] for q, ds in by_q.items()}
+    if job.get("append"):
+        ap = job["append"]
+        extra = new_docs(by_q, doc_lists(ap), ap.get("k", 10 ** 6))
+        gate = ap.get("gate_min_n", 0)
+        by_q = {q: ds + extra.get(q, []) if len(ds) >= gate else ds for q, ds in by_q.items()}
+    return by_q
+
+
+def new_docs(by_q: dict[int, list[int]], other: dict[int, list[int]], k: int) -> dict[int, list[int]]:
+    """Per query, the first k docs of ``other`` that are not in ``by_q``."""
+    out = {}
+    for q, ds in other.items():
+        have = set(by_q.get(q, []))
+        out[q] = [d for d in ds if d not in have][:k]
+    return out
+
+
+def base_lengths(job: dict, fused: pd.DataFrame) -> dict[int, int] | None:
+    """Length of each query's list before "append" (N_chunks counts base docs only; appended docs get chunks only
+    through append["chunks"])."""
+    if not job.get("append"):
+        return None
+    return {q: len(ds) for q, ds in doc_lists({k: v for k, v in job.items() if k != "append"}, fused).items()}
+
+
+def chunk_extra(job: dict, by_q: dict[int, list[int]]) -> dict[int, list[int]]:
+    """"chunk_append": {<stratum job keys>, "k": K}: chunks for the first K stratum docs that are NOT in
+    relevant_docs, after the usual chunks; relevant_docs is unchanged (chunk-only probe)."""
+    ca = job.get("chunk_append")
+    return new_docs(by_q, doc_lists(ca), ca.get("k", 40)) if ca else {}
 
 
 class BigDictLZMACompressor(zipfile.LZMACompressor):
@@ -200,27 +265,26 @@ def main() -> None:
     for job in jobs:
         fused = fuse(job)
         fused.to_parquet(args.out / f"{job['name']}_ranking.parquet", index=False)
-        depth = max(max(n) if isinstance(n, list) else n for n in job["n"])
-        top = fused[fused["rank"] < depth]
-        by_q = {int(q): [int(d) for d in g["doc_id"]] for q, g in top.groupby("qid")}
-        if job.get("cut"):
-            cut = job["cut"]
-            sc = load_system(cut["spec"], 10 ** 6, False)
-            ok = {(int(q), int(d)) for q, d, v in zip(sc["qid"], sc["doc_id"], sc["score"]) if v >= cut["tau"]}
-            lo = cut.get("min", 0)
-            by_q = {q: ds[:lo] + [d for d in ds[lo:] if (q, d) in ok] for q, ds in by_q.items()}
-        need.update(int(d) for d in top["doc_id"])
-        plans.append((job, by_q))
+        by_q = doc_lists(job, fused)
+        extra = chunk_extra(job, by_q)
+        base_len = base_lengths(job, fused)
+        n_ch = max(n[1] if isinstance(n, list) else n for n in job["n"])
+        k_app = job.get("append", {}).get("chunks", 0)
+        need.update(d for ds in by_q.values() for d in ds[:n_ch + 50 + k_app])  # texts where chunks come from
+        need.update(d for ds in extra.values() for d in ds)
+        plans.append((job, by_q, extra, base_len))
         log(f"fused {job['name']}: {len(fused):,} rows")
 
     texts: dict[int, str] = {}
     raw: dict[int, tuple[str, str]] = {}  # (title, body) for window chunks
     binary: set[int] = set()  # binary/mis-decoded docs (scorer fails on them): kept in relevant_docs, no chunk_text
+    corpus_ids: set[int] = set()
     for part in sorted(glob.glob(f"{args.data}/**/part-*.jsonl*", recursive=True)):
         opener = gzip.open if part.endswith(".gz") else open
         with opener(part, "rt", encoding="utf-8") as f:
             for line in f:
                 d = json.loads(line)
+                corpus_ids.add(d["id"])
                 if d["id"] in need and d["id"] not in texts:
                     texts[d["id"]] = f"{d['t']}\n{d['x']}".strip()
                     raw[d["id"]] = (d["t"], d["x"])
@@ -263,7 +327,7 @@ def main() -> None:
         return out
 
     stats = {}
-    for job, by_q in plans:
+    for job, by_q, extra, base_len in plans:
         for n in job["n"]:
             n_docs, n_chunks = n if isinstance(n, list) else (n, n)
             order = qids
@@ -271,10 +335,13 @@ def main() -> None:
                 order = chain_order(qids, {q: set(by_q.get(q, [])[:n_chunks]) for q in qids})
             records = []
             for q in order:
-                top = [d for d in by_q.get(q, []) if d in texts][:n_docs]
+                top = [d for d in by_q.get(q, []) if d in corpus_ids][:n_docs]
+                nb = base_len.get(q, len(top)) if base_len is not None else len(top)
+                k_app = job.get("append", {}).get("chunks", 0)
+                chunk_docs = top[:min(n_chunks, nb)] + top[nb:nb + k_app] + extra.get(q, [])
                 records.append({"id": q, "relevant_docs": top,
                                 "relevant_chunks": [{"doc_id": d, "chunk_text": chunk_text(job, q, d)}
-                                                    for d in top[:n_chunks] if d not in binary]})
+                                                    for d in chunk_docs if d in texts and d not in binary]})
             tag = f"n{n_docs}" if n_docs == n_chunks else f"d{n_docs}c{n_chunks}"
             path = args.out / f"{job['name']}_{tag}{'r' if job.get('reorder') else ''}.zip"
             write_zip(records, path, job.get("zip", "lzma"))

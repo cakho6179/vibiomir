@@ -2,7 +2,8 @@ import json
 import random
 from pathlib import Path
 
-from r2ai2026.docstore import (as_doc, content_chars, furniture_spans, passage_spans, pick_recovered, source_of)
+from r2ai2026.docstore import (as_doc, content_chars, furniture_spans, pack_sections, passage_spans, pick_recovered,
+                                source_of)
 from r2ai2026.processing import TemplateModel, prepare_body
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -85,3 +86,14 @@ def test_binary_documents_are_junk():
     assert is_binary_text(docx) and is_binary_text(mojibake)
     assert junk_reason(docx, is_pubmed=False) == "binary"
     assert not is_binary_text("Sốt xuất huyết là bệnh truyền nhiễm. " * 20)
+
+
+def test_sections_pack_passages_and_break_at_headings():
+    ps = [(0, 1000, ""), (1000, 2200, ""), (2200, 3000, "A"), (3000, 4000, "A"), (4000, 5500, "B"), (5500, 5600, "B")]
+    # 0-2200 then heading A at 2200 with 2200 >= min -> new; A grows to 4000 (1800) ... B at 4000: 1800 < min -> join,
+    # 2200-5500 = 3300 <= max; 5600 still <= max
+    assert pack_sections(ps, max_chars=4800, min_chars=2000) == [(0, 1, 0, 2200), (2, 5, 2200, 5600)]
+    big = [(0, 1500, ""), (1500, 3000, ""), (3000, 4500, ""), (4500, 6000, "")]
+    secs = pack_sections(big, max_chars=4800)
+    assert [(a, b) for a, b, _, _ in secs] == [(0, 2), (3, 3)]
+    assert secs[0][2] == 0 and secs[-1][3] == 6000
