@@ -8,6 +8,8 @@ and scored against all selected variants; document score = best passage. Shards 
 per-file top-k lists merge exactly. --only keeps those variant names (default: all rows). bge-m3 is multilingual,
 so a Vietnamese variant may search ZH/EN embeddings as well. Outputs in OUT:
   ranking.parquet (qid, variant, rank, doc_id, score), q_emb.npy (variant order of variants.parquet), stats.json
+Private kernel outputs mount only on their own account, so run one search per account over its embeddings and
+join the rankings with merge_rankings() (exact: same model, same cosine, disjoint documents).
 """
 
 from __future__ import annotations
@@ -60,6 +62,14 @@ def merge(variants: pd.DataFrame, per_file: list[list[list[tuple[int, float]]]],
         hits = sorted((h for f in per_file for h in f[r]), key=lambda h: -h[1])[:topk]
         rows += [(qid, name, rank, doc, s) for rank, (doc, s) in enumerate(hits)]
     return pd.DataFrame(rows, columns=["qid", "variant", "rank", "doc_id", "score"])
+
+
+def merge_rankings(rankings: list[pd.DataFrame], topk: int) -> pd.DataFrame:
+    """Join per-account rankings of the same variants into one top-k per (qid, variant)."""
+    r = pd.concat(rankings, ignore_index=True).sort_values(["qid", "variant", "score"], ascending=[True, True, False])
+    r = r.groupby(["qid", "variant"], sort=False).head(topk).copy()
+    r["rank"] = r.groupby(["qid", "variant"]).cumcount()
+    return r.reset_index(drop=True)[["qid", "variant", "rank", "doc_id", "score"]]
 
 
 def main() -> None:

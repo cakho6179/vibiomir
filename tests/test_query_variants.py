@@ -31,7 +31,8 @@ def test_frame_fields_and_dedup():
     rows = qv.variants(1, "viêm gan", frame, TABLE)
     names = [r[1] for r in rows]
     assert names == ["orig", "sub0", "hyde", "en_kw", "zh_q", "zh_kw"]  # kw == orig and sub1 == sub0 dropped
-    assert dict((r[1], r[3]) for r in rows)["en_kw"] == "hepatitis hepatitis"
+    assert dict((r[1], r[3]) for r in rows)["en_kw"] == "hepatitis"  # keyword and alias merged once
+    assert qv.unique_terms("ALT liver", "alt", "Liver enzyme") == "ALT liver enzyme"
 
 
 def test_build_joins_frame_by_qid():

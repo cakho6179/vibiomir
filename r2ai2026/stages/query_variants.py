@@ -14,7 +14,7 @@ qid, variant, lang, text. Variants (rows with empty text are dropped, duplicates
   zh_kw   zh  frame keywords_zh + ZH terms of the VI phrases found in the question (table)
 
 The frame is optional: without it only orig/acro/en_kw/zh_kw (table parts) are written. Rank a variant file
-with bm25_experiment.py or dense search; both keep the `variant` column.
+with bm25_experiment.py or dense_search.py; both keep the `variant` column. Drop `hyde` rows before BM25.
 
 Usage:
   python -m r2ai2026.stages.query_variants --queries query.parquet [--frame query_frame.parquet] \\
@@ -55,6 +55,16 @@ def zh_terms(query: str, vi_zh: dict) -> list[str]:
     return terms
 
 
+def unique_terms(*parts: str) -> str:
+    """Space-joined terms without repeats (case-insensitive): a repeated term would weigh double in BM25."""
+    out, seen = [], set()
+    for t in " ".join(parts).split():
+        if t.lower() not in seen:
+            seen.add(t.lower())
+            out.append(t)
+    return " ".join(out)
+
+
 def variants(qid: int, query: str, frame: dict | None, table: dict) -> list[tuple]:
     frame = frame or {}
     acr = acronyms_in(query, table["acronyms"])
@@ -64,10 +74,10 @@ def variants(qid: int, query: str, frame: dict | None, table: dict) -> list[tupl
     out += [(f"sub{i}", "vi", s) for i, s in enumerate(as_obj(frame.get("subqueries"), []))]
     out += [("hyde", "vi", frame.get("hyde") or ""),
             ("acro", "vi", " ".join([query] + [table["acronyms"][a]["vi"] for a in acr]) if acr else ""),
-            ("en_kw", "en", " ".join([frame.get("keywords_en") or ""] + en_alias
-                                     + [table["acronyms"][a]["en"] for a in acr])),
+            ("en_kw", "en", unique_terms(frame.get("keywords_en") or "", *en_alias,
+                                         *[table["acronyms"][a]["en"] for a in acr])),
             ("zh_q", "zh", frame.get("query_zh") or ""),
-            ("zh_kw", "zh", " ".join([frame.get("keywords_zh") or ""] + zh_terms(query, table["vi_zh"])))]
+            ("zh_kw", "zh", unique_terms(frame.get("keywords_zh") or "", *zh_terms(query, table["vi_zh"])))]
     rows, seen = [], set()
     for name, lang, text in out:
         text = " ".join(str(text).split())

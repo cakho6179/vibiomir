@@ -22,3 +22,10 @@ def test_best_passage_per_doc_and_exact_merge():
     assert list(r.columns) == ["qid", "variant", "rank", "doc_id", "score"]
     assert r[r.variant == "orig"]["doc_id"].tolist() == [10, 20]
     assert r[r.variant == "zh_q"]["doc_id"].tolist() == [11, 20]
+
+
+def test_merge_rankings_across_accounts():
+    a = pd.DataFrame({"qid": [1, 1], "variant": ["orig"] * 2, "rank": [0, 1], "doc_id": [10, 11], "score": [.9, .5]})
+    b = pd.DataFrame({"qid": [1], "variant": ["orig"], "rank": [0], "doc_id": [20], "score": [.7]})
+    r = ds.merge_rankings([a, b], topk=2)
+    assert r["doc_id"].tolist() == [10, 20] and r["rank"].tolist() == [0, 1]
