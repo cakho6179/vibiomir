@@ -1,0 +1,15 @@
+{
+  "id": "hytahy/vibiomir-dq-score-all",
+  "title": "vibiomir-dq-score-all",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": false,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": ["hytahy/vibiomir-dq-emb", "hytahy/vibiomir-dq-emb-tail"],
+  "model_sources": []
+}

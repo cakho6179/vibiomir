@@ -70,7 +70,8 @@ def main() -> None:
     ranked = sorted(board, key=lambda s: -scores(s)["FINAL_SCORE"])
     rank = next((i for i, s in enumerate(ranked, 1) if s["owner"] in (OWNER, TEAM)), None)
     mine = sorted((s for s in subs if s["owner"] == OWNER), key=lambda s: s["created_when"])
-    print(f"phase {phase}: {len(ranked)} teams; top {scores(ranked[0])['FINAL_SCORE']} ({ranked[0]['owner']}); "
+    top = f"{scores(ranked[0])['FINAL_SCORE']} ({ranked[0]['owner']})" if ranked else "-"
+    print(f"phase {phase}: {len(ranked)} teams; top {top}; "
           f"ours rank {rank}; our submissions visible: {len(mine)} ({'token' if headers else 'public API only'})")
     for s in mine:
         d = scores(s)
