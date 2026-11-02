@@ -1,0 +1,20 @@
+{
+  "id": "tthiutoko/vibiomir-qv3-m3-vi-ab",
+  "title": "vibiomir-qv3-m3-vi-ab",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "tthiutoko/vibiomir-qvariants-v3"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "tthiutoko/vibiomir-v21-m3-vi-a",
+    "tthiutoko/vibiomir-v21-m3-vi-b"
+  ],
+  "model_sources": []
+}

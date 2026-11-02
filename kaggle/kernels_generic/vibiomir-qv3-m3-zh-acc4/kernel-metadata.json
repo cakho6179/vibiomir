@@ -1,0 +1,19 @@
+{
+  "id": "lanpana/vibiomir-qv3-m3-zh",
+  "title": "vibiomir-qv3-m3-zh",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "lanpana/vibiomir-qvariants-v3"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "lanpana/vibiomir-v21-m3-zh"
+  ],
+  "model_sources": []
+}

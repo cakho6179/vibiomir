@@ -1,0 +1,19 @@
+{
+  "id": "noskaiser/vibiomir-qv3-bm25-zh",
+  "title": "vibiomir-qv3-bm25-zh",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "noskaiser/vibiomir-qvariants-v3"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "noskaiser/vibiomir-v21-bm25-zh"
+  ],
+  "model_sources": []
+}

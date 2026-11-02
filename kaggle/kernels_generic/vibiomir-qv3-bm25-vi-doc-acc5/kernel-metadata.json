@@ -1,0 +1,19 @@
+{
+  "id": "snnguynvnk19hl/vibiomir-qv3-bm25-vi-doc",
+  "title": "vibiomir-qv3-bm25-vi-doc",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "snnguynvnk19hl/vibiomir-qvariants-v3"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "snnguynvnk19hl/vibiomir-v21-bm25-vi-doc"
+  ],
+  "model_sources": []
+}

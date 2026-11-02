@@ -1,0 +1,20 @@
+{
+  "id": "snnguynvnk19hl/vibiomir-qv3-m3-vi-cd",
+  "title": "vibiomir-qv3-m3-vi-cd",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "snnguynvnk19hl/vibiomir-qvariants-v3"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "snnguynvnk19hl/vibiomir-v21-m3-vi-c",
+    "snnguynvnk19hl/vibiomir-v21-m3-vi-d"
+  ],
+  "model_sources": []
+}
