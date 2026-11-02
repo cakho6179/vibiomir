@@ -11,7 +11,7 @@ the cut measured at R .812 by #7215), scored by bge-reranker-v2-m3 (kaggle/outpu
 Job spec NAME=METHOD:NDOCS:NCHUNKS orders each query's pool by METHOD and lists the first NDOCS docs and the
 first NCHUNKS chunks; NAME=METHOD:NDOCS|CMETHOD:NCHUNKS[:SIZE] orders the chunks by CMETHOD instead. SIZE is the
 chunk window in chars (default 4500) or fF = max(1500, F x doc length) (gold chunk ~0.7 x doc length,
-runs/reports/chunk_geometry); a trailing h (f0.4h) builds ZH chunks from the tmh1008 HF text. Methods:
+runs/reports/chunk_geometry); a trailing h (f0.4h) builds ZH chunks from the external open crawl text. Methods:
   rr    reranker score
   rrf   RRF k=60 of the language-list rank and the reranker rank (weights 1:1)
   rr+N    slice probe: reranker order from rank N on
@@ -229,7 +229,7 @@ def main() -> None:
         oc["pos"] = oc.groupby("qid").cumcount()
         chunks = oc[oc["pos"] < ncn].copy()
         L = chunks["doc_id"].map(n_chars).fillna(4500)
-        hf = size.endswith("h")  # ZH chunks from the tmh1008 HF text (materialize_lists.py --alt-text)
+        hf = size.endswith("h")  # ZH chunks from the external open crawl text (materialize_lists.py --alt-text)
         size = size.rstrip("h")
         chunks["size"] = (np.maximum(1500, np.ceil(float(size[1:]) * L)) if size.startswith("f") else L * 0 + int(size)).astype(int)
         chunks["src"] = cmode or np.where(hf & (chunks["lang"] == "zh"), "hf", "")

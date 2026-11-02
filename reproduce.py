@@ -1,4 +1,4 @@
-"""Single entry point: rebuild the private submissions of team Bang Ca Kho from the released artifacts.
+"""Single entry point: rebuild the private submissions from the released artifacts.
 
     python reproduce.py                       # lists of the 5 private submissions + checks (CPU, ~1 min)
     python reproduce.py --refit               # first refit p(gold) from the scored lists (~4 min more)

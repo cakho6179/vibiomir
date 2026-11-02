@@ -183,7 +183,7 @@ Doc2query (`scripts/analysis/dq_lists.py`):
 | Nguồn | Số tài liệu | Cách lấy |
 |---|---|---|
 | crawl nội bộ | 1.182.666 | crawler của đội trên danh sách URL chính thức (`r2ai2026/crawl/`), đóng băng 20/10/2026 |
-| HF `tmh1008/ViBioMIR-crawled-corpus` @ `18cb5a544322d8d7b903ca2b6ceb3138628223b4` | 5.760 thêm, 4.475 thay thân bài VI | bộ crawl công khai của cùng danh sách URL; chỉ dùng làm văn bản, qua cổng chất lượng |
+| Kho crawl mở công khai (Open Crawl Archive) | 5.760 thêm, 4.475 thay thân bài VI | bộ crawl công khai của cùng danh sách URL; chỉ dùng làm văn bản, qua cổng chất lượng |
 | Common Crawl (CDX / columnar) | 2.278 | cứu URL chết |
 | Internet Archive Wayback | 1.400 | cứu URL chết (`r2ai2026/crawl/wayback.py`) |
 | recrawl trực tiếp | 370 | |
