@@ -18,6 +18,20 @@ Hệ thống truy hồi tài liệu y khoa đa ngữ (VI/ZH/EN) và trích đo�
 
 Mỗi mức dùng đầu ra đã chia sẻ của mức sau, nên có thể bắt đầu từ bất kỳ mức nào.
 
+**Một lệnh cho bản cuối** (`reproduce.py`, entry point duy nhất; tải dữ liệu theo §2 trước):
+
+```bash
+python reproduce.py            # mức A: danh sách của 5 bài private + so với danh sách đã nộp (~30 giây)
+python reproduce.py --refit    # như trên, nhưng fit lại p(gold) từ đầu trước (~4 phút)
+python reproduce.py --zip      # thêm mức B: dựng zip #7892 và so với zip đã nộp (~25 phút, CPU)
+```
+
+Đầu ra ở `out/final/` gồm `lists.parquet`, `report.json` và `zips/`. Kết quả chạy ngày 02/11/2026:
+- Danh sách docs và chunks của cả 5 bài: 1.200/1.200 câu hỏi khớp đúng thứ tự.
+- `--zip`: `submission.json` trong zip dựng lại **trùng từng byte** với file nộp `pN3_base_pqchunks.zip` (875 MB, tính cả văn bản chunk). Hai file zip chỉ khác metadata của vỏ zip, như thời gian tạo.
+
+Các mục §4–§5 bên dưới là từng bước bên trong lệnh này.
+
 ## 1. Môi trường
 
 - Python **3.11+**; đội dùng 3.13.3 trên Windows 11. Mã cũng chạy trên Linux.
@@ -112,7 +126,7 @@ Văn bản chunk là cửa sổ ≤ 4.500 ký tự trích nguyên văn từ docs
 3. Chạy: `kaggle kernels push -p kaggle/kernels_generic/vibiomir-mat-st3-acc2`.
 4. Output: `pN3_base.zip`, `N1_n125.zip`, `stats.json`.
 
-**Trên máy (cùng mã, xuất từ kernel; đường này chưa được chạy thử, đường đã chạy là kernel ở trên):**
+**Trên máy:** `python reproduce.py --zip` chạy đúng mã của kernel trên (đã kiểm, xem §0). Các bước nó làm:
 
 ```bash
 python scripts/release/extract_bundle.py kaggle/kernels_generic/vibiomir-mat-st3-acc2 --out tools/mat
@@ -125,7 +139,7 @@ python tools/mat/materialize_lists.py --input work/mat_in --out work/zips
 python scripts/release/check_lists.py out/lists_pn3.parquet work/zips/pN3_base.zip --job pN3_base
 ```
 
-Lưu ý: `--input` phải là thư mục riêng như trên. Script lấy `lists.parquet` và `part-*.jsonl*` đầu tiên tìm thấy (đệ quy) dưới thư mục đó.
+`reproduce.py` dùng junction (Windows) hoặc symlink tới `corpus` thay cho bản sao. Lưu ý: `--input` phải là thư mục riêng như trên. Script lấy `lists.parquet` và `part-*.jsonl*` đầu tiên tìm thấy (đệ quy) dưới thư mục đó.
 
 ## 6. Mức C — chạy lại các stage GPU
 

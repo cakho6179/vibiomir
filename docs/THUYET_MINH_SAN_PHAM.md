@@ -307,6 +307,7 @@ Chạy ngày 02/11/2026 trong thư mục trống, chỉ có gói mã và các g�
 | `query_variants.py` từ khung truy vấn đã chia sẻ | `query_variants.parquet` | khớp hoàn toàn 12.531 dòng |
 | nối `rr4-p*/passages.parquet` | `pas_scores.parquet` | khớp hoàn toàn 4.942.553 dòng |
 | 5 zip đã nộp | lists tương ứng | thứ tự `relevant_docs` và doc_id của chunk khớp ở 1.200/1.200 câu hỏi |
+| `python reproduce.py --zip` (entry point duy nhất, chạy trên máy với mã nhúng trong kernel materialize) | `pN3_base_pqchunks.zip` đã nộp (#7892) | `submission.json` trùng từng byte (875 MB, gồm văn bản chunk); thời gian ~25 phút CPU |
 
 Các stage GPU (khung truy vấn, ranking, rr3/m3m/rr4, doc2query) chạy lại được bằng chính các kernel trong `kaggle/kernels_generic/`. Đầu ra của chúng được chia sẻ (gói A, B, C, D), nên người kiểm tra không cần GPU để dựng lại bài nộp.
 

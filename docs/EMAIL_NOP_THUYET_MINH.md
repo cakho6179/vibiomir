@@ -31,7 +31,8 @@ Bản PDF để đọc nhanh (có sơ đồ luồng xử lý): `THUYET_MINH_SAN_
 - Pipeline: truy hồi đa ngữ BM25 + BGE-M3 → pool 2.500 ứng viên/câu hỏi → bge-reranker-v2-m3 và BGE-M3 → mô hình xác suất liên quan → số tài liệu chọn theo từng câu hỏi để cực đại F2 kỳ vọng → chunk là cửa sổ nguyên văn ≤ 4.500 ký tự.
 - Mô hình: chỉ dùng mô hình mở ≤ 15B, gồm BGE-M3, bge-reranker-v2-m3, Qwen3.5-9B và Qwen3.5-4B. Không dùng API đóng, không dùng MedKB.
 - Tái lập:
-  - Từ dữ liệu chia sẻ, danh sách tài liệu và chunk của cả 5 bài private dựng lại khớp 100% trên CPU trong vài phút (README, mức A).
+  - Một lệnh duy nhất `python reproduce.py` dựng lại từ dữ liệu chia sẻ danh sách tài liệu và chunk của cả 5 bài private, khớp 100%, trên CPU trong ~30 giây.
+  - `python reproduce.py --zip` dựng lại file nộp #7892. `submission.json` bên trong trùng từng byte với file đã nộp (~25 phút CPU).
   - Các bước GPU chạy lại được bằng các kernel Kaggle có trong repo.
 
 Các công bố về tuân thủ (MedKB, số liệu thống kê tổng hợp, dùng leaderboard) nằm ở `docs/THUYET_MINH_SAN_PHAM.md` §5.
