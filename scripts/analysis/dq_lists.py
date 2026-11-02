@@ -3,8 +3,10 @@
     python scripts/analysis/dq_lists.py --out kaggle/datasets/mat_lists31/lists.parquet \
         --job F1_dqd20:dense=20 --job F2_dqd20b20:dense=20,bm25=20 [--chunks 40] [--gate 200]
 
-The pN3 base is recovered from mat_lists29 job S1_dqd20: its docs without src "doc" are the pN3 docs, and its
-chunk rows of those docs are the pN3 chunks minus the 20 lowest-p ones (the budget S1/S2 freed under the ~100 MB cap).
+The base is the pN3_base job of --base: its docs, and its chunks minus the 20 lowest-p ones (the budget S1/S2 freed
+under the ~100 MB cap). --base may be the output of pn3_lists.py, mat_lists22, or (the default, as first run) mat_lists29,
+whose S1_dqd20 job holds the same base: its docs without src "doc" are the pN3 docs, its other chunks the pN3 chunks
+minus the 20 lowest-p ones. Both routes give identical lists.
 Each job appends, per query, the top picks of each named channel that are not in the base list (channels interleaved
 in the order given, duplicates skipped), then gives the first `--chunks` added docs a 4500-char "seed" chunk and drops
 that many extra lowest-p base chunks beyond the 20 already dropped.
@@ -43,11 +45,17 @@ def main() -> None:
     args = ap.parse_args()
 
     L = pd.read_parquet(args.base)
-    s1 = L[L["job"] == "S1_dqd20"]
-    docs = s1[(s1["kind"] == "doc") & (s1["src"] != "doc")].sort_values(["qid", "pos"])
-    added_s1 = set(zip(s1.loc[s1["src"] == "doc", "qid"], s1.loc[s1["src"] == "doc", "doc_id"]))
-    ch = s1[s1["kind"] == "chunk"]
-    ch = ch[[(q, d) not in added_s1 for q, d in zip(ch["qid"], ch["doc_id"])]].sort_values(["qid", "pos"])
+    if (L["job"] == "pN3_base").any():
+        pn = L[L["job"] == "pN3_base"]
+        docs = pn[pn["kind"] == "doc"].sort_values(["qid", "pos"])
+        ch = pn[pn["kind"] == "chunk"].sort_values(["qid", "pos"])
+        ch = ch[ch.groupby("qid").cumcount(ascending=False) >= 20]  # drop the 20 lowest-p chunks
+    else:
+        s1 = L[L["job"] == "S1_dqd20"]
+        docs = s1[(s1["kind"] == "doc") & (s1["src"] != "doc")].sort_values(["qid", "pos"])
+        added_s1 = set(zip(s1.loc[s1["src"] == "doc", "qid"], s1.loc[s1["src"] == "doc", "doc_id"]))
+        ch = s1[s1["kind"] == "chunk"]
+        ch = ch[[(q, d) not in added_s1 for q, d in zip(ch["qid"], ch["doc_id"])]].sort_values(["qid", "pos"])
     base_docs = docs.groupby("qid")["doc_id"].apply(list).to_dict()
     base_chunks = dict(tuple(ch.groupby("qid")))
     tail = set(pd.concat([pd.read_parquet(f, columns=["doc_id"])
