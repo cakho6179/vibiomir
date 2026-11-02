@@ -12,8 +12,10 @@ Kính gửi Ban Tổ chức,
 **Bài nộp được báo cáo:** private **#7892** (`pN3_base_pqchunks.zip`), đã gắn lên leaderboard private. Đây là cùng file với bài public #7589 (FINAL 0,3484).
 
 **Đường link** (đã mở quyền xem cho người có link):
-- Mã nguồn: `<LINK_CODE>` (repo / file `vibiomir_code_<commit>.zip`)
-- Dữ liệu, chỉ mục, đầu ra trung gian và `MANIFEST.tsv` (sha256 từng file): `<LINK_DRIVE>`
+- Mã nguồn: file `vibiomir_code_<commit>.zip` trong cùng thư mục Drive dưới đây (`git archive` của commit nộp)
+- Dữ liệu, chỉ mục, đầu ra trung gian và `MANIFEST.tsv` (sha256 từng file): https://drive.google.com/drive/folders/1_VUdqZ4eTv9w_hHRPDWsLLNNmqxyYDaj?usp=sharing
+
+Bản PDF để đọc nhanh (có sơ đồ luồng xử lý): `THUYET_MINH_SAN_PHAM.pdf` và `README.pdf` ở thư mục gốc trên Drive.
 
 **Nội dung theo mục hướng dẫn:**
 

@@ -36,7 +36,7 @@ Mọi lệnh dưới đây chạy **từ thư mục gốc repo**.
 
 ## 2. Tải dữ liệu
 
-Thư mục chia sẻ: **`<LINK_DRIVE>`**. Nội dung từng gói ở `docs/THUYET_MINH_SAN_PHAM.md` §2.4.
+Thư mục chia sẻ: **https://drive.google.com/drive/folders/1_VUdqZ4eTv9w_hHRPDWsLLNNmqxyYDaj?usp=sharing**. Nội dung từng gói ở `docs/THUYET_MINH_SAN_PHAM.md` §2.4.
 
 | File trên Drive | Giải nén / đặt vào |
 |---|---|

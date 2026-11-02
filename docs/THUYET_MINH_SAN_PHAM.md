@@ -210,7 +210,7 @@ Thực hiện bởi `scripts/data/build_docstore*.py` và `r2ai2026/corpus/`. Ch
 
 ### 2.4 Truy cập dữ liệu
 
-Toàn bộ dữ liệu được chia sẻ qua thư mục Google Drive: **`<LINK_DRIVE>`** (quyền xem cho người có link). Nội dung và sha256 của từng file nằm trong `MANIFEST.tsv`.
+Toàn bộ dữ liệu được chia sẻ qua thư mục Google Drive: **https://drive.google.com/drive/folders/1_VUdqZ4eTv9w_hHRPDWsLLNNmqxyYDaj?usp=sharing** (quyền xem cho người có link). Nội dung và sha256 của từng file nằm trong `MANIFEST.tsv`.
 
 | Gói | Dung lượng | Nội dung | Cần cho |
 |---|---|---|---|
