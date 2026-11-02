@@ -28,7 +28,7 @@ python reproduce.py --zip      # thêm mức B: dựng zip #7892 và so với zi
 
 Đầu ra ở `out/final/` gồm `lists.parquet`, `report.json` và `zips/`. Kết quả chạy ngày 02/11/2026:
 - Danh sách docs và chunks của cả 5 bài: 1.200/1.200 câu hỏi khớp đúng thứ tự.
-- `--zip`: `submission.json` trong zip dựng lại **trùng từng byte** với file nộp `pN3_base_pqchunks.zip` (875 MB, tính cả văn bản chunk). Hai file zip chỉ khác metadata của vỏ zip, như thời gian tạo.
+- `--zip`: `submission.json` trong zip dựng lại **trùng từng byte** với file nộp `pN3_base_pqchunks.zip` (875 MB, tính cả văn bản chunk). Hai file zip chỉ khác metadata của vỏ zip, như thời gian tạo. sha256 của `submission.json` trong cả 5 file đã nộp được ghi sẵn trong `reproduce.py` (`acfa3707…` cho #7892), nên kiểm được mà không cần file nộp. `report.json` ghi `same_as_submitted`.
 
 Các mục §4–§5 bên dưới là từng bước bên trong lệnh này.
 

@@ -4,7 +4,9 @@
     python reproduce.py --refit               # first refit p(gold) from the scored lists (~4 min more)
     python reproduce.py --zip                 # also build the reported submission #7892 (chunk text + LZMA zip, ~25 min)
     python reproduce.py --zip --jobs all      # all 5 zips
-    python reproduce.py --zip --submitted DIR # compare the built zips with the submitted ones, query by query
+    python reproduce.py --zip --submitted DIR # also diff the built zips against submitted ones, query by query
+
+Each built zip is checked against the sha256 of submission.json in the submitted zip (no submitted file needed).
 
 Inputs (README section 2): artifacts_A_pgold.zip (+ C for the doc2query jobs, + B and the docstore corpus for --zip),
 unzipped at the repo root. Output: out/final/ (lists.parquet, report.json, zips/).
@@ -20,6 +22,7 @@ Steps
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -43,7 +46,14 @@ JOBS = {
     "N1_n125": (7916, "N1_n125.zip", "kaggle/datasets/mat_lists30/lists.parquet"),
     "F2_dqd20b20g": (7917, "F2_dqd20b20g.zip", "kaggle/datasets/mat_lists31/lists.parquet"),
 }
-DQ_JOBS = {"S1_dqd20", "S2_dqb20", "F2_dqd20b20g"}
+# sha256 of submission.json inside each submitted zip (the zip headers carry timestamps, the json does not)
+SUBMITTED_JSON_SHA256 = {
+    "pN3_base": "acfa3707419de6803a7cb74e85d872c6cfc1557cf19c45726cf85d5f418fbefa",
+    "S1_dqd20": "7ed0be3cc470c8ff078b92f7490ca55efcc4e5b317cf3d3aab6c6b8631c3ab31",
+    "S2_dqb20": "d5aa35f2cef2ccfbf0ef318eb10602a5f097a4330e87bfd1814308f5997f8d37",
+    "N1_n125": "854a766ecc7c3578c132f164d0b1c12608f5c67e01b484cbc0a07c82be930a8d",
+    "F2_dqd20b20g": "07b5cba143ac4b6fb5785eae0fe567be9f3281180797ce041f560f8dc5b47dad",
+}
 NEEDS = {
     "A": ["kaggle/datasets/rerank_pool/cands.parquet", "runs/reports/pgold_lists/lists.parquet",
           "runs/reports/pgold_feats/base2/cands_p.parquet", "data/raw/btc/query.parquet"],
@@ -173,15 +183,15 @@ def main() -> None:
         built = build_zips(lists, jobs, out)
         report["zips"] = {}
         for job, path in built.items():
-            entry = {"zip": str(path.relative_to(ROOT)), "mb": round(path.stat().st_size / 2**20, 1)}
+            with zipfile.ZipFile(path) as z:
+                digest = hashlib.sha256(z.read("submission.json")).hexdigest()
+            entry = {"zip": str(path.relative_to(ROOT)), "mb": round(path.stat().st_size / 2**20, 1),
+                     "submission_json_sha256": digest,
+                     "same_as_submitted": digest == SUBMITTED_JSON_SHA256[job]}
             sub = args.submitted / JOBS[job][1]
-            if sub.exists():
+            if sub.exists():  # optional: per-query diff against the submitted file
                 a, b = read_zip(path), read_zip(sub)
-                same = sum(a.get(q) == b.get(q) for q in b)
-                with zipfile.ZipFile(path) as za, zipfile.ZipFile(sub) as zb:  # zip headers differ (timestamps)
-                    same_bytes = za.read("submission.json") == zb.read("submission.json")
-                entry.update(submitted=str(sub), identical_queries=f"{same}/{len(b)}",
-                             submission_json_byte_identical=same_bytes)
+                entry.update(submitted=str(sub), identical_queries=f"{sum(a.get(q) == b.get(q) for q in b)}/{len(b)}")
             report["zips"][job] = entry
             log(f"{job}: {entry}")
     (out / "report.json").write_text(json.dumps(report, indent=1), encoding="utf-8")

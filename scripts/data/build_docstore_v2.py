@@ -36,7 +36,7 @@ Outputs in ``data/docstore/v2`` (offsets are body character positions):
   furniture.parquet             v1 furniture + delta furniture
   delta_duplicates.parquet      content-duplicate audit trail
   delta_report.json             per-source / per-language recovery counts
-  templates.json, slug_docs.parquet, MANIFEST.json
+  templates.json, MANIFEST.json
 
 Usage:
   python scripts/data/build_docstore_v2.py
@@ -397,9 +397,6 @@ def main() -> None:
     }
     (out / "MANIFEST.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding="utf-8")
 
-    # rebuild slug docs for the new coverage and let that script update slug_docs in the manifest
-    subprocess.run([sys.executable, str(ROOT / "scripts" / "data" / "build_slug_docs.py"), "--store", str(out)],
-                   check=True, cwd=ROOT)
     man = json.loads((out / "MANIFEST.json").read_text(encoding="utf-8"))
     man["delta"] = delta_report
     man["docs_meta_unique"] = {"docs": int(len(unique_meta))}
