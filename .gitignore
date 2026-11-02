@@ -44,3 +44,6 @@ __pycache__/
 # Dataset staging folders for Kaggle uploads
 kaggle/*_ds/
 kaggle/cc_recover/data/
+
+# Release packages for BTC (scripts/release/pack_release.py)
+/release/
