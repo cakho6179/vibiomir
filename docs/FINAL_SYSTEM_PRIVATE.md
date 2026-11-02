@@ -81,11 +81,16 @@ Không có LLM đóng nào trong hệ thống nộp.
   | NCBI E-utilities (PubMed) | 177 | |
   | Long Châu recrawl | 22 | |
 
-### 3.3 Cam kết
-- Không dùng API hay nội dung MedKB của BTC, kể cả `similar_queries`. Câu hỏi doc2query do Qwen3.5-4B tự sinh từ văn bản doc.
-- Không dùng nhãn từng cặp (query, doc) từ file chấm (`details.jsonl`) của đội mình hay đội khác.
-- Thông tin từ leaderboard chỉ là P/R/F2 tổng hợp trên public split của các bài đội đã nộp. Nó được dùng để hiệu chỉnh p(gold) (14 tham số, 27 danh sách) và độ sâu N_q. Không có tham số nào ở mức từng query hay từng doc được học từ nhãn.
-- Không có doc nào lấy từ ứng viên của đội khác.
+### 3.3 Cam kết và công bố
+- **MedKB của BTC.** Đầu cuộc thi (19–20/10) đội có một lần probe MedKB. Lần đó chỉ ghi lại thống kê tổng hợp: độ dài chunk trung vị ~3,3k ký tự, tối đa ~4,8k; chunk có trường `similar_queries`; ~88% URL kết quả nằm trong corpus (WORKLOG 20/10, `ROADMAP_SYSTEM.md` §2).
+  - Không nội dung, kết quả hay `similar_queries` nào của MedKB đi vào bất kỳ danh sách nộp nào. Không gọi API MedKB ở thời điểm chạy.
+  - Câu hỏi doc2query do Qwen3.5-4B tự sinh từ văn bản doc.
+  - Cửa sổ chunk 4.500 ký tự được chọn bằng chính các bài nộp public: #6933 (6.000) và #6934 (7.500) cho chunks F2 như nhau, tức là bão hoà từ 4.500.
+- **Thống kê gold.** Hai con số dùng ở dạng tổng hợp: |gold| trung bình 71 doc / 75 chunk mỗi query, và public = 600/1.200 query. Chúng được đọc từ một file output của scorer chính thức (`details.jsonl`) do một đội khác công khai trong repo của họ (`research/refs/`, `docs/RESEARCH_REFS.md`).
+  - Chỉ dùng ba số trung bình đó, cụ thể là hệ số 75/71 trong `pn3_lists.py`.
+  - Không dùng nhãn từng cặp (query, doc) hay từng query từ file chấm của đội mình hay đội khác.
+- **Leaderboard.** Thông tin lấy từ leaderboard chỉ là P/R/F2 tổng hợp trên public split của các bài đội đã nộp. Nó được dùng để hiệu chỉnh p(gold) (14 tham số, 27 danh sách) và độ sâu N_q. Không có tham số nào ở mức từng query hay từng doc được học từ nhãn.
+- Không có doc nào lấy từ danh sách nộp của đội khác.
 
 ## 4. Tái lập
 
@@ -121,5 +126,9 @@ Các phép kiểm đã chạy (02/11), so với các lists đã dùng để đó
 | `dq_lists.py` | `mat_lists30` H2_dqd20b20 | 432.073 dòng, khớp 100% |
 | `dq_lists.py` | F2 | chính là `mat_lists31` đã nộp |
 | `pgold_all.py --exclude …` | `pgold_feats/base2` | 3.000.000 p, lệch tối đa 1,1e-5; N_q lệch 1 doc ở 1/1.200 query (sai số tối ưu); ~3,7 phút CPU |
+
+| 5 zip đã nộp trong `submissions/` | job tương ứng trong lists | 1.200/1.200 query: thứ tự `relevant_docs` và `doc_id` chunk khớp hoàn toàn, không chunk nào bị rơi |
+
+Code dựng văn bản chunk: các kernel materialize nhúng `materialize_lists` và `stair_chunk` trong `run.py` của bundle (đã commit). Chúng import `r2ai2026` từ dataset `tthiutoko/vibiomir-chunk-v21-assets` (`vibiomir-code/`, CODE_VERSION `06f71bf-dirty`). Hai file được dùng có lưu bản cố định ở `kaggle/pinned/chunk-v21-assets/`, vì working tree đã đổi sau đó.
 
 Riêng các stage ứng viên/đặc trưng của system v3 chưa được kiểm khớp từng dòng. Chúng chạy trên Kaggle, output lưu ở `kaggle/outputs/`.
