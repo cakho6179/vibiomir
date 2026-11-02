@@ -315,6 +315,6 @@ Các stage GPU (khung truy vấn, ranking, rr3/m3m/rr4, doc2query) chạy lại 
 ## 5. Cam kết tuân thủ và công bố
 
 - **Không dùng MedKB của BTC trong hệ thống.** Đầu cuộc thi (19–20/10) đội có một lần thăm dò MedKB. Lần đó chỉ ghi lại thống kê tổng hợp (độ dài chunk trung vị ~3,3k ký tự, tối đa ~4,8k). Không nội dung, kết quả hay trường `similar_queries` nào của MedKB đi vào bài nộp, và không gọi API MedKB khi chạy.
-- **Thống kê gold.** Hai số tổng hợp được dùng: |gold| trung bình 71 tài liệu / 75 chunk mỗi câu hỏi, và tập public = 600/1.200 câu hỏi. Chúng đọc từ một file output của bộ chấm chính thức do một đội khác công khai trong repo của họ. Chỉ dùng tỉ số 75/71 trong `pn3_lists.py`. Không dùng nhãn từng cặp hay từng câu hỏi.
+- **Thống kê gold.** Hai số tổng hợp được dùng: |gold| trung bình 71 tài liệu / 75 chunk mỗi câu hỏi, và tập public = 600/1.200 câu hỏi. Chúng được đọc từ một tệp kết quả của bộ chấm chính thức có trên GitHub công khai. Hệ thống chỉ dùng tỉ số 75/71 (trong `pn3_lists.py`), không dùng nhãn từng cặp hay từng câu hỏi.
 - **Leaderboard.** Chỉ dùng P/R/F2 tổng hợp trên tập public của các bài đội đã nộp, để hiệu chỉnh p(gold) và độ sâu N_q.
-- Không tài liệu nào lấy từ danh sách nộp của đội khác. Không có tài liệu ngoài danh sách URL chính thức.
+- Không có tài liệu ngoài danh sách URL chính thức.

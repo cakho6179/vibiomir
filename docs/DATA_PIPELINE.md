@@ -125,7 +125,7 @@ kiểm bằng số 1.183.751). Recovered = chỉ id crawl không có; lọc rác
 | 4a | **Kiểm hồi quy đường ống:** BM25 e1 trên v1, index **giữ** furniture | Kaggle CPU | top-28 trùng ≥ 95% với E1v2 cũ (chỉ khác ở doc recovered) |
 | 4b | A/B: index **bỏ** furniture | Kaggle CPU + 1 lượt LB | không có cổng trùng; chỉ so điểm LB |
 | 5 | S5 BGE-M3 dense+sparse theo pid, lưu embedding (`--save-emb`) | Kaggle GPU: lần trước 5 kernel × 1,2–1,9 h ≈ 8 h kernel cho ~2,97 triệu đoạn; embedding fp16 ≈ 6 GB | ranking M3 trên v1 trùng top-28 ≥ 90% với M3 cũ |
-| 6 | S6 + L1 nhiều nguồn | Kaggle | xem `docs/ROADMAP_SYSTEM.md` và spec L1 |
+| 6 | S6 + L1 nhiều nguồn | Kaggle | — |
 
 Bước 1–4 không cần GPU và không phụ thuộc kết quả crawl đang chạy (crawl xong chỉ cần dựng lại v2).
 

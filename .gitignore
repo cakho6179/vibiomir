@@ -14,7 +14,6 @@ kaggle/rankings_ds/
 kaggle/recrawl_missing*/
 kaggle/recrawl/dataset/
 kaggle/recrawl/by_account/*/dataset/
-research/refs/
 
 # Large or binary artifacts anywhere
 *.parquet
@@ -47,3 +46,5 @@ kaggle/cc_recover/data/
 
 # Release packages for BTC (scripts/release/pack_release.py)
 /release/
+# Outputs of reproduce.py
+/out/

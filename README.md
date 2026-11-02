@@ -186,6 +186,6 @@ scripts/submit/      nộp bài và lấy điểm Codabench
 kaggle/kernels_generic/  mọi kernel Kaggle đã chạy (mã nhúng trong run.py)
 kaggle/pinned/       bản cố định của mã materialize
 configs/             cấu hình runner và bảng mở rộng truy vấn
-docs/                thuyết minh, thẻ dữ liệu, thiết kế; README nội bộ cũ: docs/README_NOI_BO.md
-EXPERIMENTS.md       sổ điểm mọi bài nộp; WORKLOG.md: nhật ký
+docs/                thuyết minh sản phẩm, quy trình dữ liệu, cách chạy runner
+reproduce.py         entry point duy nhất: dựng lại 5 bài private và so với bài đã nộp
 ```

@@ -1,12 +1,11 @@
-"""Fetch leaderboard and our submission scores from the Codabench server (read-only, never submits).
+"""Fetch the scores of our own submissions from the Codabench server (read-only, never submits).
 
-    python scripts/submit/fetch_scores.py      # leaderboard + every submission of ours when credentials exist
+    python scripts/submit/fetch_scores.py      # every submission of ours (needs credentials)
 
 Credentials (never printed, never in the repo), first found wins:
   $env:CODABENCH_TOKEN | ~/.codabench_token (one line) | ~/.codabench.json {"username": "...", "password": "..."}
-(the last one is exchanged for a token at /api/api-token-auth/). Without them the server only exposes each team's
-leaderboard entry. Writes runs/reports/codabench_scores.json
-and prints rows in the format of EXPERIMENTS.md table A.
+(the last one is exchanged for a token at /api/api-token-auth/). Writes runs/reports/codabench_scores.json (our
+submissions only) and prints one row per submission.
 """
 from __future__ import annotations
 
@@ -20,8 +19,7 @@ import httpx
 ROOT = next(p for p in Path(__file__).resolve().parents if (p / "r2ai2026").is_dir())
 BASE = "https://leaderboard.aiguru.com.vn"
 COMPETITION_ID = 15
-OWNER = "ca_kho"  # our Codabench username; the leaderboard shows the team name instead
-TEAM = "Băng Cá Khô"
+OWNER = "ca_kho"  # our Codabench username
 COLS = ["FINAL_SCORE", "DOCS_F2MACRO", "CHUNKS_F2MACRO", "DOCS_PRECISION", "DOCS_RECALL", "CHUNKS_PRECISION",
         "CHUNKS_RECALL"]
 
@@ -65,22 +63,16 @@ def main() -> None:
         client.headers.update(headers)
         comp = client.get(f"{BASE}/api/competitions/{COMPETITION_ID}/").json()
         phase = args.phase or next(p["id"] for p in comp["phases"] if p.get("status") == "Current")
-        board = client.get(f"{BASE}/api/phases/{phase}/get_leaderboard/").json()["submissions"]
         subs = get_all(client, f"{BASE}/api/submissions/?phase={phase}")
-    ranked = sorted(board, key=lambda s: -scores(s)["FINAL_SCORE"])
-    rank = next((i for i, s in enumerate(ranked, 1) if s["owner"] in (OWNER, TEAM)), None)
     mine = sorted((s for s in subs if s["owner"] == OWNER), key=lambda s: s["created_when"])
-    top = f"{scores(ranked[0])['FINAL_SCORE']} ({ranked[0]['owner']})" if ranked else "-"
-    print(f"phase {phase}: {len(ranked)} teams; top {top}; "
-          f"ours rank {rank}; our submissions visible: {len(mine)} ({'token' if headers else 'public API only'})")
+    print(f"phase {phase}: our submissions visible: {len(mine)} ({'token' if headers else 'no credentials'})")
     for s in mine:
         d = scores(s)
         print(f"| {s['created_when'][8:10]}/{s['created_when'][5:7]} | {s['filename']} | {s['status']} #{s['id']} | | "
               f"{d.get('FINAL_SCORE')} | {d.get('DOCS_PRECISION')} / {d.get('DOCS_RECALL')} | "
               f"{d.get('CHUNKS_PRECISION')} / {d.get('CHUNKS_RECALL')} |")
     out = ROOT / "runs/reports/codabench_scores.json"
-    out.write_text(json.dumps({"phase": phase, "rank": rank, "teams": len(ranked),
-                               "leaderboard": [{"owner": s["owner"], **scores(s)} for s in ranked],
+    out.write_text(json.dumps({"phase": phase,
                                "ours": [{"id": s["id"], "file": s["filename"], "when": s["created_when"],
                                          "status": s["status"], **scores(s)} for s in mine]},
                               ensure_ascii=False, indent=1), encoding="utf-8")
