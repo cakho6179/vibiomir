@@ -1,0 +1,8 @@
+# GPU side (Kaggle kernels, NVIDIA T4/P100, the Kaggle Python image of Oct 2026, internet on).
+# The kernels installed nothing beyond the image except jieba + pyvi for the BM25 bundles, so these are the versions
+# to reproduce with; the stage code was also run locally with exactly these versions (CPU smoke tests).
+-r requirements.txt
+torch==2.6.0
+transformers==5.12.1          # Qwen3.5 (query frame, doc2query) needs transformers >= 5
+sentence-transformers==5.6.0  # BGE-M3 dense passages / queries
+huggingface-hub==1.10.1
