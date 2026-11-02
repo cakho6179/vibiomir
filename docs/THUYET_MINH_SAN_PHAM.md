@@ -48,15 +48,15 @@ flowchart TD
   V --> R1[Truy hồi tầng 1<br/>BM25 + dense, top 1.000–3.000 mỗi kênh]
   IX --> R1
   R1 --> P[Pool ứng viên, RRF k=60<br/>VI: dense:BM25-doc:BM25-section = 2:1:1 → 1.500<br/>ZH 500 · EN 500 → 2.500 / câu hỏi]
-  P --> RR3[bge-reranker-v2-m3<br/>điểm rr3, đoạn tốt nhất của mỗi tài liệu]
+  P --> RR3["bge-reranker-v2-m3<br/>điểm rr3, đoạn khớp từ khoá nhất của mỗi tài liệu"]
   P --> M3[BGE-M3 dense + sparse + ColBERT<br/>m3all, trên 1.200 ứng viên đầu]
   P --> RR4[bge-reranker-v2-m3 trên MỌI đoạn<br/>hồ sơ điểm theo đoạn]
-  RR3 --> PG[Mô hình p&#40;gold&#41;, 14 tham số<br/>hiệu chỉnh trên P/R tổng hợp public]
+  RR3 --> PG["Mô hình p(gold), 14 tham số<br/>hiệu chỉnh trên P/R tổng hợp public"]
   M3 --> PG
-  PG --> NQ[Độ sâu theo câu hỏi<br/>N_q = argmax E&#91;F2&#93;]
+  PG --> NQ["Độ sâu theo câu hỏi<br/>N_q = argmax E(F2)"]
   NQ --> DL[Danh sách docs: N_q tài liệu p cao nhất]
   NQ --> CL[Danh sách chunks: n_c tài liệu p cao nhất]
-  RR4 --> CH[Cửa sổ chunk ≤ 4.500 ký tự<br/>quanh đoạn reranker cao nhất<br/>chunk_stair, nguồn 'seed']
+  RR4 --> CH["Cửa sổ chunk ≤ 4.500 ký tự<br/>quanh đoạn reranker cao nhất<br/>chunk_stair, chế độ seed"]
   CL --> CH
   DL --> Z[submission.json → zip LZMA ≈ 93 MB]
   CH --> Z
@@ -122,7 +122,7 @@ Mọi chỉ mục được dựng **một lần** trên docstore v2.1 (Kaggle GP
 
 | Ký hiệu | Model | Phạm vi | Ý nghĩa |
 |---|---|---|---|
-| `rr3` | bge-reranker-v2-m3 | 2.500 ứng viên/câu hỏi | logit cross-encoder của (câu hỏi, đoạn tốt nhất của tài liệu) |
+| `rr3` | bge-reranker-v2-m3 | 2.500 ứng viên/câu hỏi | logit cross-encoder của (câu hỏi, 1 đoạn 1.500 ký tự của tài liệu trùng nhiều từ với câu hỏi nhất, so khớp bỏ dấu); `rerank.py --best-passages 1` |
 | `m3all` | BGE-M3 | 1.200 ứng viên đầu (VI 800, ZH 200, EN 200) | 0,4·dense + 0,2·sparse + 0,4·ColBERT, MaxP trên mọi đoạn |
 | `rr4` | bge-reranker-v2-m3 | mọi đoạn của 1.200 ứng viên đầu | hồ sơ điểm theo đoạn (4,94 triệu dòng), dùng để đặt cửa sổ chunk |
 
@@ -284,7 +284,15 @@ Mã nằm trong repo này (gói `vibiomir_code_<commit>.zip`, `git archive` củ
 | Thư viện | `requirements.txt` (CPU), `requirements-gpu.txt` (GPU) |
 | Kiểm thử | `tests/` (pytest) |
 
-Mỗi kernel Kaggle mang theo nguyên văn mã của stage nó chạy, gồm biến `SRC`, các module phụ, gói pip và danh sách tham số. Vì vậy thư mục kernel là bản ghi chính xác của lần chạy sản xuất, kể cả khi file trong `r2ai2026/stages/` đã sửa sau đó. `scripts/release/extract_bundle.py` xuất mã đó ra file để đọc hoặc chạy ngoài Kaggle.
+Mỗi kernel Kaggle mang theo nguyên văn mã của stage nó chạy, gồm biến `SRC`, các module phụ, gói pip và danh sách tham số. Vì vậy **thư mục kernel là bản ghi chính xác của lần chạy sản xuất**. `scripts/release/extract_bundle.py` xuất mã đó ra file để đọc hoặc chạy ngoài Kaggle.
+
+Đã so mã nhúng trong kernel với `r2ai2026/stages/` của commit nộp:
+- Giống hệt: `query_frame.py` (kernel khung truy vấn), `doc2query.py` (kernel `dqt-p*`), `m3_multi.py`, `dense_search.py`, `bm25_experiment.py` (kernel `qv3-bm25-*`).
+- Kernel `dq-g-*` chỉ thiếu đoạn chia nhiều GPU; prompt giống hệt.
+- Kernel `rr3-p*` có thêm tuỳ chọn `--best-passages`, không có trong `r2ai2026/stages/rerank.py` của commit.
+- Kernel `v21-m3-*` khác `dense_embed.py` ở cây làm việc.
+
+Khi tái lập các stage này, dùng mã trong kernel.
 
 ### 4.1 Kiểm chứng tái lập
 

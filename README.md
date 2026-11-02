@@ -112,7 +112,7 @@ Văn bản chunk là cửa sổ ≤ 4.500 ký tự trích nguyên văn từ docs
 3. Chạy: `kaggle kernels push -p kaggle/kernels_generic/vibiomir-mat-st3-acc2`.
 4. Output: `pN3_base.zip`, `N1_n125.zip`, `stats.json`.
 
-**Trên máy (cùng mã, xuất từ kernel):**
+**Trên máy (cùng mã, xuất từ kernel; đường này chưa được chạy thử, đường đã chạy là kernel ở trên):**
 
 ```bash
 python scripts/release/extract_bundle.py kaggle/kernels_generic/vibiomir-mat-st3-acc2 --out tools/mat
@@ -129,7 +129,7 @@ Lưu ý: `--input` phải là thư mục riêng như trên. Script lấy `lists.
 
 ## 6. Mức C — chạy lại các stage GPU
 
-Mỗi stage là một kernel trong `kaggle/kernels_generic/`. `run.py` của kernel chứa nguyên văn mã và tham số đã chạy (xem bằng `scripts/release/extract_bundle.py`).
+Mỗi stage là một kernel trong `kaggle/kernels_generic/`. `run.py` của kernel chứa nguyên văn mã và tham số đã chạy (xem bằng `scripts/release/extract_bundle.py`). Mã trong kernel là chuẩn. Ví dụ `rerank.py` trong kernel `rr3-p*` có tuỳ chọn `--best-passages` mà `r2ai2026/stages/rerank.py` không có.
 
 Cách chạy chung:
 1. Tạo dataset đầu vào (docstore, danh sách ứng viên…).

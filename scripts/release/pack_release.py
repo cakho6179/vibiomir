@@ -61,6 +61,10 @@ BIG = {
     "E_docstore": ["data/docstore/v2.1/corpus/*", "data/docstore/v2.1/*.parquet", "data/docstore/v2.1/*.json"],
     "F_index": ["data/docstore/v2.1/index/**/*"],
 }
+# Working-tree files that the docs cite but that are not committed (owned by the data-pipeline workstream); they are
+# added to the code zip as they are on disk and listed in MANIFEST as group "code_uncommitted".
+EXTRA = ["docs/DATA_CARD.md", "scripts/data/build_docstore_v2_1.py", "scripts/data/external_clean.py",
+         "scripts/data/merge_dense_shards.py", "scripts/data/select_hf_v2_1.py", "scripts/data/validate_docstore.py"]
 SUBMITTED = ["submissions/pN3_base_pqchunks.zip", "submissions/S1_dqd20.zip", "submissions/S2_dqb20.zip",
              "submissions/N1_n125.zip", "submissions/F2_dqd20b20g.zip"]
 
@@ -94,7 +98,11 @@ def main() -> None:
     code = OUT / f"vibiomir_code_{commit}.zip"
     if not args.skip_zip:
         subprocess.run(["git", "archive", "--format=zip", "-o", str(code), "HEAD"], cwd=ROOT, check=True)
+        with zipfile.ZipFile(code, "a", zipfile.ZIP_DEFLATED) as z:
+            for rel in EXTRA:
+                z.write(ROOT / rel, rel)
     rows.append(("code", code.name, code.stat().st_size, sha256(code)))
+    rows += [("code_uncommitted", rel, (ROOT / rel).stat().st_size, sha256(ROOT / rel)) for rel in EXTRA]
     for group, pats in SMALL.items():
         fs = files(pats)
         if not fs:
