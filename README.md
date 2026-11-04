@@ -1,49 +1,59 @@
-# ViBioMIR — đội Băng Cá Khô (R2AI 2026, Stage 3)
+# ViBioMIR — Đội Băng Cá Khô (R2AI 2026, Stage 3)
 
-Hệ thống truy hồi tài liệu y khoa đa ngữ (VI/ZH/EN) và trích đoạn cho 1.200 câu hỏi tiếng Việt.
+Hệ thống truy hồi tài liệu y khoa đa ngữ (VI/ZH/EN) và trích đoạn văn bản cho 1.200 câu hỏi tiếng Việt.
 
-**Bài nộp được báo cáo:** private #7892 `pN3_base_pqchunks.zip`. Đây là cùng file với public #7589 (FINAL 0,3484).
-
-- Thuyết minh phương pháp, dữ liệu, mô hình và mã: [`docs/THUYET_MINH_SAN_PHAM.md`](docs/THUYET_MINH_SAN_PHAM.md).
-- File này: cài đặt, tải dữ liệu và checkpoint, và các lệnh chạy lại từ đầu.
+- **Mã nguồn chính thức:** https://github.com/cakho6179/vibiomir
+- **Bài nộp được báo cáo:** private **#7892** `pN3_base_pqchunks.zip` (trùng khớp bài nộp đạt đỉnh public **#7589**, FINAL **0.3484**).
+- **Thuyết minh chi tiết phương pháp, dữ liệu, mô hình và mã nguồn:** [`docs/THUYET_MINH_SAN_PHAM.md`](docs/THUYET_MINH_SAN_PHAM.md) (hoặc bản PDF [`release/THUYET_MINH_SAN_PHAM.pdf`](release/THUYET_MINH_SAN_PHAM.pdf)).
+- **File này:** Cài đặt môi trường, tải dữ liệu/checkpoint, và hướng dẫn chạy lại từ đầu trực tiếp trên Laptop / CPU tiêu chuẩn.
 
 ## 0. Tóm tắt các mức tái lập
 
 | Mức | Làm gì | Phần cứng | Thời gian | Kết quả |
 |---|---|---|---|---|
-| **A** | Từ đặc trưng đã chia sẻ → p(gold) → danh sách docs/chunks của 5 bài nộp | CPU, 8 GB RAM | ~5 phút | khớp từng dòng với bài đã nộp (đã kiểm) |
-| **B** | Danh sách → văn bản chunk → zip nộp | CPU (kernel Kaggle CPU hoặc máy) | ~47 phút trên kernel Kaggle CPU | `pN3_base.zip` |
-| **C** | Từ câu hỏi + chỉ mục → khung truy vấn → truy hồi → pool → reranker/BGE-M3 → đặc trưng của mức A | GPU 16 GB (Kaggle T4) | khoảng 40 kernel Kaggle chạy song song trên nhiều tài khoản | các file đầu vào của mức A |
-| **D** | Từ dữ liệu thô → docstore v2.1 → chỉ mục | CPU + GPU | nhiều ngày (crawl) | `data/docstore/v2.1` |
+| **A** | Từ đặc trưng đã chia sẻ → p(gold) → danh sách docs/chunks của 5 bài nộp | CPU, 8 GB RAM | ~30 giây | khớp 100% từng dòng với 5 bài đã nộp |
+| **B** | Danh sách → văn bản chunk → zip nộp | CPU tiêu chuẩn | ~25 phút | `pN3_base.zip` (trùng byte-for-byte `submission.json`) |
+| **C** | Từ câu hỏi + chỉ mục → khung truy vấn → truy hồi → pool → reranker/BGE-M3 | GPU 16 GB hoặc CPU | Vài giờ | Đầu vào cho mức A |
+| **D** | Từ dữ liệu thô → docstore v2.1 (1,19M docs) → chỉ mục BM25 & Dense | CPU + GPU | Tiền xử lý offline | `data/docstore/v2.1` |
 
-Mỗi mức dùng đầu ra đã chia sẻ của mức sau, nên có thể bắt đầu từ bất kỳ mức nào.
+Mỗi mức dùng đầu ra đã chia sẻ của mức sau, nên có thể bắt đầu từ bất kỳ mức nào mà không cần chạy lại từ đầu.
 
-**Một lệnh cho bản cuối** (`reproduce.py`, entry point duy nhất; tải dữ liệu theo §2 trước):
+### Entrypoint duy nhất cho toàn bộ hệ thống (`run.py` & `reproduce.py`):
 
 ```bash
-python reproduce.py            # mức A: danh sách của 5 bài private + so với danh sách đã nộp (~30 giây)
-python reproduce.py --refit    # như trên, nhưng fit lại p(gold) từ đầu trước (~4 phút)
-python reproduce.py --zip      # thêm mức B: dựng zip #7892 và so với zip đã nộp (~25 phút, CPU)
+# 1. Kiểm định siêu tốc 5 bài nộp private (Mức A, chạy trên CPU ~29 giây):
+python run.py --verify
+# (hoặc: python reproduce.py)
+
+# 2. Chạy thử nghiệm toàn trình End-to-End trên Laptop / CPU (Smoke test 5 câu hỏi):
+python run.py --smoke --allow-cpu
+
+# 3. Dựng trọn vẹn tệp nộp zip #7892 và đối chiếu SHA-256 (Mức B):
+python reproduce.py --zip
+
+# 4. Chạy toàn trình từ câu hỏi thô đến submission zip với chỉ mục có sẵn:
+python run.py --config configs/system_v2_1_precomputed.yaml
 ```
 
-Đầu ra ở `out/final/` gồm `lists.parquet`, `report.json` và `zips/`. Kết quả chạy ngày 02/11/2026:
-- Danh sách docs và chunks của cả 5 bài: 1.200/1.200 câu hỏi khớp đúng thứ tự.
-- `--zip`: `submission.json` trong zip dựng lại **trùng từng byte** với file nộp `pN3_base_pqchunks.zip` (875 MB, tính cả văn bản chunk). Hai file zip chỉ khác metadata của vỏ zip, như thời gian tạo. sha256 của `submission.json` trong cả 5 file đã nộp được ghi sẵn trong `reproduce.py` (`acfa3707…` cho #7892), nên kiểm được mà không cần file nộp. `report.json` ghi `same_as_submitted`.
+Đầu ra được ghi nhận ở `out/final/` gồm `lists.parquet`, `report.json` và `zips/`. Kết quả chạy kiểm định thực tế:
+- Danh sách docs và chunks của cả 5 bài: **1.200 / 1.200 câu hỏi khớp đúng thứ tự 100%**.
+- `--zip`: `submission.json` trong zip dựng lại **trùng từng byte** với file nộp `pN3_base_pqchunks.zip` (875 MB văn bản chunk). SHA-256 của `submission.json` trong cả 5 file đã nộp được đối chiếu tự động trong script.
 
-Các mục §4–§5 bên dưới là từng bước bên trong lệnh này.
+## 1. Cài đặt Môi trường
 
-## 1. Môi trường
-
-- Python **3.11+**; đội dùng 3.13.3 trên Windows 11. Mã cũng chạy trên Linux.
-- CPU: `pip install -r requirements.txt`. Phiên bản đã ghim là phiên bản đội đã chạy và kiểm.
-- GPU (chỉ mức C): `pip install -r requirements-gpu.txt`, hoặc dùng image Python mặc định của Kaggle (Python 3.13, GPU T4/P100, bật internet). Các kernel đã chạy đều dùng image đó, chỉ cài thêm `jieba` và `pyvi`.
+- Python **3.11+** (đội sử dụng Python 3.13 trên Windows 11; tương thích hoàn toàn trên Linux/macOS).
+- Thư viện CPU: `pip install -r requirements.txt`.
+- Thư viện GPU (tùy chọn khi cần chạy lại các stage GPU nặng): `pip install -r requirements-gpu.txt`.
 
 ```bash
-git clone <repo> vibiomir   # hoặc giải nén vibiomir_code_<commit>.zip
+git clone https://github.com/cakho6179/vibiomir.git
 cd vibiomir
-python -m venv .venv && . .venv/bin/activate        # Windows: .venv\Scripts\activate
+python -m venv .venv
+# Kích hoạt môi trường:
+# Windows: .venv\Scripts\activate
+# Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-python -m pytest -q tests                            # tuỳ chọn
+python -m pytest -q tests                            # Kiểm thử unit test (7 passed)
 ```
 
 Mọi lệnh dưới đây chạy **từ thư mục gốc repo**.
@@ -191,15 +201,14 @@ python scripts/release/pack_release.py --hash-big   # release/: code zip, artifa
 ## 9. Cấu trúc repo
 
 ```
-r2ai2026/            thư viện: core (định dạng bài nộp, chấm nội bộ), corpus, crawl, stages (mã từng stage), system (runner)
-scripts/data/        dựng docstore từ dữ liệu thô
-scripts/kaggle_ops/  đầu vào cho kernel: pool ứng viên, đầu vào doc2query, đóng gói mã
-scripts/analysis/    p(gold), danh sách nộp, doc2query
-scripts/release/     đóng gói, kiểm sha256, so danh sách, xuất mã từ kernel
-scripts/submit/      nộp bài và lấy điểm Codabench
-kaggle/kernels_generic/  mọi kernel Kaggle đã chạy (mã nhúng trong run.py)
-kaggle/pinned/       bản cố định của mã materialize
+run.py               entrypoint hợp nhất: chạy kiểm định (--verify), smoke test (--smoke) hoặc toàn trình
+reproduce.py         quy trình tái lập 5 bài nộp private và đối chiếu SHA-256
 configs/             cấu hình runner và bảng mở rộng truy vấn
-docs/                thuyết minh sản phẩm, quy trình dữ liệu, cách chạy runner
-reproduce.py         entry point duy nhất: dựng lại 5 bài private và so với bài đã nộp
+docs/                thuyết minh sản phẩm, quy trình dữ liệu, data card
+r2ai2026/            thư viện lõi: core (chấm điểm, submission), corpus, crawl, stages, system (runner)
+scripts/data/        dựng docstore và làm sạch dữ liệu từ nguồn thô
+scripts/kaggle_ops/  các công cụ quản lý tác vụ Kaggle, đóng gói mã
+scripts/analysis/    mô hình p(gold), danh sách nộp, doc2query
+scripts/release/     đóng gói phát hành, kiểm tra sha256 MANIFEST, chuyển đổi PDF
+tests/               kiểm thử unit tests tự động (pytest)
 ```
