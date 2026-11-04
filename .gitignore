@@ -14,6 +14,10 @@ kaggle/rankings_ds/
 kaggle/recrawl_missing*/
 kaggle/recrawl/dataset/
 kaggle/recrawl/by_account/*/dataset/
+kaggle/datasets/
+kaggle/chunk_v21_assets/
+kaggle/kaggle_jobs.json
+kaggle_jobs.json
 
 # Large or binary artifacts anywhere
 *.parquet
@@ -22,17 +26,24 @@ kaggle/recrawl/by_account/*/dataset/
 *.gz
 *.zip
 *.npy
+*.npz
 *.pack
 *.sqlite
 *.faiss
 *.pkl
 *.bin
 *.safetensors
+*.pt
+*.pdf
+*.log
+*.err
+missing_index.txt
 
-# Secrets (never commit)
+# Secrets and metadata (never commit)
 kaggle.json
 .env
 *.key
+dataset-metadata.json
 
 # Python / tools
 __pycache__/
@@ -48,3 +59,4 @@ kaggle/cc_recover/data/
 /release/
 # Outputs of reproduce.py
 /out/
+
