@@ -54,6 +54,11 @@ __pycache__/
 # Dataset staging folders for Kaggle uploads
 kaggle/*_ds/
 kaggle/cc_recover/data/
+kaggle/kernels_generic/*
+!kaggle/kernels_generic/vibiomir-mat-st10-acc2/
+!kaggle/kernels_generic/vibiomir-mat-st11-acc2/
+!kaggle/kernels_generic/vibiomir-mat-st12-acc2/
+!kaggle/kernels_generic/vibiomir-mat-st3-acc2/
 
 # Release packages for BTC (scripts/release/pack_release.py)
 /release/
