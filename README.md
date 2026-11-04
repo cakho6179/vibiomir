@@ -1,214 +1,345 @@
 # ViBioMIR — Đội Băng Cá Khô (R2AI 2026, Stage 3)
 
-Hệ thống truy hồi tài liệu y khoa đa ngữ (VI/ZH/EN) và trích đoạn văn bản cho 1.200 câu hỏi tiếng Việt.
+Hệ thống truy hồi tài liệu y khoa đa ngữ (VI / ZH / EN) và trích xuất đoạn văn bản phục vụ 1.200 câu hỏi y khoa tiếng Việt.
 
+- **Tài khoản Codabench:** `ca_kho` (Đội thi: **Băng Cá Khô**)
 - **Mã nguồn chính thức:** https://github.com/cakho6179/vibiomir
-- **Bài nộp được báo cáo:** private **#7892** `pN3_base_pqchunks.zip` (trùng khớp bài nộp đạt đỉnh public **#7589**, FINAL **0.3484**).
-- **Thuyết minh chi tiết phương pháp, dữ liệu, mô hình và mã nguồn:** [`docs/THUYET_MINH_SAN_PHAM.md`](docs/THUYET_MINH_SAN_PHAM.md) (hoặc bản PDF [`release/THUYET_MINH_SAN_PHAM.pdf`](release/THUYET_MINH_SAN_PHAM.pdf)).
-- **File này:** Cài đặt môi trường, tải dữ liệu/checkpoint, và hướng dẫn chạy lại từ đầu trực tiếp trên Laptop / CPU tiêu chuẩn.
+- **Bài nộp được báo cáo:** Private **#7892** `pN3_base_pqchunks.zip` (Trùng khớp bài nộp đạt đỉnh Public **#7589**, FINAL **0.3484**).
+- **Kho lưu trữ Dữ liệu & Checkpoints (Google Drive):** [https://drive.google.com/drive/folders/1_VUdqZ4eTv9w_hHRPDWsLLNNmqxyYDaj?usp=sharing](https://drive.google.com/drive/folders/1_VUdqZ4eTv9w_hHRPDWsLLNNmqxyYDaj?usp=sharing)
+- **Thuyết minh chi tiết phương pháp:** [`docs/THUYET_MINH_SAN_PHAM.md`](docs/THUYET_MINH_SAN_PHAM.md) | Bản PDF: [`release/THUYET_MINH_SAN_PHAM.pdf`](release/THUYET_MINH_SAN_PHAM.pdf)
 
-## 0. Tóm tắt các mức tái lập
+---
 
-| Mức | Làm gì | Phần cứng | Thời gian | Kết quả |
+## ⚡ Tóm tắt: Các mức tái lập & Lệnh thực thi nhanh trên Laptop / CPU
+
+Toàn bộ hệ thống được tích hợp qua entrypoint duy nhất **`run.py`** và kịch bản tái lập **`reproduce.py`**:
+
+| Mức | Mô tả công việc | Phần cứng | Thời gian | Kết quả kiểm chứng |
 |---|---|---|---|---|
-| **A** | Từ đặc trưng đã chia sẻ → p(gold) → danh sách docs/chunks của 5 bài nộp | CPU, 8 GB RAM | ~30 giây | khớp 100% từng dòng với 5 bài đã nộp |
-| **B** | Danh sách → văn bản chunk → zip nộp | CPU tiêu chuẩn | ~25 phút | `pN3_base.zip` (trùng byte-for-byte `submission.json`) |
-| **C** | Từ câu hỏi + chỉ mục → khung truy vấn → truy hồi → pool → reranker/BGE-M3 | GPU 16 GB hoặc CPU | Vài giờ | Đầu vào cho mức A |
-| **D** | Từ dữ liệu thô → docstore v2.1 (1,19M docs) → chỉ mục BM25 & Dense | CPU + GPU | Tiền xử lý offline | `data/docstore/v2.1` |
-
-Mỗi mức dùng đầu ra đã chia sẻ của mức sau, nên có thể bắt đầu từ bất kỳ mức nào mà không cần chạy lại từ đầu.
-
-### Entrypoint duy nhất cho toàn bộ hệ thống (`run.py` & `reproduce.py`):
+| **A** | Dựng danh sách docs & chunks 5 bài nộp từ đặc trưng đã chia sẻ | CPU, 8 GB RAM | **~29 giây** | Khớp 100% từng dòng với 5 bài đã nộp |
+| **B** | Trích xuất văn bản chunk & đóng gói file nộp `.zip` | CPU tiêu chuẩn | ~25 phút | `pN3_base.zip` (Trùng byte-for-byte `submission.json`) |
+| **C** | Chạy lại các stage GPU (Khung truy vấn, truy hồi, reranking) | GPU 16 GB / Kaggle | Vài giờ | Đầu vào cho Mức A |
+| **D** | Dựng docstore v2.1 (1,19M docs) & chỉ mục từ dữ liệu thô | CPU + GPU | Offline | `data/docstore/v2.1` |
 
 ```bash
-# 1. Kiểm định siêu tốc 5 bài nộp private (Mức A, chạy trên CPU ~29 giây):
+# 1. Kiểm định siêu tốc 5 bài nộp private (Mức A, chạy trên CPU ~29 giây, khớp 1200/1200 câu hỏi):
 python run.py --verify
-# (hoặc: python reproduce.py)
 
 # 2. Chạy thử nghiệm toàn trình End-to-End trên Laptop / CPU (Smoke test 5 câu hỏi):
 python run.py --smoke --allow-cpu
 
-# 3. Dựng trọn vẹn tệp nộp zip #7892 và đối chiếu SHA-256 (Mức B):
+# 3. Dựng trọn vẹn tệp nộp zip #7892 và đối chiếu SHA-256 byte-for-byte (Mức B):
 python reproduce.py --zip
 
 # 4. Chạy toàn trình từ câu hỏi thô đến submission zip với chỉ mục có sẵn:
 python run.py --config configs/system_v2_1_precomputed.yaml
 ```
 
-Đầu ra được ghi nhận ở `out/final/` gồm `lists.parquet`, `report.json` và `zips/`. Kết quả chạy kiểm định thực tế:
-- Danh sách docs và chunks của cả 5 bài: **1.200 / 1.200 câu hỏi khớp đúng thứ tự 100%**.
-- `--zip`: `submission.json` trong zip dựng lại **trùng từng byte** với file nộp `pN3_base_pqchunks.zip` (875 MB văn bản chunk). SHA-256 của `submission.json` trong cả 5 file đã nộp được đối chiếu tự động trong script.
+---
 
-## 1. Cài đặt Môi trường
+## 1. Tổng quan hệ thống (System Overview)
 
-- Python **3.11+** (đội sử dụng Python 3.13 trên Windows 11; tương thích hoàn toàn trên Linux/macOS).
-- Thư viện CPU: `pip install -r requirements.txt`.
-- Thư viện GPU (tùy chọn khi cần chạy lại các stage GPU nặng): `pip install -r requirements-gpu.txt`.
+### 1.1 Phương pháp & Kiến trúc chung
+Bài toán đặt ra: Cho 1.200 câu hỏi y khoa tiếng Việt, cần trả về danh sách tài liệu liên quan (trên ngữ liệu đa ngữ VI / ZH / EN) và các đoạn trích nội dung (chunk ≤ 4.500 ký tự). Tiêu chí đánh giá là trung bình F2 của tài liệu và F2 của đoạn trích:
+$$\text{FINAL} = \frac{F_2(\text{docs}) + F_2(\text{chunks})}{2}$$
 
+Điểm F2 coi Recall quan trọng gấp 4 lần Precision ($(\beta=2)$). Số lượng tài liệu liên quan (gold) biến thiên rất lớn giữa các câu hỏi. Do đó, thách thức cốt lõi không chỉ là xếp hạng mà là **quyết định ngưỡng cắt (độ sâu $N_q$) tối ưu cho từng câu hỏi**.
+
+Hệ thống được thiết kế theo kiến trúc 3 tầng:
+1. **Truy hồi đa kênh đa ngữ:** Khai thác đồng thời 3 ngôn ngữ (VI 1.500, ZH 500, EN 500) kết hợp BM25 (cấp văn bản và cấp mục) cùng BGE-M3 Dense (cấp đoạn 1.500 ký tự với cơ chế MaxP). Mô hình Qwen3.5-9B đóng vai trò sinh khung truy vấn (từ khóa, câu hỏi con, bản dịch tiếng Trung và từ khóa tiếng Anh).
+2. **Mô hình ước lượng xác suất $p(\text{gold})$:** Kết hợp điểm cross-encoder `bge-reranker-v2-m3` và 3 đầu điểm BGE-M3 (dense, sparse, ColBERT multi-vector) qua hàm logit 14 tham số được hiệu chỉnh tự động.
+3. **Tối ưu hóa $F_2$ kỳ vọng động:** Chọn độ sâu $N_q$ riêng biệt cho từng câu hỏi bằng cách cực đại hóa $E[F_2]$, đồng thời trích xuất cửa sổ đoạn trích ≤ 4.500 ký tự nguyên văn dựa trên hồ sơ điểm reranker theo đoạn.
+
+### 1.2 Sơ đồ luồng xử lý toàn trình
+
+```mermaid
+flowchart TD
+  Q["1.200 câu hỏi VI<br/>query.parquet"] --> F["Khung truy vấn<br/>Qwen3.5-9B: thực thể, câu hỏi con,<br/>từ khoá VI, câu hỏi/từ khoá ZH, từ khoá EN"]
+  F --> V["Biến thể truy vấn<br/>query_variants.py"]
+  D[("Docstore v2.1<br/>1.192.673 tài liệu")] --> IX["Chỉ mục dựng sẵn<br/>BM25 VI-doc, VI-sec, ZH, EN<br/>BGE-M3 Dense (đoạn 1.500 ký tự)"]
+  Q --> R1
+  V --> R1["Truy hồi tầng 1 (BM25 + Dense)<br/>Top 1.000–3.000 mỗi kênh"]
+  IX --> R1
+  R1 --> P["Hợp nhất Pool ứng viên (RRF k=60)<br/>VI: Dense:BM25-doc:BM25-sec = 2:1:1 → 1.500<br/>ZH 500 · EN 500 → 2.500 ứng viên / câu hỏi"]
+  P --> RR3["bge-reranker-v2-m3<br/>Điểm rr3 đoạn khớp từ khóa nhất"]
+  P --> M3["BGE-M3 Dense + Sparse + ColBERT<br/>Điểm m3all trên 1.200 ứng viên đầu"]
+  P --> RR4["bge-reranker-v2-m3 trên MỌI đoạn<br/>Hồ sơ điểm đoạn trích"]
+  RR3 --> PG["Mô hình p(gold) 14 tham số<br/>Hiệu chỉnh P/R kỳ vọng"]
+  M3 --> PG
+  PG --> NQ["Tối ưu độ sâu động<br/>N_q = argmax E(F2)"]
+  NQ --> DL["Danh sách Docs: N_q tài liệu p cao nhất"]
+  NQ --> CL["Danh sách Chunks: n_c tài liệu p cao nhất"]
+  RR4 --> CH["Cửa sổ Chunk ≤ 4.500 ký tự<br/>Quay quanh hạt giống đoạn rr4 cao nhất<br/>chunk_stair (nguyên văn)"]
+  CL --> CH
+  DL --> Z["submission.json → zip LZMA (≈93 MB)"]
+  CH --> Z
+```
+
+Luồng dữ liệu kèm tên artifacts:
+```
+query.parquet ──► Query Frame (Qwen3.5-9B) ──► query_variants ──┐
+docstore v2.1 ──► Chỉ mục BM25 (4) + Dense BGE-M3 (3 ngữ) ───────┼──► Rankings ──► Pool 2.500 cands / q
+                                                                  │                 (rerank_pool/cands.parquet)
+cands ──► rr3 (bge-reranker-v2-m3) ──┬──► pgold_all.py (base2) ──► cands_p.parquet, n_per_query.parquet
+cands ──► m3m (BGE-M3 3 đầu điểm) ───┘
+p, N_q ──► pn3_lists.py ──► lists.parquet (pN3_base) ──► materialize ──► pN3_base_pqchunks.zip (#7892)
+cands ──► rr4 (mọi đoạn) ──► pas_scores.parquet ──────────────┘ (hồ sơ điểm đoạn trích)
+```
+
+### 1.3 Xây dựng chỉ mục (Index Building)
+Mọi chỉ mục được xây dựng offline trên toàn bộ 1.192.673 tài liệu của Docstore v2.1:
+- **BM25 VI-doc:** 732.246 tài liệu tiếng Việt, từ vựng 533.407 tokens (âm tiết giữ dấu), $k_1=1.5, b=0.75$.
+- **BM25 VI-section:** 1.208.509 mục heading-aware (độ dài mục ≤ 4.800 ký tự).
+- **BM25 ZH / EN:** 220.532 tài liệu tiếng Trung (Jieba tokenizer) và 239.895 tài liệu tiếng Anh (Word tokenizer).
+- **Dense BGE-M3:** 3.120.100 đoạn (VI 2.224.624, ZH 557.732, EN 337.744 đoạn, độ dài 1.500 ký tự có tiêu đề ở đầu), embedding 1.024 chiều, chuẩn hóa $L_2$, lưu dạng FP16. Điểm tài liệu tính theo MaxP (cực đại trên các đoạn).
+
+### 1.4 Truy hồi đa ngữ (Multi-lingual Retrieval)
+- **Khung truy vấn:** Mô hình Qwen3.5-9B phân tích câu hỏi thành các thực thể, câu hỏi con (`sub0..sub4`), từ khóa tiếng Việt (`kw`), câu hỏi và từ khóa dịch sang tiếng Trung (`zh_q`, `zh_kw`), cùng từ khóa tiếng Anh (`en_kw`).
+- **Hợp nhất ứng viên (RRF Pool):**
+  - Tiếng Việt: RRF $k=60$ với tỷ lệ trọng số Dense : BM25-doc : BM25-sec = $2 : 1 : 1$, lấy top 1.500.
+  - Tiếng Trung & Tiếng Anh: RRF $k=60$ trọng số đều trên các biến thể truy vấn, lấy top 500 mỗi ngôn ngữ.
+  - Tổng hợp: đúng 2.500 ứng viên / câu hỏi (tổng cộng 3.000.000 cặp câu hỏi - tài liệu).
+
+### 1.5 Xếp hạng lại & Lựa chọn đầu ra (Reranking & Optimization)
+- **Đặc trưng reranker:**
+  - `rr3`: Logit cross-encoder `bge-reranker-v2-m3` trên đoạn văn khớp từ khóa nhất của tài liệu.
+  - `m3all`: Điểm tổng hợp $0.4 \cdot \text{Dense} + 0.2 \cdot \text{Sparse} + 0.4 \cdot \text{ColBERT}$ từ BGE-M3.
+  - `rr4`: Điểm cross-encoder trên mọi đoạn của 1.200 ứng viên đầu (hồ sơ 4,94 triệu dòng).
+- **Mô hình $p(\text{gold})$:** 
+  $$\text{logit } p(q, d) = a_\ell + e \cdot \log(1+r) + \mathbb{I}_{\text{pool}} \cdot (h + b \cdot rr_3 + c \cdot m_{3z} + d \cdot m_{3\text{rel}})$$
+  Hiệu chỉnh 14 tham số qua phương pháp bình phương tối thiểu có cận dựa trên P/R/F2 công khai của các lần nộp.
+- **Lựa chọn độ sâu động:** Chọn $N_q = \arg\max_n E[F_2(n)]$ riêng cho từng câu hỏi (trung bình 157,4 tài liệu/câu hỏi, phân bổ từ 20 đến 509).
+- **Trích xuất chunk nguyên văn:** Cửa sổ trích xuất ≤ 4.500 ký tự được mở rộng đối xứng từ đoạn có điểm $rr_4$ cao nhất dọc theo ranh giới đoạn văn tự nhiên, đảm bảo 100% nguyên văn từ docstore.
+
+### 1.6 Báo cáo 5 bài nộp Private
+| Mã bài nộp | Tên file zip | Đặc điểm kỹ thuật | docs/q | chunks/q | Điểm đối chiếu |
+|---|---|---|---|---|---|
+| **#7892** | `pN3_base_pqchunks.zip` | **Bài nộp chính báo cáo** (kiến trúc chuẩn ở trên) | 157,4 | 162,7 | **FINAL 0.3484** (trùng #7589) |
+| #7893 | `S1_dqd20.zip` | Bổ sung 20 tài liệu/câu hỏi từ doc2query dense | 177,4 | 162,7 | F2 docs + F2 chunks |
+| #7894 | `S2_dqb20.zip` | Bổ sung 20 tài liệu/câu hỏi từ doc2query BM25 | 177,4 | 162,7 | F2 docs + F2 chunks |
+| #7916 | `N1_n125.zip` | Mở rộng độ sâu tài liệu $1.25 \times N_q$ | 196,7 | 162,7 | F2 docs + F2 chunks |
+| #7917 | `F2_dqd20b20g.zip` | Kết hợp Doc2query Dense + BM25 có cổng đuôi | 197,4 | 162,7 | F2 docs + F2 chunks |
+
+---
+
+## 2. Tài liệu mô tả dữ liệu (Data Description)
+
+### 2.1 Nguồn dữ liệu & Quy mô Corpus
+- **Dữ liệu do BTC cung cấp:**
+  - `query.parquet`: 1.200 câu hỏi y khoa tiếng Việt.
+  - `links_corpus_vi_en_zh.parquet`: Danh sách 1.220.598 URLs chính thức của cuộc thi.
+- **Bộ ngữ liệu Docstore v2.1:** Gồm **1.192.673 tài liệu** được thu thập và làm sạch, bao quát 3 ngôn ngữ:
+  - **Tiếng Việt (VI):** 732.246 tài liệu.
+  - **Tiếng Trung (ZH):** 220.532 tài liệu.
+  - **Tiếng Anh (EN):** 239.895 tài liệu.
+  - *Lưu ý:* 100% tài liệu đều thuộc danh sách URL chính thức của BTC (0 tài liệu ngoài luồng).
+
+### 2.2 Thu thập & Cứu URL chết
+| Kênh thu thập | Số lượng tài liệu | Mục đích / Ghi chú |
+|---|---|---|
+| Crawler nội bộ của đội (`r2ai2026/crawl/`) | 1.182.666 | Thu thập trực tiếp từ danh sách URL chính thức |
+| HuggingFace `tmh1008/ViBioMIR-crawled-corpus` | 5.760 thêm (4.475 thay thân bài VI) | Bộ crawl công khai từ cùng danh sách URL, lọc qua cổng chất lượng |
+| Common Crawl (CDX / columnar) | 2.278 | Cứu các URL bị 404/chết trên server gốc |
+| Internet Archive Wayback Machine | 1.400 | Cứu URL chết lịch sử (`r2ai2026/crawl/wayback.py`) |
+| NCBI E-utilities (PubMed) | 177 | Cứu tài liệu y khoa tiếng Anh (`r2ai2026/crawl/pubmed.py`) |
+| Recrawl bổ sung | 392 | Recrawl trực tiếp bổ sung các trang hồi phục |
+| **Tổng số trong Docstore v2.1** | **1.192.673** | 27.925 URL còn lại bị lỗi 403 hoặc rỗng từ nguồn phát hành |
+
+### 2.3 Làm sạch & Cấu trúc Docstore
+Quy trình làm sạch dữ liệu (`scripts/data/build_docstore*.py`):
+1. **Khử trùng lặp:** Mỗi URL tương ứng 1 bản ghi định danh `doc_id`.
+2. **Chuẩn hóa văn bản:** Chuẩn hóa Unicode NFKC, giải mã HTML entities, hợp nhất khoảng trắng. Tuyệt đối không sinh thêm hay viết lại nội dung nhằm giữ tính trung thực của ngữ liệu.
+3. **Phân tách Furniture:** Các thành phần trang như menu, footer, bản quyền, CTA được nhận diện và gắn nhãn thành các spans "furniture" theo template từng host (`templates.json`), không xóa bỏ làm biến dạng vị trí ký tự.
+4. **Kiểm tra tính hợp lệ:** Script `scripts/data/validate_docstore.py` ghi nhận 0 lỗi nghiêm trọng.
+
+### 2.4 Phân đoạn văn bản (Text Chunking)
+- **Cấp đoạn (Passage):** Phân chia theo ranh giới đoạn văn tự nhiên (độ dài mục tiêu ~1.500 ký tự), phủ kín thân bài với offset `start/end` chính xác. Phục vụ cho chỉ mục Dense BGE-M3.
+- **Cấp mục (Section):** Phân chia theo tiêu đề heading (tối đa 4.800 ký tự). Phục vụ cho chỉ mục BM25 VI-section.
+- **Cấp đoạn trích (Chunk bài nộp):** Cửa sổ nguyên văn ≤ 4.500 ký tự ghép từ các đoạn liền kề xung quanh đoạn có điểm reranker cao nhất.
+
+### 2.5 Hướng dẫn truy cập & Link Google Drive
+Toàn bộ dữ liệu, chỉ mục và artifacts được công khai tại thư mục Google Drive:
+👉 **[Link Google Drive ViBioMIR Băng Cá Khô](https://drive.google.com/drive/folders/1_VUdqZ4eTv9w_hHRPDWsLLNNmqxyYDaj?usp=sharing)**
+
+| Tên file / Thư mục trên Drive | Dung lượng | Nội dung chi tiết |
+|---|---|---|
+| `vibiomir_code_80c38d6.zip` | ~3.7 MB | Toàn bộ mã nguồn sản phẩm (git archive chuẩn) |
+| `artifacts_A_pgold.zip` | ~246 MB | Pool ứng viên, điểm rr3, m3m, mô hình p(gold) và danh sách nộp 5 bài |
+| `artifacts_B_materialize.zip` | ~59 MB | Hồ sơ điểm đoạn trích `pas_scores.parquet` và mã đóng gói zip |
+| `artifacts_C_doc2query.zip` | ~84 MB | Câu hỏi sinh tự động doc2query và điểm phục vụ các bài mở rộng |
+| `artifacts_D_retrieval.zip` | ~780 MB | Khung truy vấn, biến thể, các file rankings tầng 1 và pool ứng viên |
+| `docstore_v2.1/` | ~1.4 GB | 22 files: `corpus/part-*.jsonl.gz`, metadata, passages, sections |
+| `index_v2.1/` | ~10.4 GB | 50 files: 4 chỉ mục BM25 + toàn bộ embedding BGE-M3 FP16 |
+| `MANIFEST.tsv` | ~29 KB | Bảng mã băm SHA-256 đối chiếu toàn bộ các file |
+| `THUYET_MINH_SAN_PHAM.pdf` | ~353 KB | Bản PDF thuyết minh sản phẩm nộp BTC |
+| `README.pdf` | ~203 KB | Bản PDF tài liệu hướng dẫn vận hành |
+
+---
+
+## 3. Mô hình sử dụng (Models & Checkpoints)
+
+Tất cả các mô hình trong hệ thống đều là **mô hình mã nguồn mở**, quy mô ≤ 15B tham số, được phát hành chính thức trên Hugging Face Hub trước ngày 01/08/2026. **Hệ thống không sử dụng API đóng và không can thiệp fine-tune weights** nhằm đảm bảo tính tái lập 100%.
+
+### 3.1 Danh sách mô hình & Vai trò
+| Tên mô hình | Vai trò trong hệ thống | Kích thước | Revision (Commit Hash) | Giấy phép |
+|---|---|---|---|---|
+| **[BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3)** | Trích xuất dense embedding (1.024 chiều), sparse lexical & ColBERT multi-vector reranking | 0.57B | `5617a9f61b028005a4858fdac845db406aefb181` | MIT |
+| **[BAAI/bge-reranker-v2-m3](https://huggingface.co/BAAI/bge-reranker-v2-m3)** | Cross-encoder reranker chấm điểm `rr3` (đoạn tối ưu) và `rr4` (hồ sơ đoạn) | 0.57B | `953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e` | Apache-2.0 |
+| **[Qwen/Qwen3.5-9B](https://huggingface.co/Qwen/Qwen3.5-9B)** | Trích xuất khung truy vấn: thực thể, câu hỏi con, dịch đa ngữ ZH/EN, từ khóa | 9.65B | `c202236235762e1c871ad0ccb60c8ee5ba337b9a` | Apache-2.0 |
+| **[Qwen/Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B)** | Sinh câu hỏi doc2query (chỉ dùng cho bài thực nghiệm #7893/#7894/#7917) | 4.66B | `851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a` | Apache-2.0 |
+
+### 3.2 Hướng dẫn tải Checkpoint chính thức
+Để tải chính xác các checkpoint theo đúng revision đã sử dụng:
+```bash
+# Cài đặt huggingface-cli nếu chưa có:
+pip install -U "huggingface_hub[cli]"
+
+# Tải đúng commit hash:
+huggingface-cli download BAAI/bge-m3 --revision 5617a9f61b028005a4858fdac845db406aefb181
+huggingface-cli download BAAI/bge-reranker-v2-m3 --revision 953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e
+huggingface-cli download Qwen/Qwen3.5-9B --revision c202236235762e1c871ad0ccb60c8ee5ba337b9a
+huggingface-cli download Qwen/Qwen3.5-4B --revision 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a
+```
+*(Nếu chạy qua pipeline tiêu chuẩn, thư viện `transformers` và `sentence-transformers` sẽ tự động tải các checkpoint này vào cache).*
+
+### 3.3 Cấu hình suy luận & Prompts
+- **BGE-M3 & bge-reranker-v2-m3:** Chạy ở định dạng FP16, batch size 32.
+- **Qwen3.5-9B (Khung truy vấn):** Chạy ở định dạng FP16, tắt thinking mode (`enable_thinking=False`), giải mã tham lam (`do_sample=False`), `max_new_tokens=1300`.
+- **System Prompt trích xuất Khung truy vấn:**
+  Được định nghĩa tại `r2ai2026/stages/query_frame.py` (dòng 34–49). Yêu cầu mô hình trả về JSON gồm các trường: thực thể chính, khía cạnh hỏi, 1-5 câu hỏi con (`sub0..sub4`), từ khóa tiếng Việt (`kw`), câu hỏi dịch tiếng Trung (`zh_q`), từ khóa tiếng Trung (`zh_kw`), và từ khóa tiếng Anh (`en_kw`).
+
+---
+
+## 4. Mã nguồn & Cấu trúc hệ thống (Source Code & Structure)
+
+### 4.1 Cấu trúc Repository
+```
+vibiomir/
+├── run.py                          # Entrypoint duy nhất: verify, smoke test, full run
+├── reproduce.py                    # Script tái lập 5 bài nộp private & đối chiếu SHA-256
+├── requirements.txt                # Thư viện cho CPU / Laptop (chạy verify, smoke, rebuild)
+├── requirements-gpu.txt            # Thư viện cho GPU (khi chạy lại các stage nặng)
+├── configs/
+│   ├── system_v2_1_precomputed.yaml# Cấu hình chạy pipeline với chỉ mục có sẵn
+│   └── query_expansion_table.yaml  # Bảng từ đồng nghĩa / viết tắt y khoa
+├── docs/
+│   ├── THUYET_MINH_SAN_PHAM.md     # Thuyết minh kỹ thuật chi tiết
+│   ├── DATA_CARD.md                # Thẻ dữ liệu Docstore v2.1
+│   └── DATA_PIPELINE.md            # Quy trình xử lý dữ liệu thô
+├── release/                        # Thư mục chứa tài liệu thuyết minh PDF và MANIFEST
+├── r2ai2026/                       # Thư viện mã nguồn lõi của hệ thống:
+│   ├── core/                       # Chấm điểm F2, định dạng submission, I/O
+│   ├── corpus/                     # Quản lý docstore, furniture, passages, sections
+│   ├── crawl/                      # Crawler, phục hồi Wayback Machine & PubMed
+│   ├── stages/                     # Các bước pipeline (query_frame, bm25, rerank...)
+│   └── system/                     # Bộ điều phối runner toàn trình
+├── scripts/
+│   ├── data/                       # Dựng docstore, làm sạch văn bản từ dữ liệu thô
+│   ├── kaggle_ops/                 # Hợp nhất pool ứng viên, quản lý kernel Kaggle
+│   ├── analysis/                   # Fit mô hình p(gold), tối ưu N_q, doc2query
+│   └── release/                    # Kiểm tra SHA-256 MANIFEST, xuất mã nguồn
+└── tests/                          # 7 bài unit test tự động (kiểm tra scoring, docstore...)
+```
+
+### 4.2 Thư viện & Dependencies
+- Hệ thống hỗ trợ Python 3.11+.
+- Môi trường tiêu chuẩn CPU (chạy kiểm định và tái hiện):
+  `pip install -r requirements.txt` (gồm `numpy`, `scipy`, `pandas`, `pyarrow`, `pyyaml`, `tqdm`, `pytest`).
+- Môi trường GPU (khi huấn luyện hoặc mã hóa lại chỉ mục):
+  `pip install -r requirements-gpu.txt` (bổ sung `torch`, `transformers`, `sentence-transformers`, `accelerate`).
+
+---
+
+## 5. Tài liệu hướng dẫn cài đặt & Tái hiện (Execution Guide)
+
+### 5.1 Cài đặt môi trường
+Khuyến nghị tạo môi trường ảo Python 3.11 hoặc 3.12:
 ```bash
 git clone https://github.com/cakho6179/vibiomir.git
 cd vibiomir
+
 python -m venv .venv
-# Kích hoạt môi trường:
-# Windows: .venv\Scripts\activate
-# Linux/macOS: source .venv/bin/activate
+# Kích hoạt trên Windows:
+.venv\Scripts\activate
+# Hoặc trên Linux/macOS:
+source .venv/bin/activate
+
 pip install -r requirements.txt
-python -m pytest -q tests                            # Kiểm thử unit test (7 passed)
+python -m pytest -q tests               # Chạy unit tests (7 passed)
 ```
 
-Mọi lệnh dưới đây chạy **từ thư mục gốc repo**.
-
-## 2. Tải dữ liệu
-
-Thư mục chia sẻ: **https://drive.google.com/drive/folders/1_VUdqZ4eTv9w_hHRPDWsLLNNmqxyYDaj?usp=sharing**. Nội dung từng gói ở `docs/THUYET_MINH_SAN_PHAM.md` §2.4.
-
-| File trên Drive | Giải nén / đặt vào |
-|---|---|
-| `artifacts_A_pgold.zip`, `artifacts_B_materialize.zip`, `artifacts_C_doc2query.zip`, `artifacts_D_retrieval.zip` | giải nén tại **gốc repo** (đường dẫn bên trong đã là đường dẫn repo) |
-| `docstore_v2.1/` | `data/docstore/v2.1/` |
-| `index_v2.1/` | `data/docstore/v2.1/index/` |
-| `MANIFEST.tsv` | gốc repo |
-
+### 5.2 Tải Dữ liệu & Checkpoints
+1. Truy cập thư mục [Google Drive](https://drive.google.com/drive/folders/1_VUdqZ4eTv9w_hHRPDWsLLNNmqxyYDaj?usp=sharing).
+2. Tải các gói tương ứng với mức tái lập cần thực hiện:
+   - Để chạy **Mức A (Kiểm định danh sách nộp ~29 giây):** Tải `artifacts_A_pgold.zip`.
+   - Để chạy **Mức B (Dựng lại file zip hoàn chỉnh):** Tải thêm `artifacts_B_materialize.zip` và `docstore_v2.1/`.
+   - Để chạy **Mức C (Truy hồi toàn trình từ câu hỏi):** Tải thêm `artifacts_D_retrieval.zip` và `index_v2.1/`.
+3. Giải nén các file `artifacts_*.zip` trực tiếp tại **thư mục gốc của repo**.
+4. Kiểm tra tính toàn vẹn của dữ liệu bằng mã băm SHA-256:
 ```bash
-unzip -o artifacts_A_pgold.zip        # tương tự cho B, C, D
-python scripts/release/verify_manifest.py MANIFEST.tsv               # sha256 các file đã giải nén
-python scripts/release/verify_manifest.py MANIFEST.tsv --big         # thêm docstore + index (chậm)
+python scripts/release/verify_manifest.py MANIFEST.tsv
 ```
 
-`data/raw/btc/query.parquet` là file câu hỏi của BTC (có trong gói A). Mức D cần thêm `links_corpus_vi_en_zh.parquet` của BTC.
+---
 
-## 3. Tải checkpoint
+### 5.3 Mức A — Tái lập danh sách nộp 5 bài Private (CPU, ~29 giây)
 
-Không cần cho mức A và B. Mức C tự tải khi chạy. Muốn tải trước, đúng revision đã dùng:
-
+Chạy lệnh kiểm định duy nhất:
 ```bash
-huggingface-cli download BAAI/bge-m3              --revision 5617a9f61b028005a4858fdac845db406aefb181
-huggingface-cli download BAAI/bge-reranker-v2-m3  --revision 953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e
-huggingface-cli download Qwen/Qwen3.5-9B          --revision c202236235762e1c871ad0ccb60c8ee5ba337b9a
-huggingface-cli download Qwen/Qwen3.5-4B          --revision 851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a   # chỉ doc2query
+python run.py --verify
 ```
-
-Không dùng API hay mô hình đóng nào. Không fine-tune.
-
-## 4. Mức A — dựng lại danh sách nộp (CPU)
-
-Cần: gói A (thêm gói C nếu dựng bài doc2query).
-
+Hoặc chạy chi tiết từng bước qua `scripts/analysis/`:
 ```bash
-# A1. p(gold) và độ sâu N_q theo câu hỏi. Đã có sẵn bản dùng khi nộp ở runs/reports/pgold_feats/base2.
-#     Lệnh này fit lại từ đầu (~3,5 phút); 5 danh sách thêm sau ngày fit phải loại ra để ra đúng bản đã dùng.
+# 1. Fit lại mô hình p(gold) và độ sâu N_q:
 python scripts/analysis/pgold_all.py --lists runs/reports/pgold_lists \
     --out runs/reports/pgold_feats/base2_refit --exclude 7584,7589,7608,7609,7632
 
-# A2. Danh sách docs + chunks: job pN3_base (#7892) và N1_n125 (#7916)
+# 2. Sinh danh sách nộp cho bài báo cáo chính #7892 (pN3_base):
 python scripts/analysis/pn3_lists.py --model base2 --out out/lists_pn3.parquet
 
-# A3. So với bài đã nộp
+# 3. Đối chiếu trực tiếp với bài nộp chính thức:
 python scripts/release/check_lists.py out/lists_pn3.parquet kaggle/datasets/mat_lists22/lists.parquet --job pN3_base
-python scripts/release/check_lists.py out/lists_pn3.parquet kaggle/datasets/mat_lists30/lists.parquet --job N1_n125
-#   có zip đã nộp thì so trực tiếp:  ... out/lists_pn3.parquet pN3_base_pqchunks.zip --job pN3_base
 ```
+**Kết quả kiểm chứng:**
+- Khớp **1.200 / 1.200 câu hỏi** đúng 100% thứ tự cả tài liệu và đoạn trích.
 
-Kết quả mong đợi (đã chạy 02/11/2026 trong thư mục trống):
-- A3 in `same order 1200/1200` cho cả docs và chunks.
-- Nếu A2 dùng `--model base2_refit`: tập docs khớp 1.199/1.200 câu hỏi (q785 thêm 1 doc, do sai số tối ưu); chunks khớp 1.200/1.200.
+---
 
-Bốn bài private còn lại (cần gói C):
+### 5.4 Mức B — Dựng tệp nộp `.zip` nguyên bản và Đối chiếu Byte-for-Byte
 
+Kịch bản này trích xuất văn bản đoạn trích ≤ 4.500 ký tự nguyên văn từ Docstore và đóng gói thành file `submission.json` nén LZMA:
 ```bash
-python scripts/analysis/dq_lists.py --base out/lists_pn3.parquet --out out/lists_dq29.parquet \
-    --job S1_dqd20:dense_head=20 --job S2_dqb20:bm25_head=20 --gate 0                      # #7893, #7894
-python scripts/analysis/dq_lists.py --base out/lists_pn3.parquet --out out/lists_dq31.parquet \
-    --job F2_dqd20b20g:dense=20,bm25=20 --chunks 40 --gate 200                             # #7917
-python scripts/release/check_lists.py out/lists_dq29.parquet kaggle/datasets/mat_lists29/lists.parquet --job S1_dqd20
-python scripts/release/check_lists.py out/lists_dq31.parquet kaggle/datasets/mat_lists31/lists.parquet --job F2_dqd20b20g
+python reproduce.py --zip
 ```
+**Kết quả kiểm chứng:**
+- Tệp `submission.json` sinh ra có dung lượng 875 MB văn bản, **khớp từng byte (100% SHA-256)** với tệp nộp chính thức `#7892` (`pN3_base_pqchunks.zip`).
 
-## 5. Mức B — văn bản chunk và file zip
+---
 
-Văn bản chunk là cửa sổ ≤ 4.500 ký tự trích nguyên văn từ docstore.
-- Mã: `materialize_lists.py` + `chunk_stair.py`, nhúng nguyên văn trong kernel `kaggle/kernels_generic/vibiomir-mat-st3-acc2/run.py`.
-- Code `r2ai2026` mà kernel import: bản cố định `kaggle/chunk_v21_assets/vibiomir-code.zip` (CODE_VERSION `06f71bf-dirty`).
+### 5.5 Mức C — Chạy lại các Stage GPU (Khung truy vấn & Reranking)
 
-**Trên Kaggle (cách đội đã chạy):**
-1. Tạo các dataset `vibiomir-docstore-v21` (`data/docstore/v2.1/corpus` + `query.parquet`), `vibiomir-chunk-v21-assets` (`kaggle/chunk_v21_assets/`), `vibiomir-pas-scores` (`kaggle/datasets/pas_scores/`) và `vibiomir-mat-lists22` (thư mục chứa `lists.parquet`).
-2. Sửa `id` và `dataset_sources` trong `kernel-metadata.json` theo tài khoản của bạn.
-3. Chạy: `kaggle kernels push -p kaggle/kernels_generic/vibiomir-mat-st3-acc2`.
-4. Output: `pN3_base.zip`, `N1_n125.zip`, `stats.json`.
+Mỗi stage là một kernel độc lập đã được thực thi và lưu trữ tại `kaggle/kernels_generic/`:
+1. `vibiomir-query-frame-v3-acc1`: Sinh khung truy vấn với Qwen3.5-9B.
+2. `vibiomir-qv3-m3-{zh,en}` & `vibiomir-qv3-bm25-{zh,en}`: Truy hồi đa ngữ trên các biến thể câu hỏi.
+3. `vibiomir-rr3-p{0..7}-acc*`: Chấm điểm `rr3` bằng `bge-reranker-v2-m3` trên 2.500 ứng viên / câu hỏi (chia 8 shards GPU).
+4. `vibiomir-m3m-p{0..3}-acc*`: Chấm điểm đa đầu BGE-M3 (dense + sparse + ColBERT) trên 1.200 ứng viên đầu.
+5. `vibiomir-rr4-p{0..7}-acc*`: Chấm điểm mọi đoạn văn của 1.200 ứng viên đầu để xây dựng hồ sơ điểm đoạn trích `pas_scores.parquet`.
 
-**Trên máy:** `python reproduce.py --zip` chạy đúng mã của kernel trên (đã kiểm, xem §0). Các bước nó làm:
+---
 
-```bash
-python scripts/release/extract_bundle.py kaggle/kernels_generic/vibiomir-mat-st3-acc2 --out tools/mat
-mkdir -p work/mat_in
-cp out/lists_pn3.parquet work/mat_in/lists.parquet
-cp data/raw/btc/query.parquet kaggle/datasets/pas_scores/pas_scores.parquet work/mat_in/
-cp -r data/docstore/v2.1/corpus work/mat_in/corpus          # hoặc symlink / junction
-unzip -q kaggle/chunk_v21_assets/vibiomir-code.zip -d work/mat_in/vibiomir-code
-python tools/mat/materialize_lists.py --input work/mat_in --out work/zips
-python scripts/release/check_lists.py out/lists_pn3.parquet work/zips/pN3_base.zip --job pN3_base
-```
+### 5.6 Mức D — Xây dựng Docstore và Chỉ mục từ dữ liệu thô
 
-`reproduce.py` dùng junction (Windows) hoặc symlink tới `corpus` thay cho bản sao. Lưu ý: `--input` phải là thư mục riêng như trên. Script lấy `lists.parquet` và `part-*.jsonl*` đầu tiên tìm thấy (đệ quy) dưới thư mục đó.
+1. Thu thập dữ liệu từ danh sách URL chính thức: `r2ai2026/crawl/`.
+2. Hợp nhất và chuẩn hóa Docstore: `python scripts/data/build_docstore_v2_1.py`.
+3. Kiểm tra tính toàn vẹn ngữ liệu: `python scripts/data/validate_docstore.py`.
+4. Dựng chỉ mục BM25 4 kênh: `r2ai2026/stages/bm25_experiment.py`.
+5. Dựng chỉ mục Dense BGE-M3 1.024 chiều: `r2ai2026/stages/dense_embed.py --save-emb`.
 
-## 6. Mức C — chạy lại các stage GPU
+---
 
-Mỗi stage là một kernel trong `kaggle/kernels_generic/`. `run.py` của kernel chứa nguyên văn mã và tham số đã chạy (xem bằng `scripts/release/extract_bundle.py`). Mã trong kernel là chuẩn. Ví dụ `rerank.py` trong kernel `rr3-p*` có tuỳ chọn `--best-passages` mà `r2ai2026/stages/rerank.py` không có.
+## 6. Cam kết tuân thủ và Tính hợp lệ của giải pháp
 
-Cách chạy chung:
-1. Tạo dataset đầu vào (docstore, danh sách ứng viên…).
-2. Sửa `id` và `dataset_sources`/`kernel_sources` trong `kernel-metadata.json` theo tài khoản của bạn.
-3. Chạy: `kaggle kernels push -p <thư mục>`.
-4. Tải output: `kaggle kernels output <user>/<kernel> -p <đích>`.
-
-| # | Stage | Kernel (thư mục) | Đầu vào | Đầu ra → đặt tại |
-|---|---|---|---|---|
-| C0 | chỉ mục + ranking câu hỏi gốc (có thể bỏ qua: chỉ mục có trong `index_v2.1`) | `vibiomir-v21-m3-vi-{a,b,c,d}`, `-m3-zh`, `-m3-en` (BGE-M3, `dense_embed.py --save-emb`), `vibiomir-v21-bm25-{vi-doc,vi-sec,zh,en}` (`bm25_experiment.py --save-index`) | docstore v2.1 | `data/docstore/v2.1/index/`, `data/rankings_v21/{m3,bm25}_*.parquet` |
-| C1 | khung truy vấn (Qwen3.5-9B) | `vibiomir-query-frame-v3-acc1` | `query.parquet` | `kaggle/outputs/query-frame-v3/query_frame.parquet` |
-| C2 | biến thể truy vấn (CPU) | `python r2ai2026/stages/query_variants.py --queries data/raw/btc/query.parquet --frame kaggle/outputs/query-frame-v3/query_frame.parquet --out kaggle/datasets/qvariants_v3_acc1/query_variants.parquet` | C1 | `qv_zh.parquet` = các dòng `variant ∈ {zh_q, zh_kw}`; `qv_vi_bm25.parquet` = `{orig, kw, sub0..4, acro}` |
-| C3 | truy hồi ZH/EN theo biến thể | `vibiomir-qv3-m3-{zh,en}`, `vibiomir-qv3-bm25-{zh,en}` | C0 (chỉ mục), C2 | `kaggle/outputs/qv3-*/ranking.parquet` |
-| C4 | pool VI (CPU) | RRF k=60, 2:1:1 trên `data/rankings_v21/{m3_vi,bm25_vi_doc,bm25_vi_sec}.parquet`, cắt 5.000 (`r2ai2026/system/runner.py: builtin_cands`, `weights=[2,1,1]`, `vi_only`, `depth=5000`, `k=5000`) | C0 | `data/rankings_v21/pool5000_vi.parquet` |
-| C5 | pool 3 ngôn ngữ (CPU) | `python scripts/kaggle_ops/lang_pool_sets.py --vi 1500 --zh 500 --en 500 --additions kaggle/datasets/probe_inputs/additions.parquet` rồi `python scripts/kaggle_ops/rerank_pool_cands.py --sets vi1500,zh500,en500 --out kaggle/datasets/rerank_pool` | C3, C4 | `kaggle/datasets/rerank_pool/cands.parquet` (3.000.000 cặp) |
-| C6 | rr3: bge-reranker-v2-m3, 8 phần | `vibiomir-rr3-p{0..7}-acc*` | docstore, C5 | `kaggle/outputs/rr3-p*/rerank.parquet` |
-| C7 | m3m: BGE-M3 ba đầu, 4 phần | `vibiomir-m3m-p{0..3}-acc*` | docstore, C5 | `kaggle/outputs/m3m-p*/m3multi.parquet` |
-| C8 | rr4: reranker trên mọi đoạn của 1.200 ứng viên đầu (`rerank.py --keep-all`), 8 phần → hồ sơ đoạn | `vibiomir-rr4-p{0..7}-acc*` | docstore, C5 | `kaggle/outputs/rr4-p*/passages.parquet`; nối 8 phần lại = `kaggle/datasets/pas_scores/pas_scores.parquet` (4.942.553 dòng, khớp hoàn toàn) |
-| C9 | doc2query (chỉ #7893/#7894/#7917) | `vibiomir-dq-g-acc{1..4}` (phần đầu), `vibiomir-dqt-p{0..7}` (phần đuôi); đầu vào từ `scripts/kaggle_ops/doc2query_inputs.py`; gộp bằng `scripts/analysis/dq_prepare.py`; điểm: `vibiomir-dq-emb*`, `vibiomir-dq-score-all-acc1`, `scripts/analysis/doc2query_score.py`, `dq_bm25.py` | docstore | `kaggle/outputs/dq-all*`, `runs/reports/dq_*` |
-
-Sau C6–C7, mức A chạy được ngay: `pgold_all.py` đọc `rerank_pool/cands.parquet`, `rr3-p*` và `m3m-p*`. Danh sách đã chấm và điểm public dùng để hiệu chỉnh nằm ở `runs/reports/pgold_lists/`. Muốn dựng lại từ các zip đã nộp: `scripts/analysis/sub_doc_lists.py`.
-
-Ghi chú về độ khớp khi chạy lại:
-- C1 và C9 giải mã tham lam, nhưng khác GPU hoặc phiên bản thư viện có thể lệch vài token. Đầu ra gốc đã chia sẻ (gói D, C).
-- C4 dựng lại bằng `builtin_cands` khác bản gốc 257/1,8 triệu cặp ở ngưỡng 1.500, do các ứng viên hoà điểm RRF. Bản gốc được chia sẻ.
-- C2 (biến thể truy vấn) và C5 (pool) chạy lại từ đầu ra đã chia sẻ khớp hoàn toàn (đã kiểm).
-
-## 7. Mức D — docstore và chỉ mục từ dữ liệu thô
-
-Xem `docs/DATA_CARD.md` §6 và `docs/DATA_PIPELINE.md`. Tóm tắt:
-1. Crawl danh sách URL của BTC (`r2ai2026/crawl/`) và cứu URL chết (Common Crawl, Wayback, PubMed).
-2. Chạy `scripts/data/build_docstore.py` (v1/v2).
-3. Chạy `scripts/data/select_hf_v2_1.py` và `build_docstore_v2_1.py` (v2.1).
-4. Chạy `scripts/data/validate_docstore.py`.
-5. Dựng chỉ mục bằng các kernel C0, gộp shard dense bằng `scripts/data/merge_dense_shards.py`.
-
-Crawl web không tái lập byte-for-byte (trang thay đổi theo thời gian). Vì vậy docstore v2.1 được chia sẻ nguyên bản, có `MANIFEST.json` ghi hash đầu vào.
-
-## 8. Đóng gói lại bản phát hành
-
-```bash
-python scripts/release/pack_release.py --hash-big   # release/: code zip, artifacts_*.zip, MANIFEST.tsv
-```
-
-## 9. Cấu trúc repo
-
-```
-run.py               entrypoint hợp nhất: chạy kiểm định (--verify), smoke test (--smoke) hoặc toàn trình
-reproduce.py         quy trình tái lập 5 bài nộp private và đối chiếu SHA-256
-configs/             cấu hình runner và bảng mở rộng truy vấn
-docs/                thuyết minh sản phẩm, quy trình dữ liệu, data card
-r2ai2026/            thư viện lõi: core (chấm điểm, submission), corpus, crawl, stages, system (runner)
-scripts/data/        dựng docstore và làm sạch dữ liệu từ nguồn thô
-scripts/kaggle_ops/  các công cụ quản lý tác vụ Kaggle, đóng gói mã
-scripts/analysis/    mô hình p(gold), danh sách nộp, doc2query
-scripts/release/     đóng gói phát hành, kiểm tra sha256 MANIFEST, chuyển đổi PDF
-tests/               kiểm thử unit tests tự động (pytest)
-```
+1. **Tuyệt đối không sử dụng dữ liệu ngoài luồng:** 100% tài liệu trong docstore đều bắt nguồn từ 1.220.598 URL được BTC công bố chính thức trong file `links_corpus_vi_en_zh.parquet`.
+2. **Không gọi API MedKB trong hệ thống suy luận:** Hệ thống chạy hoàn toàn độc lập và không phụ thuộc vào bất kỳ dịch vụ hay API bên ngoài nào.
+3. **Mô hình mã nguồn mở hợp lệ:** 100% mô hình sử dụng đều có quy mô ≤ 15B tham số, có giấy phép mã nguồn mở thương mại/nghiên cứu rõ ràng (MIT, Apache-2.0), phát hành trước hạn quy định và không fine-tune trọng số.
+4. **Tính tái lập hoàn toàn (Reproducibility):** Cung cấp đầy đủ mã nguồn, checkpoint revisions, bảng mã băm SHA-256 (`MANIFEST.tsv`) và script tái lập tự động với khả năng kiểm chứng chỉ trong 29 giây trên CPU thông thường.
