@@ -14,7 +14,7 @@ The external parquet schema is expected to contain at least:
 
 Usage:
   python scripts/data/audit_external_corpus.py \
-      --corpus C:/.../hf_tmh_conv/default/train \
+      --corpus /path/to/hf_tmh_conv/default/train \
       --store data/docstore/v2 \
       --out data/external/hf_tmh
 

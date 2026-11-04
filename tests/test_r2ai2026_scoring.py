@@ -85,8 +85,8 @@ def test_chunk_level_threshold_boundary_and_recall_accounting():
     assert round(score.chunks_f2, 4) == round(5 * 0.5 * 1.0 / (4 * 0.5 + 1.0), 4)
 
 
-def test_whole_document_chunk_finds_all_gold_chunks():
-    """A verbatim full document submitted as one chunk recovers every gold span in it."""
+def test_chunk_must_cover_40_percent_of_both_sides():
+    """Rule since 23/10: LCS >= 0.4 |g| and LCS >= 0.4 |c|, so c matches only references of 0.4|c| .. 2.5|c|."""
     from r2ai2026.core.scoring import score_query
 
     doc = " ".join(f"t{i}" for i in range(1, 500))
@@ -94,9 +94,15 @@ def test_whole_document_chunk_finds_all_gold_chunks():
         (3, " ".join(f"t{i}" for i in range(10, 30))),
         (3, " ".join(f"t{i}" for i in range(200, 240))),
     ]
-    score = score_query([3], [3], [(3, doc)], gold_chunks)
+    whole = score_query([3], [3], [(3, doc)], gold_chunks)
+    assert whole.chunks_precision == 0.0 and whole.chunks_recall == 0.0  # 499 tokens > 2.5 x 40
+
+    window = " ".join(f"t{i}" for i in range(195, 295))  # 100 tokens holding the 40-token reference
+    score = score_query([3], [3], [(3, window)], gold_chunks)
     assert score.chunks_precision == 1.0
-    assert score.chunks_recall == 1.0
+    assert score.chunks_recall == 0.5
+    too_long = " ".join(f"t{i}" for i in range(190, 301))  # 111 tokens: 40 / 111 < 0.4
+    assert score_query([3], [3], [(3, too_long)], gold_chunks).chunks_precision == 0.0
 
 
 def test_mismatched_doc_id_never_matches():

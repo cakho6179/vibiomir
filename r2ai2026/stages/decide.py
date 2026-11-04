@@ -49,6 +49,17 @@ QUESTIONS = {
                 "same specific problem, but does not address what is asked",
                 "same specific problem and partly answers what is asked",
                 "same specific problem and directly answers what is asked"]),
+    # Measured 28/10 on the tail sample (ranks 150-600): "direct" saturates there too -- median logodds 6.0,
+    # 5 docs/query at logodds >= 8 against a 2 % gold density. The model is answering "is this on the topic?",
+    # so the three below try to force the stricter "is this the answer?" reading. `strict` adds the
+    # not-merely-a-general-discussion clause; `only_source` makes sufficiency the test; `expert_pick` asks for
+    # the selection decision itself, which is what the gold set actually encodes.
+    "strict": ("noul", "Does this document contain the specific fact, diagnosis, treatment, or recommendation the "
+                       "patient asked about, rather than only a general discussion of the same disease?", None),
+    "only_source": ("noul", "Could the patient's question be answered using only the information in this document, "
+                            "without needing any other source?", None),
+    "expert_pick": ("noul", "Would a medical expert choose this document as one of the few best sources to answer "
+                            "this exact question, rather than as background reading?", None),
 }
 
 
@@ -64,7 +75,8 @@ def import_anyjev():
     try:
         import anyjev  # noqa: F401
     except ImportError:
-        wheels = sorted(ROOT.glob("vendor/anyjev-*.whl")) or sorted(Path(__file__).parent.glob("anyjev-*.whl"))
+        wheels = (sorted(ROOT.glob("vendor/anyjev-*.whl")) or sorted(Path(__file__).parent.glob("anyjev-*.whl"))
+                  or sorted(glob.glob("/kaggle/input/**/anyjev-*.whl", recursive=True)))
         if not wheels:
             raise SystemExit("anyjev is not installed and no vendor/anyjev-*.whl was found")
         sys.path.insert(0, str(wheels[-1]))
@@ -102,9 +114,9 @@ def fix_sharded(backend) -> None:
     backend._project = types.MethodType(lambda self, h: project(h).to(dev), backend)
 
 
-def make_decider(backend, level: str, prior: str, name: str = "helps"):
+def make_decider(backend, level: str, prior: str, name: str = "helps", shared: bool = True):
     Decider, Question = import_anyjev()
-    decider = Decider(backend, level=level, prior=prior, shared_prefix=True)
+    decider = Decider(backend, level=level, prior=prior, shared_prefix=shared)
     kind, text, levels = QUESTIONS[name]
     question = Question.noul(text, name=name) if kind == "noul" else Question.score(text, levels=levels, name=name)
     return decider, question
@@ -186,6 +198,9 @@ def main() -> None:
     ap.add_argument("--max-chars", type=int, default=1500)
     ap.add_argument("--batch", type=int, default=16)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--no-shared", action="store_true",
+                    help="score every prompt in full: the prefix KV cache cannot be repeated for models with linear "
+                         "attention layers (Qwen3.5)")
     ap.add_argument("--questions", default="helps", help="comma list of " + ",".join(QUESTIONS))
     args = ap.parse_args()
     names = [x for x in args.questions.split(",") if x]
@@ -243,8 +258,8 @@ def main() -> None:
     tag = f"{args.shard}_h{args.half}" if args.half >= 0 else f"{args.shard}"
     for name, out in outs.items():
         t0 = time.time()
-        decider, question = make_decider(backend, args.level, args.prior, name)
-        shared = question.kind == "noul" and args.level == "L0" and args.prior == "none"
+        decider, question = make_decider(backend, args.level, args.prior, name, shared=not args.no_shared)
+        shared = question.kind == "noul" and args.level == "L0" and args.prior == "none" and not args.no_shared
         scored = decide_shared(backend, question, states) if shared else decide(decider, question, states)
         res = pd.concat([pairs[["qid", "doc_id", "rank"]], scored], axis=1)
         res.to_parquet(out / f"scores_{tag}.parquet", index=False)

@@ -19,6 +19,7 @@ import unicodedata
 from collections import defaultdict
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 T0 = time.time()
@@ -47,11 +48,20 @@ def main() -> None:
     ap.add_argument("--queries", type=Path, required=True)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--top", type=int, default=150)
+    ap.add_argument("--from-rank", type=int, default=0, help="first rank to keep (skip the head already scored)")
+    ap.add_argument("--per-query", type=int, default=0,
+                    help="keep this many docs per query, evenly spaced over [from-rank, top) instead of all")
     ap.add_argument("--max-chars", type=int, default=1500)
     args = ap.parse_args()
 
     rk = pd.read_parquet(args.ranking, columns=["qid", "doc_id", "rank"])
-    rk = rk[rk["rank"] < args.top]
+    rk = rk[(rk["rank"] < args.top) & (rk["rank"] >= args.from_rank)]
+    if args.per_query:  # even spacing keeps the sample proportional to the rank bands (stratified, not uniform)
+        rk = rk.sort_values(["qid", "rank"]).reset_index(drop=True)
+        pos = rk.groupby("qid").cumcount()
+        n = rk.groupby("qid")["rank"].transform("size").clip(lower=1)
+        bucket = pos * max(args.per_query - 1, 1) // (n - 1).clip(lower=1)  # 0..k-1, spread over the band
+        rk = rk[~pd.DataFrame({"q": rk["qid"], "b": bucket}).duplicated()].reset_index(drop=True)
     q = pd.read_parquet(args.queries)
     qwords = {int(i): words(str(t)) for i, t in zip(q["id"], q["query"])}
     need = set(rk["doc_id"].astype(int))

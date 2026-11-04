@@ -10,8 +10,9 @@ Document level:
 
 Chunk level:
     a submitted chunk c counts as correct when, after text normalization,
-    overlap(c, g) = LCS_tokens(c, g) / |g| >= 0.40 for at least one reference
-    chunk g of the same query and the same doc_id.
+    LCS_tokens(c, g) / |g| >= 0.40 and (rule since 23/10) LCS_tokens(c, g) / |c| >= 0.40
+    for at least one reference chunk g of the same query and the same doc_id.
+    Consequence: c can only match a reference of length 0.4|c| .. 2.5|c|.
     Normalization: NFKC, HTML entities decoded, lowercased, whitespace collapsed.
     chunk precision = correct submitted chunks / submitted chunks
     chunk recall    = reference chunks matched by >= 1 submitted chunk / reference chunks
@@ -88,10 +89,19 @@ def lcs_length(a: Sequence[str], b: Sequence[str]) -> int:
 
 
 def chunk_overlap(chunk_tokens: Sequence[str], gold_tokens: Sequence[str]) -> float:
-    """LCS_tokens(c, g) / |g|, the quantity the official rule thresholds at 0.40."""
+    """LCS_tokens(c, g) / |g| (the recall side of the rule)."""
     if not gold_tokens:
         return 0.0
     return lcs_length(chunk_tokens, gold_tokens) / len(gold_tokens)
+
+
+def chunk_match(chunk_tokens: Sequence[str], gold_tokens: Sequence[str],
+                threshold: float = OVERLAP_THRESHOLD) -> bool:
+    """Official rule since 23/10: LCS / |g| >= threshold and LCS / |c| >= threshold."""
+    if not gold_tokens or not chunk_tokens:
+        return False
+    lcs = lcs_length(chunk_tokens, gold_tokens)
+    return lcs >= threshold * len(gold_tokens) and lcs >= threshold * len(chunk_tokens)
 
 
 # ---------------------------------------------------------------------------
@@ -166,7 +176,7 @@ def score_query(
             for gold_index, (gold_doc_id, gold) in enumerate(gold_tokens):
                 if gold_doc_id != doc_id:
                     continue
-                if chunk_overlap(tokens, gold) >= threshold:
+                if chunk_match(tokens, gold, threshold):
                     matched = True
                     found_gold.add(gold_index)
             correct_submitted += int(matched)

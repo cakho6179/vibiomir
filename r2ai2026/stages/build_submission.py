@@ -18,7 +18,10 @@ first C appended docs also get chunks (default 0: a doc-only change). "chunk_app
 is read only to "depth", so a stratum needs both >= the rank it filters on; with "append", set N_docs above the
 final length and "list_depth" to the base depth, or the cap truncates the appended docs.
 "reorder": write queries in a greedy chain of overlapping doc sets so repeats sit inside the LZMA window.
-A system is one or more ranking parquet files (qid, doc_id, score; found anywhere under /kaggle/input)
+"chunk": {"window": S, "best": file} is a window around the reranker's best passage; {"mode": "section",
+"best": file, "section_max": 4800} uses the docstore section containing that passage instead, and falls back
+to the window when the section is missing or too long.
+A system is one or more ranking parquet files (qid, doc_id, score; found in the working tree or input mounts)
 joined by "+", merged by score; several systems are fused by weighted RRF (k=60).
 Chunk = whole document (title + text). The zip uses LZMA (method 14) with a 256 MiB dictionary,
 because the same document recurs across queries; any zipfile reader decodes it.
@@ -50,12 +53,19 @@ def log(msg: str) -> None:
 
 
 def find(name: str) -> str:
+    """Resolve a spec relative to the working tree or the platform input mounts."""
     if Path(name).exists():
         return name
-    hits = glob.glob(f"/kaggle/input/**/{name}", recursive=True)
-    if not hits:
-        raise FileNotFoundError(name)
-    return hits[0]
+    roots = [Path.cwd()]
+    for p in (Path.cwd(), *Path.cwd().parents):
+        q = p / "input"
+        if q.is_dir():
+            roots.append(q)
+    for root in roots:
+        hits = sorted(root.glob(f"**/{name}"))
+        if hits:
+            return str(hits[0])
+    raise FileNotFoundError(name)
 
 
 def load_system(spec: str, depth: int, vi_only: bool) -> pd.DataFrame:
@@ -235,6 +245,26 @@ def window_chunk(title: str, text: str, best: int, spans: list[tuple[int, int]],
     return f"{title}\n{text[:end]}".strip() if start == 0 else text[start:end].strip()
 
 
+def section_chunk(title: str, text: str, best: int, spans: list[tuple[int, int]],
+                  sections: list[tuple[int, int]], max_chars: int) -> str | None:
+    """Section containing passage ``best``, or None when it is absent or longer than ``max_chars``.
+    The title is kept only when the section starts the body and the result still fits, so the chunk
+    stays verbatim and never exceeds ``max_chars``."""
+    if not sections or not spans:
+        return None
+    pos = spans[min(max(best, 0), len(spans) - 1)][0]
+    for a, b in sections:
+        if a <= pos < b:
+            if b - a > max_chars:
+                return None
+            if a == 0 and len(title) + 1 + b <= max_chars:
+                out = f"{title}\n{text[:b]}".strip()
+            else:
+                out = text[a:b].strip()
+            return out or None
+    return None
+
+
 def chain_order(qids: list[int], sets: dict[int, set]) -> list[int]:
     """Greedy nearest neighbour by shared docs, so a doc's repeats land close together in the stream."""
     left = set(qids)
@@ -299,13 +329,28 @@ def main() -> None:
         bp = pd.read_parquet(find(spec))
         best = {(int(q), int(d)): int(k) for q, d, k in zip(bp["qid"], bp["doc_id"], bp["best_passage"])}
         log(f"best passages: {len(best):,}")
+
+    sections_by_doc: dict[int, list[tuple[int, int]]] = {}
+    if any(j.get("chunk", {}).get("mode") == "section" for j in jobs):
+        section_paths = glob.glob(f"{args.data}/**/sections.parquet", recursive=True)
+        if not section_paths:
+            raise FileNotFoundError(f"sections.parquet under {args.data}")
+        sec = pd.read_parquet(section_paths[0], columns=["doc_id", "start", "end"])
+        sec = sec[sec["doc_id"].isin(need)]
+        for d, a, b in zip(sec["doc_id"], sec["start"], sec["end"]):
+            sections_by_doc.setdefault(int(d), []).append((int(a), int(b)))
+        log(f"sections: {len(sec):,} spans for {len(sections_by_doc):,} docs")
+
     spans_cache: dict[int, list[tuple[int, int]]] = {}
     n_lexical = 0
+    n_section = 0
+    n_section_fallback = 0
 
     def chunk_text(job: dict, q: int, d: int) -> str:
         """Whole document, or with job["chunk"] = {"window": S, "whole_max": W, "best": file} a window around the
-        reranker's best passage (lexical fallback). Every chunk is verbatim text of the document."""
-        nonlocal n_lexical
+        reranker's best passage (lexical fallback). With {"mode": "section"} use the docstore section containing
+        that passage, falling back to the window when absent or too long. Every chunk is verbatim document text."""
+        nonlocal n_lexical, n_section, n_section_fallback
         cfg = job.get("chunk")
         if not cfg:
             return texts[d]
@@ -322,13 +367,27 @@ def main() -> None:
         if k is None:
             k = lexical_best(qtext[q], title, body, spans)
             n_lexical += 1
-        out = window_chunk(title, body, k, spans, cfg["window"], cfg.get("whole_max", cfg["window"]))
+        mode = cfg.get("mode", "window")
+        if mode == "section":
+            out = section_chunk(title, body, k, spans, sections_by_doc.get(d, []),
+                                cfg.get("section_max", 4800))
+            if out is None:
+                n_section_fallback += 1
+                out = window_chunk(title, body, k, spans, cfg.get("window", 4500),
+                                   cfg.get("whole_max", cfg.get("window", 4500)))
+            else:
+                n_section += 1
+        elif mode == "window":
+            out = window_chunk(title, body, k, spans, cfg["window"], cfg.get("whole_max", cfg["window"]))
+        else:
+            raise ValueError(f"unknown chunk mode: {mode}")
         assert out in texts[d], (q, d)
         return out
 
     stats = {}
     for job, by_q, extra, base_len in plans:
         for n in job["n"]:
+            counts_before = (n_lexical, n_section, n_section_fallback)
             n_docs, n_chunks = n if isinstance(n, list) else (n, n)
             order = qids
             if job.get("reorder"):
@@ -351,6 +410,12 @@ def main() -> None:
                                 "chunks_per_query": round(sum(len(r["relevant_chunks"]) for r in records) / len(records), 2)}
             stats[path.name]["chunk_chars_median"] = int(pd.Series(
                 [len(c["chunk_text"]) for r in records for c in r["relevant_chunks"]] or [0]).median())
+            stats[path.name].update({
+                "chunk_mode": job.get("chunk", {}).get("mode", "window") if job.get("chunk") else "whole",
+                "lexical_fallbacks": n_lexical - counts_before[0],
+                "section_chunks": n_section - counts_before[1],
+                "section_fallbacks": n_section_fallback - counts_before[2],
+            })
             log(f"wrote {path.name} {mb} MB; lexical fallbacks so far {n_lexical:,}")
     (args.out / "build_stats.json").write_text(json.dumps(stats, indent=2))
     log("done")

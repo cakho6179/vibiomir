@@ -2,7 +2,7 @@
 exact cosine search, document score = best passage.
 
     python dense_embed.py --model BAAI/bge-m3 --data DIR --out DIR [--shards 0,1,2,3]
-                          [--query-prompt "..."] [--max-len 512] [--max-docs N] [--max-queries N]
+                          [--query-prompt "..."] [--passage-prompt "..."] [--max-len 512] [--max-docs N] [--max-queries N]
 
 DIR holds corpus/part-XX.jsonl.gz ({"id","t","x"}) and query.parquet. One worker process per
 GPU (sentence-transformers, fp16); the parent merges and scores. Outputs in OUT:
@@ -142,7 +142,8 @@ def worker(args: argparse.Namespace) -> None:
     out =np.empty((len(part), model.get_sentence_embedding_dimension()), dtype=np.float16)
     step = 20_000
     for lo in range(0, len(part), step):
-        out[lo:lo + step] = model.encode(part[lo:lo + step], batch_size=args.batch, normalize_embeddings=True,
+        out[lo:lo + step] = model.encode(part[lo:lo + step], prompt=args.passage_prompt or None,
+                                         batch_size=args.batch, normalize_embeddings=True,
                                          convert_to_numpy=True, show_progress_bar=False).astype(np.float16)
         log(f"worker {g}: {min(lo + step, len(part)):,}/{len(part):,}")
     np.save(args.out / f"emb_w{g}.npy", out)
@@ -156,6 +157,7 @@ def main() -> None:
     ap.add_argument("--shards", default="0,1,2,3,4,5,6,7")
     ap.add_argument("--parts", default=None, help="glob under --data instead of --shards, e.g. **/part-d1-*.jsonl*")
     ap.add_argument("--query-prompt", default="")
+    ap.add_argument("--passage-prompt", default="", help='e.g. "passage: " for the e5 family')
     ap.add_argument("--max-len", type=int, default=512)
     ap.add_argument("--batch", type=int, default=64)
     ap.add_argument("--topk", type=int, default=200)

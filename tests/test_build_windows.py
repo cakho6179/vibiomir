@@ -46,3 +46,28 @@ def test_lexical_best_prefers_query_words():
     text = "bệnh tim mạch và huyết áp\n" + "x " * 900 + "\nsỏi thận gây đau lưng dữ dội"
     spans = bs.rr_spans(text)
     assert bs.lexical_best("sỏi thận đau lưng", "", text, spans) == len(spans) - 1
+
+
+def test_section_chunk_uses_section_containing_best_passage():
+    body = "A" * 1500 + "\n" + "B" * 1500 + "\n" + "C" * 1500
+    spans = bs.rr_spans(body)
+    sections = [(0, 1500), (1501, 3001), (3002, 4502)]
+    out = bs.section_chunk("T", body, 1, spans, sections, 4800)
+    assert out == "B" * 1500
+    # The first section keeps the title; later sections do not.
+    assert bs.section_chunk("T", body, 0, spans, sections, 4800) == f"T\n{'A' * 1500}".strip()
+
+
+def test_section_chunk_falls_back_when_section_too_long_or_missing():
+    body = "A" * 100 + "\n" + "B" * 100
+    spans = bs.rr_spans(body)
+    assert bs.section_chunk("T", body, 1, spans, [(0, 5000)], 4800) is None
+    assert bs.section_chunk("T", body, 1, spans, [], 4800) is None
+
+
+def test_section_chunk_drops_title_when_it_would_exceed_max():
+    body = "A" * 100
+    spans = bs.rr_spans(body)
+    out = bs.section_chunk("T" * 50, body, 0, spans, [(0, 100)], 100)
+    assert out == body
+    assert len(out) <= 100

@@ -25,12 +25,16 @@ SRC = {src!r}
 script = Path("/kaggle/tmp/{name}")
 script.parent.mkdir(parents=True, exist_ok=True)
 script.write_text(SRC, encoding="utf-8")
+for mod_name, mod_src in {modules!r}.items():  # helper modules the script imports, written next to it
+    (script.parent / mod_name).write_text(mod_src, encoding="utf-8")
+sys.path.insert(0, str(script.parent))
 hits = glob.glob("/kaggle/input/**/part-00.jsonl*", recursive=True)
-data = str(Path(hits[0]).parents[1]) if hits else "/kaggle/input"
+data = str(Path(hits[0]).parents[0]) if hits else "/kaggle/input"
 pip = {pip!r}
 if pip:
     subprocess.run([sys.executable, "-m", "pip", "install", "-q", *pip], check=True)
-args = [a.replace("{{data}}", data).replace("{{input}}", "/kaggle/input") for a in {args!r}]
+args = [a.replace("{{data}}", data).replace("{{input}}", "/kaggle/input").replace("{{working}}", "/kaggle/working")
+        for a in {args!r}]
 subprocess.run([sys.executable, str(script), *args], check=True)
 '''
 
@@ -42,6 +46,7 @@ def main() -> None:
     ap.add_argument("slug")
     ap.add_argument("--gpu", action="store_true")
     ap.add_argument("--pip", default="", help="comma-separated packages to pip install first")
+    ap.add_argument("--modules", default="", help="comma-separated helper modules the script imports")
     ap.add_argument("--datasets", default="vibiomir-corpus-clean", help="comma-separated slugs of this account")
     argv = sys.argv[1:]
     cut = argv.index("--") if "--" in argv else len(argv)
@@ -50,12 +55,20 @@ def main() -> None:
     src = a.script.read_text(encoding="utf-8")
     if not src.isascii():
         raise SystemExit(f"{a.script} has non-ASCII characters")
+    modules = {}
+    for m in [p for p in a.modules.split(",") if p]:
+        mp = Path(m)
+        msrc = mp.read_text(encoding="utf-8")
+        if not msrc.isascii():
+            raise SystemExit(f"{mp} has non-ASCII characters")
+        modules[mp.name] = msrc
     user = ACCOUNTS[a.acc]
     out = ROOT / "kaggle" / "kernels_generic" / f"{a.slug}-{a.acc}"
     out.mkdir(parents=True, exist_ok=True)
     args = a.args
     pip = [p for p in a.pip.split(",") if p]
-    (out / "run.py").write_text(RUN.format(src=src, name=a.script.name, pip=pip, args=args), encoding="utf-8")
+    (out / "run.py").write_text(RUN.format(src=src, name=a.script.name, pip=pip, args=args, modules=modules),
+                                encoding="utf-8")
     meta = {"id": f"{user}/{a.slug}", "title": a.slug, "code_file": "run.py", "language": "python",
             "kernel_type": "script", "is_private": True, "enable_gpu": a.gpu, "enable_tpu": False,
             "enable_internet": True, "dataset_sources": [f"{user}/{d}" for d in a.datasets.split(",") if d],

@@ -8,6 +8,7 @@ DIR (searched recursively) holds the base submission (base/submission.json or --
 v21chunk.zip). For each job: relevant_docs = base docs + the first K docs of SET (by rank) not already in the
 base list, appended after them; relevant_chunks = those of CHUNKS. SET "none" adds nothing. Docs and chunks are
 scored separately, so one upload measures the added docs (docs P/R) and the chunk variant (chunks P/R) at once.
+--drop-base-docs leaves the base docs out, so docs P/R measure the added sets alone.
 Outputs NAME.zip (LZMA, 256 MiB dictionary) and stats.json.
 """
 from __future__ import annotations
@@ -49,7 +50,7 @@ def build(job: tuple[str, str, str, str]) -> dict:
     out, added = [], 0
     for rec in base:
         qid = int(rec["id"])
-        docs = list(rec["relevant_docs"])
+        docs = [] if STATE["drop_base"] else list(rec["relevant_docs"])
         have = set(docs)
         for part, n in parts:  # sets in the order given, each skipping docs already listed
             extra = [d for d in adds.get((part, qid), []) if d not in have][:n]
@@ -74,6 +75,8 @@ def main() -> None:
     ap.add_argument("--base", default="base/submission.json")
     ap.add_argument("--job", action="append", required=True, help="NAME=SET:K:CHUNKS")
     ap.add_argument("--workers", type=int, default=3)
+    ap.add_argument("--drop-base-docs", action="store_true",
+                    help="relevant_docs = the added sets only (the base still gives the query ids)")
     args = ap.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
     code = glob.glob(f"{args.input}/**/vibiomir-code/r2ai2026", recursive=True)
@@ -106,7 +109,7 @@ def main() -> None:
         chunks[src] = chunks_of(records)
         log(f"chunks {src} <- {path}")
         log(f"chunks {src}: {sum(map(len, chunks[src].values())) / len(chunks[src]):.2f} per query")
-    STATE.update(base=base, adds=adds, chunks=chunks, out=str(args.out))
+    STATE.update(base=base, adds=adds, chunks=chunks, out=str(args.out), drop_base=args.drop_base_docs)
     stats: dict = {}
     if args.workers <= 1:  # also the local dry-run path (no fork on Windows)
         for job in jobs:

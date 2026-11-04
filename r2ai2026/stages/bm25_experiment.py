@@ -39,7 +39,10 @@ import pandas as pd
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import CountVectorizer
 
-from docorg import clean_v4, section_chunks  # sibling file here; the kernel wrapper ships it next to this script
+try:  # imported as a package module (runner, pytest): docorg is the sibling stage module
+    from r2ai2026.stages.docorg import clean_v4, section_chunks
+except ImportError:  # standalone run or Kaggle kernel: docorg.py sits next to this script
+    from docorg import clean_v4, section_chunks
 
 K1, B = 1.5, 0.75
 TOPK = 200

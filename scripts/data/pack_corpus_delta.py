@@ -1,8 +1,8 @@
 """Pack the documents of data/docs_clean.jsonl that are not yet in the uploaded corpus dataset.
 
 Base ids come from kaggle/corpus_dataset/corpus/part-*.jsonl.gz. Output folder holds
-corpus_<tag>/part-<tag>-XX.jsonl.gz, so kernels that read every part-* under /kaggle/input
-see base + delta as one corpus.
+corpus_<tag>/part-<tag>-XX.jsonl.gz, so kernels that read every part-* under an
+input mount see base + delta as one corpus.
     python scripts/data/pack_corpus_delta.py --tag d1
 """
 
