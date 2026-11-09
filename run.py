@@ -12,6 +12,7 @@ Modes:
 Usage Examples:
     python run.py --verify
     python run.py --demo --qid 401
+    python run.py --web              # local demo website over the 1,200 questions
     python run.py --demo --prepare --qids 1,401,556
     python run.py --dry-run          # print the stages of the default config
 """
@@ -39,6 +40,11 @@ def main() -> None:
         "--demo",
         action="store_true",
         help="Replay one question (--qid N) through the production run; --prepare --qids adds chunk text",
+    )
+    parser.add_argument(
+        "--web",
+        action="store_true",
+        help="Local demo website over the 1,200 questions (http://127.0.0.1:8765; --port to change)",
     )
     parser.add_argument(
         "--config",
@@ -76,6 +82,10 @@ def main() -> None:
         cmd = [sys.executable, str(ROOT / "reproduce.py"), *extra]
         ret = subprocess.run(cmd, cwd=str(ROOT))
         sys.exit(ret.returncode)
+
+    if args.web:
+        cmd = [sys.executable, str(ROOT / "scripts" / "demo" / "web.py"), *extra]
+        sys.exit(subprocess.run(cmd, cwd=str(ROOT)).returncode)
 
     if args.demo:
         cmd = [sys.executable, str(ROOT / "scripts" / "demo" / "trace_query.py"), *extra]

@@ -64,8 +64,18 @@ SOURCE = {"crawl": "crawler của đội", "tmh": "HF tmh1008/ViBioMIR-crawled-c
           "lc": "recrawl Long Châu"}
 
 
+CACHE: dict | None = None  # the web server sets {}: each table is loaded once and indexed by its key column
+
+
 def read(path: Path, qid: int, col: str = "qid", **kw) -> pd.DataFrame:
-    return pd.read_parquet(path, filters=[(col, "==", qid)], **kw)
+    if CACHE is None or kw:
+        return pd.read_parquet(path, filters=[(col, "==", qid)], **kw)
+    key = (str(path), col)
+    if key not in CACHE:
+        df = pd.read_parquet(path)
+        CACHE[key] = (df, df.groupby(col).indices)
+    df, idx = CACHE[key]
+    return df.iloc[idx.get(qid, [])]
 
 
 def read_many(pattern: str, qid: int) -> pd.DataFrame:
@@ -150,7 +160,7 @@ def follow(t: dict, docs: pd.DataFrame) -> dict:
         out["meta"] = meta.iloc[0] if not meta.empty else None
         for name in ("passages", "sections", "furniture"):
             p = DS / f"{name}.parquet"
-            out[name] = pd.read_parquet(p, filters=[("doc_id", "==", d)]) if p.exists() else pd.DataFrame()
+            out[name] = read(p, d, "doc_id") if p.exists() else pd.DataFrame()
     ranks = []
     for label, path, variant in CHANNELS.get(lang, []):
         f = ROOT / path
@@ -168,8 +178,8 @@ def follow(t: dict, docs: pd.DataFrame) -> dict:
         hit = x[x["doc_id"] == d]
         out["pool5000"] = int(hit["rank"].iloc[0]) + 1 if len(hit) else None
     pas = ROOT / "kaggle/datasets/pas_scores/pas_scores.parquet"
-    out["profile"] = pd.read_parquet(pas, filters=[("qid", "==", qid), ("doc_id", "==", d)]).sort_values("passage") \
-        if pas.exists() else pd.DataFrame()
+    prof = read(pas, qid) if pas.exists() else pd.DataFrame(columns=["doc_id", "passage", "score"])
+    out["profile"] = prof[prof["doc_id"] == d].sort_values("passage")
     body = docs[docs["doc_id"] == d] if not docs.empty else docs
     out["body"] = None
     if len(body):
@@ -504,8 +514,10 @@ header{position:sticky;top:0;z-index:2;background:#14213d;color:#f4f3ee;padding:
 header b{font-size:18px} nav{display:flex;gap:4px;flex-wrap:wrap;flex:1}
 nav button{font:14px 'Segoe UI',Arial;border:0;border-radius:14px;padding:4px 11px;background:#2b3a5c;color:#dfe6f2;cursor:pointer}
 nav button.on{background:#e8c547;color:#14213d;font-weight:600} .ctl button{font-size:15px;padding:5px 12px;cursor:pointer}
-section.step{display:none;max-width:1500px;margin:0 auto;padding:22px 28px 60px} section.step.on{display:block}
-body.all section.step{display:block;border-bottom:2px solid var(--line)}
+section.step{max-width:1500px;margin:0 auto;padding:22px 28px 60px;border-bottom:2px solid var(--line)}
+body.js section.step{display:none;border:0} body.js section.step.on{display:block}
+body.js.all section.step{display:block;border-bottom:2px solid var(--line)}
+a.home{color:#e8c547;text-decoration:none;font-size:15px}
 h2{font-size:34px;margin:6px 0 14px} h2 small{color:var(--mute);font-size:18px;font-weight:400;display:block}
 h3{font-size:19px;margin:0 0 6px} code{font-size:.85em;background:#ebe9e2;padding:0 4px;border-radius:3px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:32px} @media(max-width:1000px){.two{grid-template-columns:1fr}}
@@ -532,23 +544,27 @@ function go(k){i=Math.max(0,Math.min(S.length-1,k));S.forEach((s,j)=>s.classList
 B.forEach((b,j)=>b.onclick=()=>go(j));document.getElementById('prev').onclick=()=>go(i-1);document.getElementById('next').onclick=()=>go(i+1);
 document.getElementById('all').onclick=()=>document.body.classList.toggle('all');
 addEventListener('keydown',e=>{if(e.key=='ArrowRight'||e.key=='PageDown')go(i+1);if(e.key=='ArrowLeft'||e.key=='PageUp')go(i-1);});
-go((parseInt(location.hash.slice(1))||1)-1);
+document.body.classList.add('js');go((parseInt(location.hash.slice(1))||1)-1);
 """
 
 
-def write_html(t: dict, path: Path, ok: bool) -> None:
+def render_html(t: dict, ok: bool, home: str = "") -> str:
     nav = "".join(f"<button>{k + 1}. {E(name)}</button>" for k, (name, _) in enumerate(STEPS))
     body = "".join(f'<section class=step><h2><small>Bước {k + 1}/{len(STEPS)} · câu hỏi #{t["qid"]} · tài liệu {t["doc"]}</small>'
                    f"{E(name)}</h2>{fn(t)}</section>" for k, (name, fn) in enumerate(STEPS))
-    page = f"""<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    back = f'<a class=home href="{home}">☰ 1.200 câu hỏi</a>' if home else ""
+    return f"""<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ViBioMIR · câu hỏi #{t['qid']}</title><style>{CSS}</style></head><body>
-<header><b>ViBioMIR · Băng Cá Khô</b><nav>{nav}</nav><span class=ctl><button id=prev>◀</button> <button id=next>▶</button>
+<header><b>ViBioMIR · Băng Cá Khô</b>{back}<nav>{nav}</nav><span class=ctl><button id=prev>◀</button> <button id=next>▶</button>
 <button id=all>tất cả</button></span></header>{body}
 <p class=note style="max-width:1500px;margin:0 auto;padding:0 28px 24px">Phát lại lần chạy sản xuất từ các tệp đã chia sẻ; không phải câu trả lời mới,
 không có nhãn gold; p(gold) là ước lượng của mô hình. Đối chiếu với bài đã nộp: <b>{'khớp' if ok else 'KHÔNG KHỚP'}</b>.</p>
 <script>{JS}</script></body></html>"""
+
+
+def write_html(t: dict, path: Path, ok: bool) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(page, encoding="utf-8")
+    path.write_text(render_html(t, ok), encoding="utf-8")
 
 
 # ------------------------------------------------------------------------------------------------ prepare
@@ -569,6 +585,10 @@ def prepare(qids: list[int], per_query: int) -> None:
     stage.mkdir(parents=True)
     lists = pd.read_parquet(LISTS["pN3_base"], filters=[("qid", "in", qids)])
     lists = lists[lists["job"] == "pN3_base"]
+    # only the chunks the walkthrough can show (top documents per question): each chunk depends on its own
+    # (question, document) pair only, so a shorter list gives the same text for these pairs
+    ch = lists[lists["kind"] == "chunk"].sort_values(["qid", "pos"]).groupby("qid").head(per_query)
+    lists = pd.concat([lists[lists["kind"] == "doc"], ch], ignore_index=True)
     lists.to_parquet(stage / "lists.parquet", index=False)
     pd.read_parquet(ROOT / "data/raw/btc/query.parquet", filters=[("id", "in", qids)]).to_parquet(stage / "query.parquet", index=False)
     pd.read_parquet(ROOT / "kaggle/datasets/pas_scores/pas_scores.parquet", filters=[("qid", "in", qids)]) \
@@ -625,7 +645,8 @@ def main() -> None:
     ap.add_argument("--html", type=Path, default=None, help="page path (default: out/demo/q<qid>.html)")
     args = ap.parse_args()
     if args.prepare:
-        prepare([int(x) for x in args.qids.split(",") if x] or [args.qid], args.docs_per_query)
+        qids = list(range(1, 1201)) if args.qids == "all" else [int(x) for x in args.qids.split(",") if x] or [args.qid]
+        prepare(qids, args.docs_per_query)
         return
     t = trace(args.qid, args.doc)
     ok = print_trace(t)
