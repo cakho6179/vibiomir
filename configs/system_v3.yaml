@@ -1,0 +1,181 @@
+# System v3 = the pipeline of docs/ARCHITECTURE_V3_2026-10-27.md, wired into the runner end to end:
+#   query frame -> query variants -> BM25 (VI doc, VI section, ZH, EN) + BGE-M3 dense (VI, ZH, EN) over the saved
+#   indexes -> per-language pool sets -> rerank (one doc pass rr3, every passage rr4) + BGE-M3 multi-head m3m ->
+#   decide the doc and chunk lists -> materialize (4500-char window, LZMA zip).
+#
+# Run:    python -m r2ai2026 run --config configs/system_v3.yaml
+# Dry:    python -m r2ai2026 run --config configs/system_v3.yaml --dry-run
+# Smoke:  python -m r2ai2026 run --config configs/system_v3.yaml --stages bm25_vi_doc,dense_vi --smoke \
+#           --allow-cpu --var work=runs/system/smoke_v3
+#
+# Split across machines (a stage is skipped while its output is cached, so a GPU stage can run on Kaggle and its
+# folder be copied back):
+#   python -m r2ai2026 run --config configs/system_v3.yaml --stages frame,variants,dense_vi,dense_zh,dense_en
+#   python -m r2ai2026 run --config configs/system_v3.yaml --stages pool_vi,pool_sets,pool_cands,rr3,m3m
+#   python -m r2ai2026 run --config configs/system_v3.yaml --stages decide,materialize
+#
+# What is precomputed and what this config recomputes:
+#   * the indexes (vars.index) are the saved BM25 weights and dense passage embeddings; every retrieval stage
+#     scores against them (--load-index / --emb), so nothing is re-embedded;
+#   * everything from the query frame to the zip is recomputed into vars.work;
+#   * decide reads the features THIS run computed (--pool-file / --rr / --m3m / --e1 / --pas). Run the decide stage
+#     on its own without those flags to rebuild the production list from the production features instead -- that
+#     reproduces #7230 (r8_m3rr197, FINAL .2983) exactly.
+#   * the passage-level channel is built here too: the `pas` stage aggregates {rr4}/passages.parquet into
+#     pool_pas.parquet for the p* / m3p* / m3rp orders (run it when a job uses one of them; decide tolerates its
+#     absence, it just has no pmax column).
+#
+# Job spec: NAME=METHOD:NDOCS|CMETHOD:NCHUNKS:SIZE (scripts/analysis/decide_lists.py). The default is "chunk = doc",
+# one 4500-char window per document -- the setting measured best so far. Watch the hard payload cap: 197 chunks x
+# 4500 chars was refused at 1031.7 MB against a 1024 MB limit, so 188 chunks (991 MB) is the deepest safe count at
+# this window. --max-mb only flags an oversized zip; the server refuses the payload itself.
+name: system_v3
+data: data/docstore/v2.1
+queries: data/raw/btc/query.parquet
+work: runs/system/v3
+prepare: true
+
+vars:
+  index: data/docstore/v2.1/index   # saved BM25 / dense indexes from the v2.1 kernels
+  store: data/docstore/v2.1         # corpus root the materialize step reads (linked, never copied)
+  frame_model: Qwen/Qwen3.5-9B
+  cut: vi800,zh200,en200            # the scoring cut of the pool (#7215: R .812)
+  sets: vi1500,zh500,en500          # pool sets rerank_pool_cands.py writes
+  job: m3rr197=m3rr:197|m3rr:197:4500
+
+stages:
+  frame:
+    gpu: true
+    script: r2ai2026/stages/query_frame.py
+    args: [--data, "{data}", --out, "{out}", --model, "{frame_model}"]
+    smoke_args: [--max-queries, 5]
+    outputs: [query_frame.parquet]
+  variants:
+    script: r2ai2026/stages/query_variants.py
+    args: [--queries, "{queries}", --frame, "{frame}/query_frame.parquet",
+           --out, "{out}/query_variants.parquet"]
+    outputs: [query_variants.parquet]
+
+  bm25_vi_doc:
+    script: r2ai2026/stages/bm25_experiment.py
+    args: [e1, "{data}", "{out}", --queries, "{variants}/query_variants.parquet",
+           --load-index, "{index}/bm25/vi_doc/index", --topk, 3000, --ns, ""]
+    smoke_args: [--max-queries, 20]
+    outputs: [ranking.parquet]
+  bm25_vi_sec:
+    script: r2ai2026/stages/bm25_experiment.py
+    args: [e1, "{data}", "{out}", --queries, "{variants}/query_variants.parquet",
+           --load-index, "{index}/bm25/vi_sec/index", --topk, 3000, --ns, ""]
+    smoke_args: [--max-queries, 20]
+    outputs: [ranking.parquet]
+  bm25_zh:
+    script: r2ai2026/stages/bm25_experiment.py
+    args: [e1, "{data}", "{out}", --queries, "{variants}/query_variants.parquet",
+           --load-index, "{index}/bm25/zh/index", --topk, 3000, --ns, ""]
+    smoke_args: [--max-queries, 20]
+    outputs: [ranking.parquet]
+  bm25_en:
+    script: r2ai2026/stages/bm25_experiment.py
+    args: [e1, "{data}", "{out}", --queries, "{variants}/query_variants.parquet",
+           --load-index, "{index}/bm25/en/index", --topk, 3000, --ns, ""]
+    smoke_args: [--max-queries, 20]
+    outputs: [ranking.parquet]
+
+  dense_vi:
+    gpu: true
+    script: r2ai2026/stages/dense_search.py
+    args: [--model, BAAI/bge-m3, --emb, "{index}/dense/vi/**/emb.npy",
+           --variants, "{variants}/query_variants.parquet", --out, "{out}",
+           --only, "orig,kw,sub0,sub1,sub2,sub3,sub4,hyde,acro", --topk, 3000]
+    smoke_args: [--topk, 100]
+    outputs: [ranking.parquet]
+  dense_zh:
+    gpu: true
+    script: r2ai2026/stages/dense_search.py
+    args: [--model, BAAI/bge-m3, --emb, "{index}/dense/zh/**/emb.npy",
+           --variants, "{variants}/query_variants.parquet", --out, "{out}",
+           --only, "orig,zh_q,zh_kw", --topk, 3000]
+    smoke_args: [--topk, 100]
+    outputs: [ranking.parquet]
+  dense_en:
+    gpu: true
+    script: r2ai2026/stages/dense_search.py
+    args: [--model, BAAI/bge-m3, --emb, "{index}/dense/en/**/emb.npy",
+           --variants, "{variants}/query_variants.parquet", --out, "{out}",
+           --only, "orig,en_kw", --topk, 3000]
+    smoke_args: [--topk, 100]
+    outputs: [ranking.parquet]
+
+  # Pool: VI = RRF 2:1:1 of dense doc + BM25 doc + BM25 section, ZH / EN = equal-weight RRF over their channels,
+  # then the vi1500/zh500/en500 sets become one deduplicated candidate list.
+  pool_vi:
+    builtin: cands
+    systems: ["{dense_vi}/ranking.parquet", "{bm25_vi_doc}/ranking.parquet", "{bm25_vi_sec}/ranking.parquet"]
+    weights: [2, 1, 1]
+    vi_only: true
+    depth: 5000
+    k: 5000
+    outputs: [cands.parquet]
+  pool_sets:
+    script: scripts/kaggle_ops/lang_pool_sets.py
+    args: [--vi, 1500, --zh, 500, --en, 500,
+           --vi-pool, "{pool_vi}/cands.parquet",
+           --zh-list, "orig={dense_zh}/ranking.parquet",
+           --zh-list, "zh_q={dense_zh}/ranking.parquet",
+           --zh-list, "zh_kw={dense_zh}/ranking.parquet",
+           --zh-list, "zh_q={bm25_zh}/ranking.parquet",
+           --zh-list, "zh_kw={bm25_zh}/ranking.parquet",
+           --en-list, "orig={dense_en}/ranking.parquet",
+           --en-list, "en_kw={dense_en}/ranking.parquet",
+           --en-list, "orig={bm25_en}/ranking.parquet",
+           --en-list, "en_kw={bm25_en}/ranking.parquet",
+           --additions, "{out}/additions.parquet"]
+    outputs: [additions.parquet]
+  pool_cands:
+    script: scripts/kaggle_ops/rerank_pool_cands.py
+    args: [--sets, "{sets}", --additions, "{pool_sets}/additions.parquet",
+           --query, "{queries}", --out, "{out}"]
+    outputs: [cands.parquet]
+
+  # Pair features, every one of them on the pool of this run.
+  rr3:      # one pass per (query, document): the doc-level reranker score #7230 ranks by
+    gpu: true
+    script: r2ai2026/stages/rerank.py
+    args: [--data, "{data}", --cands, "{pool_cands}/cands.parquet", --out, "{out}"]
+    smoke_args: [--max-queries, 5]
+    outputs: [rerank.parquet]
+  rr4:      # every passage of the document, plus the score of each (feeds the MaxP and passage channels)
+    gpu: true
+    script: r2ai2026/stages/rerank.py
+    args: [--data, "{data}", --cands, "{pool_cands}/cands.parquet", --out, "{out}",
+           --keep-all, --cut, "{cut}"]
+    smoke_args: [--max-queries, 5]
+    outputs: [rerank.parquet, passages.parquet]
+  m3m:      # BGE-M3 dense + sparse + ColBERT, max over passages (weights 0.4 / 0.2 / 0.4 -> m3all)
+    gpu: true
+    script: r2ai2026/stages/m3_multi.py
+    args: [--data, "{data}", --cands, "{pool_cands}/cands.parquet", --out, "{out}", --cut, "{cut}"]
+    smoke_args: [--part, "0/8"]
+    outputs: [m3multi.parquet]
+  pas:      # pmax / ptop2 / pmix over the passages rr4 scored: the p*, m3p*, m3rp orders need it
+    script: scripts/analysis/pas_agg.py
+    args: [--pas, "{rr4}/passages.parquet", --out, "{out}/pool_pas.parquet", --pool, "{cut}",
+           --pool-file, "{pool_cands}/cands.parquet",
+           --rr, "{rr3}/rerank.parquet",
+           --m3m, "{m3m}/m3multi.parquet"]
+    outputs: [pool_pas.parquet]
+
+  decide:
+    script: r2ai2026/stages/decide_lists.py
+    args: [--job, "{job}", --out, "{out}", --pool, "{cut}",
+           --pool-file, "{pool_cands}/cands.parquet",
+           --rr, "{rr3}/rerank.parquet",
+           --m3m, "{m3m}/m3multi.parquet",
+           --e1, "{bm25_vi_doc}/ranking.parquet",
+           --pas, "{pas}/pool_pas.parquet"]
+    outputs: [lists.parquet]
+
+  materialize:
+    script: r2ai2026/stages/materialize_lists.py
+    args: [--lists, "{decide}", --queries, "{queries}", --corpus, "{store}", --out, "{out}", --window, 4500]
+    outputs: [stats.json]

@@ -1,0 +1,19 @@
+{
+  "id": "tthiutoko/vibiomir-build-mix",
+  "title": "vibiomir-build-mix",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "tthiutoko/vibiomir-corpus-clean",
+    "tthiutoko/vibiomir-corpus-delta-d1",
+    "tthiutoko/vibiomir-rankings"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

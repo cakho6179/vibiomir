@@ -1,0 +1,52 @@
+# System v1 = the #6751 recipe (public FINAL .2743) on docstore v1:
+#   BM25 (doc level, e1) + bge-m3 dense (1500-char passages) -> RRF 1:2 -> bge-reranker-v2-m3 on the fused
+#   top 150 -> keep docs with logit >= -2 (at least 20) -> chunk = 4500-char window around the reranker's
+#   best passage -> LZMA zip.
+# Run:   python -m r2ai2026 run --config configs/system_v1.yaml
+# Smoke: python -m r2ai2026 run --config configs/system_v1.yaml --smoke --allow-cpu --var work=runs/system/smoke
+name: system_v1
+data: data/docstore/v1
+queries: data/raw/btc/query.parquet
+work: runs/system/v1
+prepare: true
+
+stages:
+  bm25:
+    script: r2ai2026/stages/bm25_experiment.py
+    args: [e1, "{data}", "{out}", --queries, "{queries}", --vi-only, --topk, 200, --ns, "28"]
+    smoke_args: [--max-docs, 3000, --max-queries, 20]
+    outputs: [ranking.parquet]
+  dense:
+    gpu: true
+    script: r2ai2026/stages/dense_embed.py
+    args: [--model, BAAI/bge-m3, --data, "{data}", --out, "{out}", --vi-only, --topk, 200]
+    smoke_args: [--max-docs, 2000, --max-queries, 20]
+    outputs: [ranking.parquet]
+  cands:
+    builtin: cands
+    systems: ["{bm25}/ranking.parquet", "{dense}/ranking.parquet"]
+    weights: [1, 2]
+    vi_only: true
+    depth: 200
+    k: 150
+    outputs: [cands.parquet]
+  rerank:
+    gpu: true
+    script: r2ai2026/stages/rerank.py
+    args: [--data, "{data}", --cands, "{cands}/cands.parquet", --out, "{out}"]
+    smoke_args: [--max-queries, 5]
+    outputs: [rerank.parquet]
+  build:
+    script: r2ai2026/stages/build_submission.py
+    args: [--data, "{data}", --out, "{out}"]
+    job:
+      name: system_v1
+      systems: ["{bm25}/ranking.parquet", "{dense}/ranking.parquet"]
+      weights: [1, 2]
+      vi_only: true
+      zip: lzma
+      reorder: false
+      n: [150]
+      cut: {spec: "{rerank}/rerank.parquet", tau: -2.0, min: 20}
+      chunk: {window: 4500, best: "{rerank}/rerank.parquet"}
+    outputs: [system_v1_n150.zip]

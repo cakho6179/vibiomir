@@ -1,0 +1,22 @@
+# CPU side: p(gold) fit, doc/chunk lists, doc2query BM25, pool building, checks, data pipeline.
+# Versions = the environment every local step was run and verified with (Python 3.13.3, Windows 11).
+numpy==2.3.5
+pandas==3.0.2
+pyarrow==24.0.0
+scipy==1.17.1
+scikit-learn==1.8.0
+pyvi==0.1.1
+jieba==0.42.1
+httpx==0.28.1
+PyYAML==6.0.3
+pytest==8.3.3
+# data pipeline (crawl / docstore build)
+trafilatura==2.3.1
+lxml==6.1.3
+beautifulsoup4==4.14.3
+charset-normalizer==3.5.2
+rapidfuzz==3.14.6
+orjson==3.11.9
+zstandard==0.25.0
+bm25s==0.3.9
+tqdm==4.67.3

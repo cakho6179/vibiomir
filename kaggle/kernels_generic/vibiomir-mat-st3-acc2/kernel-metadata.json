@@ -1,0 +1,20 @@
+{
+  "id": "tthiutoko/vibiomir-mat-st3",
+  "title": "vibiomir-mat-st3",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": false,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "tthiutoko/vibiomir-docstore-v21",
+    "tthiutoko/vibiomir-chunk-v21-assets",
+    "tthiutoko/vibiomir-pas-scores",
+    "tthiutoko/vibiomir-mat-lists22"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

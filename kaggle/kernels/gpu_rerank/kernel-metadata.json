@@ -1,0 +1,16 @@
+{
+  "id": "snnguynvnk19hl/vibiomir-gpu-rerank-v1",
+  "title": "vibiomir-gpu-rerank-v1",
+  "code_file": "train.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "snnguynvnk19hl/vibiomir-candidates-650k"
+  ],
+  "competition_sources": [],
+  "kernel_sources": []
+}

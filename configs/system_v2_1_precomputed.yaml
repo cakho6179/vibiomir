@@ -1,0 +1,75 @@
+# System v2.1 with the corpus side precomputed.
+#
+# Build the assets once (GPU for dense, CPU for BM25), then this config only
+# encodes/scores the queries at run time:
+#   query frame (Qwen3.5-9B) -> query variants -> BM25 on the saved index
+#   + bge-m3 search on the saved passage vectors -> RRF -> rerank -> section chunk.
+#
+# Assets (see docs/DATA_CARD.md):
+#   {index}/dense/{vi,zh,en}/{emb.npy,ids.npy}
+#   {index}/bm25/{vi_doc,vi_sec,zh,en}/index/
+#
+# Run:   python -m r2ai2026 run --config configs/system_v2_1_precomputed.yaml
+# Smoke: python -m r2ai2026 run --config configs/system_v2_1_precomputed.yaml \
+#          --stages bm25,dense,cands --allow-cpu --var work=runs/system/smoke_precomputed
+name: system_v2_1_precomputed
+data: data/docstore/v2.1
+queries: data/raw/btc/query.parquet
+work: runs/system/v2_1_precomputed
+prepare: true
+
+vars:
+  index: data/docstore/v2.1/index
+
+stages:
+  frame:
+    gpu: true
+    script: r2ai2026/stages/query_frame.py
+    args: [--data, "{data}", --out, "{out}", --model, Qwen/Qwen3.5-9B]
+    smoke_args: [--max-queries, 5]
+    outputs: [query_frame.parquet]
+  variants:
+    script: r2ai2026/stages/query_variants.py
+    args: [--queries, "{queries}", --frame, "{frame}/query_frame.parquet", --langs, vi,
+           --out, "{out}/query_variants.parquet"]
+    outputs: [query_variants.parquet]
+  bm25:
+    script: r2ai2026/stages/bm25_experiment.py
+    args: [e1, "{data}", "{out}", --queries, "{variants}/query_variants.parquet",
+           --load-index, "{index}/bm25/vi_doc/index", --topk, 3000, --ns, ""]
+    smoke_args: [--max-queries, 20]
+    outputs: [ranking.parquet]
+  dense:
+    gpu: true
+    script: r2ai2026/stages/dense_search.py
+    args: [--model, BAAI/bge-m3, --emb, "{index}/dense/vi/emb.npy",
+           --variants, "{variants}/query_variants.parquet", --out, "{out}",
+           --only, "orig,kw,sub0,sub1,sub2,sub3,sub4,hyde,acro", --topk, 3000]
+    outputs: [ranking.parquet]
+  cands:
+    builtin: cands
+    systems: ["{bm25}/ranking.parquet", "{dense}/ranking.parquet"]
+    weights: [1, 2]
+    vi_only: true
+    depth: 3000
+    k: 150
+    outputs: [cands.parquet]
+  rerank:
+    gpu: true
+    script: r2ai2026/stages/rerank.py
+    args: [--data, "{data}", --cands, "{cands}/cands.parquet", --out, "{out}"]
+    smoke_args: [--max-queries, 5]
+    outputs: [rerank.parquet]
+  build:
+    script: r2ai2026/stages/build_submission.py
+    args: [--data, "{data}", --out, "{out}"]
+    job:
+      name: system_v2_1_precomputed
+      systems: ["{bm25}/ranking.parquet", "{dense}/ranking.parquet"]
+      weights: [1, 2]
+      vi_only: true
+      depth: 3000
+      n: [150]
+      cut: {spec: "{rerank}/rerank.parquet", tau: -2.0, min: 20}
+      chunk: {mode: section, section_max: 4800, window: 4500, best: "{rerank}/rerank.parquet"}
+    outputs: [system_v2_1_precomputed_n150.zip]

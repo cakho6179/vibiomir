@@ -1,0 +1,67 @@
+# Data and run outputs live outside git (raw data is described in data/raw/MANIFEST.md)
+data/**
+!data/raw/
+!data/raw/README.md
+!data/raw/MANIFEST.md
+runs/
+_temp/
+_archive/
+temp_submission/
+submissions/*.zip
+kaggle/outputs/
+kaggle/corpus_dataset/
+kaggle/rankings_ds/
+kaggle/recrawl_missing*/
+kaggle/recrawl/dataset/
+kaggle/recrawl/by_account/*/dataset/
+kaggle/datasets/
+kaggle/chunk_v21_assets/
+kaggle/kaggle_jobs.json
+kaggle_jobs.json
+
+# Large or binary artifacts anywhere
+*.parquet
+*.jsonl
+*.jsonl.gz
+*.gz
+*.zip
+*.npy
+*.npz
+*.pack
+*.sqlite
+*.faiss
+*.pkl
+*.bin
+*.safetensors
+*.pt
+*.pdf
+*.log
+*.err
+missing_index.txt
+
+# Secrets and metadata (never commit)
+kaggle.json
+.env
+*.key
+dataset-metadata.json
+
+# Python / tools
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Dataset staging folders for Kaggle uploads
+kaggle/*_ds/
+kaggle/cc_recover/data/
+kaggle/kernels_generic/*
+!kaggle/kernels_generic/vibiomir-mat-st10-acc2/
+!kaggle/kernels_generic/vibiomir-mat-st11-acc2/
+!kaggle/kernels_generic/vibiomir-mat-st12-acc2/
+!kaggle/kernels_generic/vibiomir-mat-st3-acc2/
+
+# Release packages for BTC (scripts/release/pack_release.py)
+/release/
+# Outputs of reproduce.py
+/out/
+

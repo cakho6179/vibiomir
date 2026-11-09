@@ -1,0 +1,18 @@
+{
+  "id": "tthiutoko/vibiomir-rr4-p1",
+  "title": "vibiomir-rr4-p1",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "tthiutoko/vibiomir-docstore-v21",
+    "tthiutoko/vibiomir-rerank-pool"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [],
+  "model_sources": []
+}

@@ -1,0 +1,19 @@
+{
+  "id": "noskaiser/vibiomir-qv3-e5-b",
+  "title": "vibiomir-qv3-e5-b",
+  "code_file": "run.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "dataset_sources": [
+    "noskaiser/vibiomir-qvariants-v3"
+  ],
+  "competition_sources": [],
+  "kernel_sources": [
+    "noskaiser/vibiomir-e5-vi-b"
+  ],
+  "model_sources": []
+}
