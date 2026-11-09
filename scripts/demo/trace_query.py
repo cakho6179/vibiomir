@@ -59,7 +59,7 @@ CHANNELS = {
            ("BM25 EN · câu hỏi VI", f"{R}/bm25_en_viquery.parquet", None),
            ("BM25 EN · en_kw", f"{Q}/qv3-bm25-en/ranking.parquet", "en_kw")],
 }
-SOURCE = {"crawl": "crawler của đội", "tmh": "HF tmh1008/ViBioMIR-crawled-corpus", "cc": "Common Crawl",
+SOURCE = {"crawl": "crawler của đội", "tmh": "dữ liệu từ Hugging Face", "cc": "Common Crawl",
           "wayback": "Internet Archive Wayback", "direct": "recrawl trực tiếp", "pubmed": "NCBI E-utilities (PubMed)",
           "lc": "recrawl Long Châu"}
 
@@ -270,7 +270,7 @@ def step_crawl(t: dict) -> str:
 nên crawl 1,2 triệu URL dừng được và chạy tiếp được.</li>
 <li><b>PubMed:</b> ~240.000 URL là trang PubMed, lấy tiêu đề và tóm tắt qua NCBI E-utilities thay cho HTML.</li>
 <li><b>Cứu URL chết hoặc bị chặn:</b> Common Crawl (CDX + WARC theo byte), Internet Archive Wayback, recrawl trực tiếp,
-và bộ crawl công khai HF <code>tmh1008/ViBioMIR-crawled-corpus</code> của cùng danh sách URL (qua cổng chất lượng).</li>
+và dữ liệu crawl công khai từ Hugging Face của cùng danh sách URL (qua cổng chất lượng).</li>
 <li>Còn <b>27.925 URL</b> không lấy được (403, rỗng).</li></ul>
 <p class=note>Tài liệu đang theo dõi: <b>{t['doc']}</b>, nguồn <b>{E(SOURCE.get(src, str(src)))}</b>.</p>
 </div><div><table class=src><tr><th>Nguồn</th><th class=n>Tài liệu</th><th></th></tr>{rows}
