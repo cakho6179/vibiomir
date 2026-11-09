@@ -143,6 +143,7 @@ def trace(qid: int, doc: int | None) -> dict:
              frame=read(FRAME, qid) if FRAME.exists() else pd.DataFrame(),
              variants=read(VARIANTS, qid) if VARIANTS.exists() else pd.DataFrame(), chunks=chunks)
     t.update(follow(t, docs))
+    t["story"] = chunk_story(t)
     return t
 
 
@@ -229,6 +230,10 @@ def print_trace(t: dict) -> bool:
         print(f"  {'OK ' if got == want else 'SAI'} {name}")
     if t.get("chunk"):
         print(f"  OK  chunk là lát cắt nguyên văn [{t['chunk']['start']}, {t['chunk']['end']}) của tài liệu")
+    same = (t.get("story") or {}).get("same")
+    if same is not None:
+        print(f"  {'OK ' if same else 'SAI'} chunk_stair sản xuất cho đúng văn bản chunk đã nộp")
+        ok &= same
     elif t["body"] is None:
         print(f"  (chưa có văn bản: chạy `python run.py --demo --prepare --qids {t['qid']}` một lần)")
     return ok
@@ -268,9 +273,9 @@ def step_crawl(t: dict) -> str:
 <ul><li><b>Crawler bất đồng bộ</b> (<code>r2ai2026/crawl/fetch.py</code>): ít kết nối mỗi host, tôn trọng
 <code>robots.txt</code>, trích nội dung bằng trafilatura và có đường lui lxml. Tiến độ lưu SQLite, dữ liệu lưu JSONL nối tiếp,
 nên crawl 1,2 triệu URL dừng được và chạy tiếp được.</li>
-<li><b>PubMed:</b> ~240.000 URL là trang PubMed, lấy tiêu đề và tóm tắt qua NCBI E-utilities thay cho HTML.</li>
-<li><b>Cứu URL chết hoặc bị chặn:</b> Common Crawl (CDX + WARC theo byte), Internet Archive Wayback, recrawl trực tiếp,
-và dữ liệu crawl công khai từ Hugging Face của cùng danh sách URL (qua cổng chất lượng).</li>
+<li><b>Cứu URL chết hoặc bị chặn</b> (bảng bên phải): Common Crawl (tra CDX, lấy bản ghi WARC theo byte),
+Internet Archive Wayback, NCBI E-utilities cho trang PubMed, recrawl trực tiếp, và dữ liệu crawl công khai từ Hugging Face
+của cùng danh sách URL (qua cổng chất lượng).</li>
 <li>Còn <b>27.925 URL</b> không lấy được (403, rỗng).</li></ul>
 <p class=note>Tài liệu đang theo dõi: <b>{t['doc']}</b>, nguồn <b>{E(SOURCE.get(src, str(src)))}</b>.</p>
 </div><div><table class=src><tr><th>Nguồn</th><th class=n>Tài liệu</th><th></th></tr>{rows}
@@ -306,32 +311,66 @@ def step_docstore(t: dict) -> str:
     fields = "" if meta is None else (
         f"<dl><dt>doc_id</dt><dd>{t['doc']}</dd><dt>URL</dt><dd>{E(meta['url'])}</dd><dt>Ngôn ngữ · nguồn</dt>"
         f"<dd>{LANG.get(meta['lang'], meta['lang'])} · {E(SOURCE.get(meta['source'], meta['source']))}</dd>"
-        f"<dt>Thân bài</dt><dd>{fmt(n)} ký tự · {int(meta['n_passages'])} đoạn · khung trang {fmt(meta['furniture_chars'])} ký tự</dd></dl>")
+        f"<dt>Thân bài</dt><dd>{fmt(n)} ký tự · {int(meta['n_passages'])} đoạn · {len(t.get('sections', []))} mục · khung trang {fmt(meta['furniture_chars'])} ký tự</dd></dl>")
     return f"""<p>Mỗi URL thành <b>một bản ghi</b> <code>{{id, url, t, x}}</code>.
 Văn bản được chuẩn hoá (entity, Unicode, khoảng trắng) nhưng <b>không viết lại</b>. Phần khung trang (menu, footer, CTA…)
 được <b>đánh dấu</b> bằng span chứ không xoá. Vì thế mọi chunk nộp đều cắt nguyên văn được từ thân bài.</p>
 {fields}{bar(n, layers, ticks=ticks)}
-<p class=legend><span style="background:#c9dbef"></span><span style="background:#9fbfe0"></span>đoạn ~1.500 ký tự (đơn vị của chỉ mục dense)
-<span style="background:#1d232a;width:3px"></span>ranh giới mục ≤ 4.800 ký tự (chỉ mục BM25-section)
+<p class=legend><span style="background:#c9dbef"></span><span style="background:#9fbfe0"></span>đoạn (<code>passages.parquet</code>: theo đoạn văn, ~1.500 ký tự)
+<span style="background:#1d232a;width:3px"></span>ranh giới mục (<code>sections.parquet</code>: theo heading, ≤ 4.800 ký tự)
 <span style="background:#c0392b"></span>khung trang (đánh dấu, không xoá)</p>
+<p class=note>Mỗi chỉ mục cắt tài liệu theo đơn vị riêng của nó (bước Chỉ mục đếm trực tiếp trong các tệp chỉ mục).</p>
 <details><summary>Các mục của tài liệu</summary><ul>{sec}</ul></details>
 <details><summary>Thân bài (khung trang được tô đỏ)</summary>{text or '<p class=note>Chạy --prepare để có văn bản.</p>'}</details>"""
 
 
+_IDX: dict = {}
+
+
+def index_units(doc: int, lang: str) -> dict[str, int | None]:
+    """Units of the document in each index, counted in the index files themselves (None: index files absent)."""
+    def arr(p: Path) -> np.ndarray:
+        if p not in _IDX:
+            _IDX[p] = np.load(p, mmap_mode="r")
+        return _IDX[p]
+
+    out: dict[str, int | None] = {}
+    base = DS / "index"
+    for k in {"vi": ["vi_doc", "vi_sec"], "zh": ["zh"], "en": ["en"]}.get(lang, []):
+        d, u = base / f"bm25/{k}/index/doc_ids.npy", base / f"bm25/{k}/index/unit_doc.npy"
+        if d.exists() and u.exists():
+            pos = np.flatnonzero(arr(d) == doc)
+            out[k] = int((arr(u) == pos[0]).sum()) if len(pos) else 0
+        else:
+            out[k] = None
+    ids = base / f"dense/{lang}/ids.npy"
+    out["dense"] = int((arr(ids) == doc).sum()) if ids.exists() else None
+    return out
+
+
 def step_index(t: dict) -> str:
-    lang = LANG.get(t["lang"], t["lang"])
-    nsec = len(t.get("sections", pd.DataFrame()))
-    npas = int(t["meta"]["n_passages"]) if t.get("meta") is not None else 0
-    cards = [("BM25 VI-doc", "732.246 tài liệu · âm tiết giữ dấu · k1 1,5, b 0,75", lang == "VI", "1 vector từ cho cả tài liệu"),
-             ("BM25 VI-section", "1.208.509 mục ≤ 4.800 ký tự", lang == "VI", f"{nsec} mục"),
-             ("BM25 ZH", "220.532 tài liệu · tách từ jieba", lang == "ZH", "1 vector từ"),
-             ("BM25 EN", "239.895 tài liệu", lang == "EN", "1 vector từ"),
-             ("BGE-M3 dense", "3.120.100 đoạn · 1.024 chiều · fp16 · điểm tài liệu = đoạn tốt nhất (MaxP)", True,
-              f"{npas} vector đoạn")]
-    html_cards = "".join(f'<div class="card{" on" if on else ""}"><h3>{E(a)}</h3><p>{E(b)}</p>'
-                         f'<p class=note>{E(c) if on else "không chứa tài liệu này"}</p></div>' for a, b, on, c in cards)
-    return f"""<p>Chỉ mục dựng <b>một lần</b> trên toàn bộ docstore. Lúc truy vấn chỉ cần mã hoá câu hỏi.
-Tài liệu {t['doc']} ({lang}) nằm trong các chỉ mục được tô:</p><div class=cards>{html_cards}</div>"""
+    lang = t["lang"]
+    units = index_units(t["doc"], lang)
+    cards = [("vi_doc", "BM25 VI-doc", "732.246 tài liệu tiếng Việt · token âm tiết giữ dấu · k1 1,5, b 0,75", "tài liệu"),
+             ("vi_sec", "BM25 VI-section", "1.208.509 mục theo heading, 2.000–4.800 ký tự", "mục"),
+             ("zh", "BM25 ZH", "220.532 tài liệu tiếng Trung · tách từ jieba", "tài liệu"),
+             ("en", "BM25 EN", "239.895 tài liệu tiếng Anh", "tài liệu"),
+             ("dense", f"BGE-M3 dense {LANG.get(lang, lang)}",
+              "đoạn 500 ký tự, chồng 100 · " if lang == "zh" else "đoạn ≤ 1.500 ký tự theo đoạn văn, có tiêu đề ở đầu · ", "vector")]
+    total_dense = {"vi": "2.224.624", "zh": "557.732", "en": "337.744"}.get(lang, "")
+    html_cards = ""
+    for key, name, desc, unit in cards:
+        if key == "dense":
+            desc += f"{total_dense} vector 1.024 chiều, fp16 · điểm tài liệu = đoạn tốt nhất (MaxP)"
+        on = key in units
+        n = units.get(key)
+        note = ("không thuộc chỉ mục này (khác ngôn ngữ)" if not on else
+                "thiếu tệp chỉ mục trên máy" if n is None else f"tài liệu này: {n} {unit}")
+        html_cards += (f'<div class="card{" on" if on else ""}"><h3>{E(name)}</h3><p>{E(desc)}</p>'
+                       f'<p class=note>{E(note)}</p></div>')
+    return f"""<p>Chỉ mục dựng <b>một lần</b> trên toàn bộ docstore. Lúc truy vấn chỉ cần mã hoá câu hỏi rồi tra.
+Các ô được tô là những chỉ mục chứa tài liệu {t['doc']} ({LANG.get(lang, lang)}); số đơn vị đếm trực tiếp trong tệp chỉ mục.</p>
+<div class=cards>{html_cards}</div>"""
 
 
 def step_query(t: dict) -> str:
@@ -448,28 +487,93 @@ def step_depth(t: dict) -> str:
 <table><tr><th>#</th><th>doc</th><th>NN</th><th class=n>rr3</th><th class=n>p</th><th>vào bài</th><th>host</th></tr>{rows}</table></details>"""
 
 
+def production_chunker():
+    """stair_chunk and lexical_best exactly as the production materialize step imported them (from --prepare)."""
+    import importlib.util
+    f, code = OUT / "tools/chunk_stair.py", OUT / "mat_in/vibiomir-code"
+    if not f.exists() or not code.exists():
+        return None, None
+    spec = importlib.util.spec_from_file_location("chunk_stair_prod", f)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    if str(code) not in sys.path:
+        sys.path.insert(0, str(code))
+    from r2ai2026.stages.build_submission import lexical_best  # noqa: E402
+    return mod.stair_chunk, lexical_best
+
+
+def chunk_story(t: dict) -> dict | None:
+    """How the submitted chunk of the followed document was cut: seed, every growth round, and a check that the
+    production function gives exactly the submitted text."""
+    body, ch = t["body"], t.get("chunk")
+    if not body or not ch:
+        return None
+    title, text, spans = body["title"], body["text"], [tuple(x) for x in body["spans"]]
+    prof = t["profile"]["score"].tolist() if len(t["profile"]) else None
+    stair, lexical_best = production_chunker()
+    lex = lexical_best(t["query"], title, text, spans) if lexical_best else None
+    out = {"whole": len((title + "\n" + text).strip()) <= 4500, "rounds": [], "same": None}
+    if stair:
+        out["same"] = stair(title, text, spans, None, prof, 4500, 4500, 0.30, lex) == ch["text"]
+    if out["whole"] or not spans:
+        return out
+    best = lex if lex is not None else 0
+    if prof:
+        m = min(len(prof), len(spans))
+        best = max(range(m), key=lambda k: (prof[k], -k))
+    out["seed"] = best
+    i = j = best  # the loop of chunk_stair._window, recorded round by round
+    grew = True
+    while grew:
+        grew, tried = False, []
+        for ni, nj in ((i, j + 1), (i - 1, j)):  # both candidates come from the window at the start of the round
+            ok = 0 <= ni and nj < len(spans) and spans[nj][1] - spans[ni][0] <= 4500
+            tried.append((ni, nj, ok, spans[nj][1] - spans[ni][0] if 0 <= ni and nj < len(spans) else None))
+            if ok:
+                i, j, grew = ni, nj, True
+        out["rounds"].append((tried, (i, j)))
+    out["window"] = (i, j)
+    return out
+
+
 def step_chunk(t: dict) -> str:
     body, ch = t["body"], t.get("chunk")
     if not body or not ch:
         return f"<p class=note>Chạy <code>python run.py --demo --prepare --qids {t['qid']}</code> một lần để có văn bản chunk.</p>"
+    st = t.get("story") or {}
     n = len(body["text"])
-    x, w = xs(ch["start"], ch["end"], n)
-    layers = [f'<rect x="{x:.1f}" y="26" width="{w:.1f}" height="52" fill="none" stroke="#d9822b" stroke-width="5"/>']
+    layers = []
     for i, (a, b) in enumerate(body["spans"]):
         sx, sw = xs(a, b, n)
-        layers.insert(0, f'<rect x="{sx:.1f}" y="30" width="{sw:.1f}" height="44" fill="{"#c9dbef" if i % 2 else "#dde8f4"}"/>')
-    if len(t["profile"]) == len(body["spans"]):
-        seed = int(t["profile"]["score"].to_numpy().argmax())
-        sx, sw = xs(*body["spans"][seed], n)
+        layers.append(f'<rect x="{sx:.1f}" y="30" width="{sw:.1f}" height="44" fill="{"#c9dbef" if i % 2 else "#dde8f4"}"/>'
+                      f'<text x="{sx + sw / 2:.1f}" y="58" font-size="15" text-anchor="middle" fill="#5b6570">{i}</text>')
+    if "seed" in st:
+        sx, sw = xs(*body["spans"][st["seed"]], n)
         layers.append(f'<rect x="{sx:.1f}" y="30" width="{sw:.1f}" height="44" fill="#1f5fa8" opacity=".85"/>'
                       f'<text x="{sx + sw / 2:.1f}" y="20" font-size="15" text-anchor="middle" fill="#1f5fa8">hạt giống rr4</text>')
-    how = ("Tài liệu (tiêu đề + thân bài) ≤ 4.500 ký tự nên được lấy trọn." if ch["whole"] else
-           "Cửa sổ bắt đầu từ đoạn có điểm rr4 cao nhất (hạt giống), nở sang đoạn kế sau rồi đoạn kế trước, theo biên đoạn, "
-           "tới khi không thêm được đoạn nào mà vẫn ≤ 4.500 ký tự.")
-    return f"""<p>{E(how)} Văn bản là <b>lát cắt nguyên văn</b> [{fmt(ch['start'])}, {fmt(ch['end'])}) của thân bài:
-demo kiểm điều này mỗi lần mở.</p>{bar(n, layers)}
+    x, w = xs(ch["start"], ch["end"], n)
+    layers.append(f'<rect x="{x:.1f}" y="26" width="{w:.1f}" height="52" fill="none" stroke="#d9822b" stroke-width="5"/>')
+    if st.get("whole"):
+        how = "<p>Tiêu đề + thân bài ≤ 4.500 ký tự, nên chunk là <b>cả tài liệu</b>.</p>"
+    else:
+        rows = ""
+        for k, (tried, (i, j)) in enumerate(st.get("rounds", []), 1):
+            tt = " · ".join(f"[{a}–{b}] {'—' if L is None else fmt(L) + ' ký tự'} {'✔' if ok else '✘'}" for a, b, ok, L in tried)
+            rows += f"<tr><td>{k}</td><td>{E(tt)}</td><td>[{i}–{j}]</td></tr>"
+        how = (f"<p>Thân bài chia thành {len(body['spans'])} span (cùng các span reranker đã chấm ở rr4). "
+               f"Hạt giống là span có điểm rr4 cao nhất: <b>span {st.get('seed')}</b>. Mỗi vòng, từ cửa sổ đầu vòng, thử nối "
+               "thêm một span phía sau rồi một span phía trước; phép thử nào vẫn ≤ 4.500 ký tự thì thay cửa sổ. Vì thế khi cả hai "
+               "đều vừa thì phép thử thứ hai (phía trước) được giữ. Dừng khi không phép thử nào vừa.</p>"
+               f"<table><tr><th>Vòng</th><th>Thử [span đầu–span cuối]</th><th>Giữ</th></tr>{rows}</table>")
+    same = st.get("same")
+    check = ("" if same is None else
+             f"<li class={'ok' if same else 'bad'}>{'✔' if same else '✘'} hàm chunk_stair của lần chạy sản xuất cho đúng văn bản chunk đã nộp</li>")
+    return f"""{bar(n, layers)}
 <p class=legend><span style="background:#1f5fa8"></span>hạt giống rr4 <span style="border:3px solid #d9822b;background:none"></span>
-cửa sổ chunk nộp ({fmt(len(ch['text']))} ký tự)</p><pre class=doc>{E(ch['text'][:1600])}{' …' if len(ch['text']) > 1600 else ''}</pre>"""
+chunk nộp: lát cắt nguyên văn [{fmt(ch['start'])}, {fmt(ch['end'])}), {fmt(len(ch['text']))} ký tự</p>
+<div class=two><div>{how}</div><div>
+<ul class=checks><li class=ok>✔ chunk là lát cắt nguyên văn của thân bài</li>{check}</ul></div></div>
+<pre class=doc>{E(ch['text'][:1600])}{' …' if len(ch['text']) > 1600 else ''}</pre>"""
 
 
 def step_output(t: dict) -> str:
