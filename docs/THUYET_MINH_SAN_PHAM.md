@@ -84,7 +84,7 @@ Mọi chỉ mục được dựng **một lần** trên docstore v2.1 (Kaggle GP
 | BM25 VI-section | mục ≤ 4.800 ký tự (heading-aware, tối thiểu 2.000) | 1.208.509 mục | như trên, mức mục |
 | BM25 ZH | tài liệu | 220.532 doc | token jieba |
 | BM25 EN | tài liệu | 239.895 doc | token từ |
-| Dense VI / ZH / EN | đoạn 1.500 ký tự, theo đoạn văn, có tiêu đề ở đầu | 2.224.624 / 557.732 / 337.744 đoạn | BGE-M3, 1.024 chiều, fp16, chuẩn hoá L2 (`dense_embed.py --save-emb`); 4 shard VI gộp bằng `merge_dense_shards.py` |
+| Dense VI / ZH / EN | VI, EN: đoạn ≤ 1.500 ký tự theo đoạn văn, có tiêu đề ở đầu; ZH: đoạn 500 ký tự chồng 100 | 2.224.624 / 557.732 / 337.744 đoạn | BGE-M3, 1.024 chiều, fp16, chuẩn hoá L2 (`dense_embed.py --save-emb`); 4 shard VI gộp bằng `merge_dense_shards.py` |
 
 Điểm tài liệu của dense = cosine lớn nhất trên các đoạn (MaxP). Kernel dựng: `kaggle/kernels_generic/vibiomir-v21-{bm25-*,m3-*}`.
 
@@ -150,7 +150,7 @@ Chỉ dùng **điểm tổng hợp trên leaderboard** của bài của chính �
 - **Văn bản chunk** (`r2ai2026/stages/chunk_stair.py`, chế độ `seed`, chạy trong kernel materialize):
   - Một cửa sổ ≤ 4.500 ký tự **trích nguyên văn** từ tài liệu.
   - Tài liệu (tiêu đề + thân bài) ≤ 4.500 ký tự thì lấy trọn.
-  - Ngược lại, hạt giống là đoạn có điểm rr4 cao nhất. Cửa sổ nở lần lượt sang đoạn kế sau rồi đoạn kế trước, theo biên đoạn, cho tới khi không thêm được đoạn nào mà vẫn ≤ 4.500 ký tự.
+  - Ngược lại, hạt giống là span có điểm rr4 cao nhất (span = các đoạn reranker đã chấm). Mỗi vòng, từ cửa sổ đầu vòng, thử nối một span phía sau và một span phía trước; phép thử nào vẫn ≤ 4.500 ký tự thì thay cửa sổ, nên khi cả hai đều vừa thì phía trước được giữ. Dừng khi không nối được span nào (`chunk_stair._window`).
   - Khi thiếu hồ sơ điểm, hạt giống là đoạn trùng nhiều âm tiết với câu hỏi nhất.
   - Độ dài 4.500 được chọn bằng thí nghiệm public: cửa sổ 1.500 / 3.000 / 4.500 / 6.000 / 7.500 cho chunks F2 lần lượt 0,094 / 0,225 / 0,235 / 0,235 / 0,235. Tức là bão hoà từ 4.500.
 - **Đóng gói:** `submission.json` (id, relevant_docs, relevant_chunks), nén LZMA, 92,6 MB.
