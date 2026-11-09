@@ -1,22 +1,19 @@
 """Universal Entrypoint for ViBioMIR System (R2AI 2026 Stage 3).
 
-This script provides a single entry point to execute either:
-1. Fast Verification Mode (Verify private submissions #7892, #7893, #7894, #7916, #7917 in ~1 min on CPU).
-2. End-to-End Pipeline Mode (Execute full retrieval, reranking, and submission build from raw queries).
-3. Smoke Mode (Rapid 30-second pipeline test on 5 queries, suitable for laptops and CPU-only environments).
+Modes:
+1. --verify: rebuild the lists of the 5 private submissions (#7892, #7893, #7894, #7916, #7917) from the shipped
+   artifacts and check them against the submitted ones (reproduce.py; CPU, ~30 s; add --zip for the zip, ~25 min).
+2. --demo: replay of the production run for one question, checked against the submitted lists
+   (scripts/demo/trace_query.py; CPU, a few seconds; writes out/demo/q<id>.html).
+3. Pipeline mode (default): the stage runner (r2ai2026/system/runner.py) on a config. The configs in configs/ are
+   the earlier system versions v2.1 / v3; the final #7892 / #7916 come from the Kaggle kernels (README, tier C) plus
+   reproduce.py. Stages marked gpu (Qwen3.5-9B, BGE-M3, reranker) need a GPU in practice.
 
 Usage Examples:
-    # 1. Quick verification of the official submitted files (CPU, ~1 min):
     python run.py --verify
-
-    # 2. Run smoke test on laptop CPU:
-    python run.py --smoke --allow-cpu
-
-    # 3. Run full end-to-end pipeline from precomputed index:
-    python run.py --config configs/system_v2_1_precomputed.yaml
-
-    # 4. Dry-run pipeline to inspect stages and parameters:
-    python run.py --dry-run
+    python run.py --demo --qid 401
+    python run.py --demo --prepare --qids 1,401,556
+    python run.py --dry-run          # print the stages of the default config
 """
 from __future__ import annotations
 
@@ -37,6 +34,11 @@ def main() -> None:
         "--verify",
         action="store_true",
         help="Run verification check on the 5 private submissions (#7892 etc.) via reproduce.py",
+    )
+    parser.add_argument(
+        "--demo",
+        action="store_true",
+        help="Replay one question (--qid N) through the production run; --prepare --qids adds chunk text",
     )
     parser.add_argument(
         "--config",
@@ -74,6 +76,10 @@ def main() -> None:
         cmd = [sys.executable, str(ROOT / "reproduce.py"), *extra]
         ret = subprocess.run(cmd, cwd=str(ROOT))
         sys.exit(ret.returncode)
+
+    if args.demo:
+        cmd = [sys.executable, str(ROOT / "scripts" / "demo" / "trace_query.py"), *extra]
+        sys.exit(subprocess.run(cmd, cwd=str(ROOT)).returncode)
 
     # Otherwise execute full system runner pipeline
     print(f"[run.py] Executing Pipeline Mode with config: {args.config}...", flush=True)

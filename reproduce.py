@@ -26,6 +26,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import subprocess
 import sys
 import time
@@ -114,12 +115,15 @@ def build_zips(lists: pd.DataFrame, jobs: list[str], out: Path) -> dict[str, Pat
     if corpus.is_symlink() or getattr(corpus, "is_junction", lambda: False)():  # drop the link only, never the docstore behind it
         os.rmdir(corpus) if os.name == "nt" else corpus.unlink()
     for d in (stage, tools):
-        if d.exists():
+        if d.exists():  # an earlier run may have copied a read-only file: clear the flag first
+            for f in d.rglob("*"):
+                if f.is_file():
+                    os.chmod(f, stat.S_IWRITE | stat.S_IREAD)
             shutil.rmtree(d)
     stage.mkdir(parents=True)
     lists[lists["job"].isin(jobs)].to_parquet(stage / "lists.parquet", index=False)
-    shutil.copy(ROOT / "data/raw/btc/query.parquet", stage / "query.parquet")
-    shutil.copy(ROOT / "kaggle/datasets/pas_scores/pas_scores.parquet", stage / "pas_scores.parquet")
+    shutil.copyfile(ROOT / "data/raw/btc/query.parquet", stage / "query.parquet")  # copyfile: not the read-only flag
+    shutil.copyfile(ROOT / "kaggle/datasets/pas_scores/pas_scores.parquet", stage / "pas_scores.parquet")
     with zipfile.ZipFile(ROOT / "kaggle/chunk_v21_assets/vibiomir-code.zip") as z:  # pinned r2ai2026 (06f71bf-dirty)
         z.extractall(stage / "vibiomir-code")
     link_dir((ROOT / "data/docstore/v2.1/corpus").resolve(), stage / "corpus")
