@@ -14,6 +14,7 @@ Usage Examples:
     python run.py --demo --qid 401
     python run.py --web              # local demo website over the 1,200 questions
     python run.py --demo --prepare --qids 1,401,556
+    python run.py --demo --grid      # once: data of the 100-document grid shown from step 6 of the demo
     python run.py --dry-run          # print the stages of the default config
 """
 from __future__ import annotations

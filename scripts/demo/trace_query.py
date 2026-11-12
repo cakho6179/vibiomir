@@ -5,6 +5,12 @@ labels: p(gold) is the model's estimate.
     python run.py --demo --prepare --qids 1,401,556     # once (~2 min): document text + chunk text for these questions
     python run.py --demo --qid 401                      # out/demo/q401.html: one step per screen, arrow keys to move
     python run.py --demo --qid 401 --doc 1341776        # follow another document of the list
+    python run.py --demo --grid                         # once (~25 s): chunk of the top-100 documents of every question,
+                                                        # read from submissions/N1_n125.zip (sha256 checked vs #7916)
+
+From step 6 on, the 100 highest-p documents of the question are drawn as a fixed 10x10 grid, coloured by what each
+step knows (language and best channel rank; rr3; p and the cut-lines; submitted chunk length), with a table below.
+On the web site a cell opens the walkthrough for that document.
 
 Steps: crawl -> docstore record -> index -> query frame -> retrieval channels -> pool -> rerank -> p(gold) and depth
 -> chunk -> submission entry. Every number comes from the shipped files; the depth and the lists are checked
@@ -15,10 +21,13 @@ production run (kernel bundle vibiomir-mat-st3-acc2) for the chunk text, it does
 from __future__ import annotations
 
 import argparse
+import codecs
 import glob
 import gzip
+import hashlib
 import html
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -41,6 +50,11 @@ LISTS = {"pN3_base": ROOT / "kaggle/datasets/mat_lists22/lists.parquet",
 FRAME = ROOT / "kaggle/outputs/query-frame-v3/query_frame.parquet"
 VARIANTS = ROOT / "kaggle/datasets/qvariants_v3_acc1/query_variants.parquet"
 CHUNKS, DOCS = OUT / "chunks.parquet", OUT / "docs.parquet"
+# the 100-document grid of steps 6-9: chunk length and a preview for every top-100 document with a submitted chunk
+# (built once by --grid from the submitted file), and the docstore/index steps saved from pages rendered with the
+# docstore present (used only when data/docstore/v2.1 is not on this machine)
+TOP100, SNAP, GRID = OUT / "top100.parquet", OUT / "snapshot.json", 100
+SUBMISSION = ROOT / "submissions/N1_n125.zip"  # #7916: same chunk lists as #7892 (checked on every page)
 CONV, GC, DEPTH = 0.77, 75 / 71, 1.25  # as in scripts/analysis/pn3_lists.py
 LANG = {"vi": "VI", "zh": "ZH", "en": "EN"}
 R, Q = "data/rankings_v21", "kaggle/outputs"
@@ -121,6 +135,8 @@ def trace(qid: int, doc: int | None) -> dict:
         "n_c = argmax E[F2] của chunks": (n_chunk, len(ids("pN3_base", "chunk"))),
         "danh sách chunks = n_c tài liệu p cao nhất (#7892 và #7916)":
             (top[:n_chunk] == ids("pN3_base", "chunk") == ids("N1_n125", "chunk"), True),
+        f"lưới {GRID} ô (theo p) khớp đầu danh sách docs #7892":
+            (top[:min(n_doc, GRID)] == ids("pN3_base", "doc")[:min(n_doc, GRID)], True),
     }
     rr3 = read_many("kaggle/outputs/rr3-p*/rerank.parquet", qid)
     m3 = read_many("kaggle/outputs/m3m-p*/m3multi.parquet", qid)
@@ -142,9 +158,40 @@ def trace(qid: int, doc: int | None) -> dict:
              n_chunk=n_chunk, n_deep=n_deep, checks=checks, pool=pool, doc=int(doc), top=top,
              frame=read(FRAME, qid) if FRAME.exists() else pd.DataFrame(),
              variants=read(VARIANTS, qid) if VARIANTS.exists() else pd.DataFrame(), chunks=chunks)
+    t["grid"] = grid_frame(qid, sc)
     t.update(follow(t, docs))
     t["story"] = chunk_story(t)
     return t
+
+
+def channel_ranks(qid: int, lang: str) -> list[tuple[str, dict[int, int]]]:
+    """Rank of every document in each retrieval channel of one language (1 = top)."""
+    out = []
+    for label, path, variant in CHANNELS.get(lang, []):
+        f = ROOT / path
+        if not f.exists():
+            continue
+        x = read(f, qid)
+        if variant is not None and "variant" in x:
+            x = x[x["variant"] == variant]
+        x = x.sort_values("score", ascending=False)  # dense shards restart at rank 0
+        out.append((label, dict(zip(x["doc_id"].astype(int), range(1, len(x) + 1)))))
+    return out
+
+
+def grid_frame(qid: int, sc: pd.DataFrame) -> pd.DataFrame:
+    """The first GRID candidates in final p order, with their best channel rank and their submitted chunk."""
+    g = sc.head(GRID).reset_index(drop=True)
+    ch = read(TOP100, qid) if TOP100.exists() else pd.DataFrame(columns=["doc_id", "chunk_len", "preview"])
+    g = g.merge(ch[["doc_id", "chunk_len", "preview"]], on="doc_id", how="left")  # keeps the p order
+    ranks = {lang: channel_ranks(qid, lang) for lang in g["lang"].unique()}
+    best, label, hits = [], [], []
+    for d, lang in zip(g["doc_id"].astype(int), g["lang"]):
+        rs = sorted((m[d], lab) for lab, m in ranks.get(lang, []) if d in m)
+        best.append(rs[0][0] if rs else None)
+        label.append(rs[0][1] if rs else "")
+        hits.append(f"{len(rs)}/{len(ranks.get(lang, []))}")
+    return g.assign(best_rank=best, best_ch=label, n_ch=hits)
 
 
 def follow(t: dict, docs: pd.DataFrame) -> dict:
@@ -259,7 +306,141 @@ def xs(a: int, b: int, n: int) -> tuple[float, float]:
     return 1000 * a / max(n, 1), max(1000 * (b - a) / max(n, 1), 1.5)
 
 
+_SNAP: dict | None = None
+
+
+def snapshot(t: dict, k: int) -> str | None:
+    """Step k as rendered when the docstore was on this machine (same question and document), else None."""
+    global _SNAP
+    if (DS / "docs_meta.parquet").exists() or not SNAP.exists():
+        return None
+    if _SNAP is None:
+        _SNAP = json.loads(SNAP.read_text(encoding="utf-8"))
+    return _SNAP.get(f"{t['qid']}:{t['doc']}", {}).get(str(k))
+
+
+NO_DS = ("<p class=note>Docstore v2.1 (URL, mục, khung trang) và các tệp chỉ mục không có trên máy này; "
+         "phần dưới dùng văn bản đã chuẩn bị của tài liệu.</p>")
+
+# ------------------------------------------------------------------------------------------------ 100-document grid
+
+LANGC = {"vi": ("#1f5fa8", "#fff"), "zh": ("#e8a33d", "#14213d"), "en": ("#7fb0e8", "#14213d")}
+MODES = {"lang": 6, "rr3": 7, "p": 8, "chunk": 9}  # grid colour of each step (step number for the cell links)
+
+
+def heat(k: float) -> tuple[str, str]:
+    a, b = (238, 242, 247), (20, 33, 61)
+    c = tuple(int(x + (y - x) * k) for x, y in zip(a, b))
+    return f"rgb{c}", "#fff" if k > .5 else "#1d232a"
+
+
+def kchars(n: float) -> str:
+    return fmt(n / 1000, 1) + "k"
+
+
+def membership(t: dict, i: int) -> str:
+    parts = ["docs #7892" if i < t["n_doc"] else ("docs #7916" if i < t["n_deep"] else "")]
+    parts.append("chunk" if i < t["n_chunk"] else "")
+    return " · ".join(p for p in parts if p) or "không nộp"
+
+
+def grid(t: dict, mode: str) -> str:
+    g, step = t["grid"], MODES[mode]
+    lo = hi = 0.0
+    if mode in ("rr3", "p"):
+        v = g[mode].astype(float)
+        lo, hi = float(v.min()), float(v.max())
+    cells = []
+    for r in g.itertuples():
+        i, d = r.Index, int(r.doc_id)
+        cls = ["c"]
+        if mode == "lang":
+            (bg, fg), sub = LANGC.get(r.lang, ("#ccc", "#000")), (f"#{int(r.best_rank)}" if pd.notna(r.best_rank) else "—")
+        elif mode in ("rr3", "p"):
+            val = getattr(r, mode)
+            k = 0.0 if pd.isna(val) or hi <= lo else (float(val) - lo) / (hi - lo)
+            (bg, fg), sub = heat(k), ("—" if pd.isna(val) else fmt(float(val), 2 if mode == "rr3" else 3))
+        else:
+            inside = i < t["n_chunk"]
+            bg, fg = ("#d9822b", "#fff") if inside else ("#ebe9e2", "#5b6570")
+            sub = kchars(r.chunk_len) if inside and pd.notna(r.chunk_len) else "—"
+        cut = t["n_chunk"] if mode == "chunk" else t["n_doc"]
+        if mode in ("p", "chunk") and i >= cut:
+            cls.append("deep" if mode == "p" and i < t["n_deep"] else "dim")
+        if d == t["doc"]:
+            cls.append("me")
+        rr3 = "—" if pd.isna(r.rr3) else f"{r.rr3:.2f}"
+        pool = f"{r.set} #{int(r.pool_rank) + 1}" if pd.notna(r.pool_rank) else "—"
+        best = f"{r.best_ch} #{int(r.best_rank)}" if pd.notna(r.best_rank) else "không kênh nào"
+        tip = (f"#{i + 1} · tài liệu {d} · {LANG.get(r.lang, r.lang)} · p {r.p:.3f} · rr3 {rr3} · pool {pool}\n"
+               f"kênh tốt nhất: {best} (có mặt ở {r.n_ch} kênh)\nvào bài: {membership(t, i)}"
+               + (f" · đoạn trích {fmt(r.chunk_len)} ký tự" if pd.notna(r.chunk_len) and i < t["n_chunk"] else ""))
+        inner = f"<b>{i + 1}</b><i>{LANG.get(r.lang, r.lang)}</i><span>{E(sub)}</span>"
+        attrs = f'class="{" ".join(cls)}" style="background:{bg};color:{fg}" title="{E(tip)}"'
+        cells.append(f'<a {attrs} href="?doc={d}#{step}">{inner}</a>' if t.get("web") else f"<div {attrs}>{inner}</div>")
+    return f'<div class=grid>{"".join(cells)}</div>'
+
+
+def grid_block(t: dict, mode: str) -> str:
+    g, n = t["grid"], len(t["grid"])
+    if mode == "lang":
+        far = int((g["best_rank"].isna() | (g["best_rank"].astype(float) > 100)).sum())
+        top = int((g["best_rank"].astype(float) <= 10).sum())
+        pools = " · ".join(f"{k} {v}" for k, v in g["set"].value_counts().items())
+        head = (f"<b>{n} tài liệu đầu của câu hỏi</b>, xếp theo p cuối cùng (giữ nguyên thứ tự ở các bước 6–9). "
+                f"Màu = ngôn ngữ, số = hạng tốt nhất ở các kênh truy hồi cùng ngôn ngữ. {lang_mix(g['lang'])}; pool: {E(pools)}. "
+                f"{top} tài liệu đứng top 10 ở ít nhất một kênh; {far} tài liệu không kênh nào xếp trong top 100, "
+                "chúng lên được đây nhờ gộp và xếp hạng lại.")
+        legend = "".join(f'<span style="background:{LANGC[k][0]}"></span>{LANG[k]}' for k in LANGC)
+    elif mode == "rr3":
+        v = g["rr3"].astype(float)
+        rho = v.rank().corr(pd.Series(range(n), dtype=float), method="spearman")
+        head = (f"Cùng {n} ô, màu = điểm <b>rr3</b> của bge-reranker-v2-m3 (đậm = cao, từ {fmt(v.min(), 2)} đến {fmt(v.max(), 2)}). "
+                f"Thứ tự ô vẫn theo p: tương quan hạng giữa rr3 và thứ tự p là {fmt(-rho, 2)}, nên reranker là một tín hiệu "
+                "mạnh nhưng không phải tín hiệu duy nhất (BGE-M3 ba đầu, ngôn ngữ, thứ hạng truy hồi).")
+        legend = '<span style="background:rgb(238,242,247)"></span>thấp<span style="background:#14213d"></span>cao'
+    elif mode == "p":
+        cutline = (f"Ô 1–{t['n_doc']} vào danh sách docs (#7892); ô {t['n_doc'] + 1}–{min(t['n_deep'], n)} viền tím: chỉ #7916 "
+                   f"(1,25·N_q); ô mờ: không nộp." if t["n_doc"] < n else
+                   f"N_q = {t['n_doc']} ≥ {n}: cả lưới đều vào bài, ranh giới nằm ngoài lưới.")
+        head = (f"Màu = <b>p(gold)</b>. Tổng p của {n} ô = {fmt(g['p'].sum(), 1)}; kỳ vọng số tài liệu đúng của câu hỏi "
+                f"G = {fmt(t['nq']['g_exp'], 1)}. {cutline}")
+        legend = ('<span style="background:rgb(238,242,247)"></span>p thấp<span style="background:#14213d"></span>p cao'
+                  '<span style="border:2px dashed #6b4fa0;background:none"></span>chỉ #7916')
+    else:
+        c = g.head(min(t["n_chunk"], n))["chunk_len"].dropna()
+        stats = (f"; dài trung bình {fmt(c.mean())} ký tự, ngắn nhất {fmt(c.min())}, dài nhất {fmt(c.max())}" if len(c) else
+                 " (chạy `python run.py --demo --grid` để có độ dài đoạn trích)")
+        head = (f"Ô cam = tài liệu có <b>đoạn trích</b> trong bài nộp (n_c = {t['n_chunk']}), số = độ dài đoạn trích{stats}. "
+                "Mỗi đoạn là lát cắt nguyên văn ≤ 4.500 ký tự.")
+        legend = '<span style="background:#d9822b"></span>có đoạn trích<span style="background:#ebe9e2"></span>không'
+    tip = "Bấm một ô để theo dõi tài liệu đó; di chuột để xem chi tiết." if t.get("web") else "Di chuột lên ô để xem chi tiết."
+    return (f'<div class=gwrap><p class=gh>{head}</p>{grid(t, mode)}<p class=legend>{legend}'
+            f'<span style="outline:3px solid #e8c547;background:none"></span>tài liệu đang theo dõi · {tip}</p></div>')
+
+
+def grid_table(t: dict) -> str:
+    rows = []
+    for r in t["grid"].itertuples():
+        i, d = r.Index, int(r.doc_id)
+        link = f'<a href="?doc={d}#{MODES["chunk"]}">{d}</a>' if t.get("web") else str(d)
+        rows.append(
+            f"<tr{' class=me' if d == t['doc'] else ''}><td>{i + 1}</td><td>{link}</td><td>{LANG.get(r.lang, r.lang)}</td>"
+            f"<td>{E(str(r.set))} #{int(r.pool_rank) + 1 if pd.notna(r.pool_rank) else '—'}</td>"
+            f"<td>{E(r.best_ch)} {('#' + str(int(r.best_rank))) if pd.notna(r.best_rank) else '—'}</td>"
+            f"<td class=n>{'—' if pd.isna(r.rr3) else fmt(r.rr3, 2)}</td>"
+            f"<td class=n>{'—' if pd.isna(getattr(r, 'm3all', np.nan)) else fmt(r.m3all, 3)}</td>"
+            f"<td class=n><b>{fmt(r.p, 3)}</b></td><td>{membership(t, i)}</td>"
+            f"<td class=n>{fmt(r.chunk_len) if pd.notna(r.chunk_len) and i < t['n_chunk'] else '—'}</td>"
+            f"<td class=u>{E(str(r.preview)[:110]) + ' …' if isinstance(r.preview, str) and i < t['n_chunk'] else ''}</td></tr>")
+    return (f"<details><summary>Bảng {len(rows)} tài liệu (cùng thứ tự với lưới)</summary><div class=tw><table>"
+            "<tr><th>#</th><th>doc</th><th>NN</th><th>pool</th><th>kênh tốt nhất</th><th class=n>rr3</th><th class=n>m3all</th>"
+            f"<th class=n>p</th><th>vào bài</th><th class=n>đoạn trích</th><th>đầu đoạn trích</th></tr>{''.join(rows)}</table></div></details>")
+
+
 def step_crawl(t: dict) -> str:
+    if (s := snapshot(t, 1)) is not None:
+        return s
     m = json.loads((DS / "MANIFEST.json").read_text(encoding="utf-8"))["counts"] if (DS / "MANIFEST.json").exists() \
         else {"by_source": {}, "by_lang": {}, "docs": 0}
     total, urls = m["docs"], 1_220_598
@@ -268,6 +449,7 @@ def step_crawl(t: dict) -> str:
         f'<td><div class=hb style="width:{max(100 * v / max(m["by_source"].values()), .6):.1f}%"></div></td></tr>'
         for k, v in sorted(m["by_source"].items(), key=lambda kv: -kv[1]))
     src = getattr(t.get("meta"), "source", None)
+    src = E(SOURCE.get(src, str(src))) if src is not None else "— (cần docstore)"
     return f"""<div class=two><div>
 <p>Danh sách của BTC có <b>{fmt(urls)} URL</b> chính thức (VI, ZH, EN). Đội chỉ lấy văn bản của chính các URL này.</p>
 <ul><li><b>Crawler bất đồng bộ</b> (<code>r2ai2026/crawl/fetch.py</code>): ít kết nối mỗi host, tôn trọng
@@ -277,14 +459,19 @@ nên crawl 1,2 triệu URL dừng được và chạy tiếp được.</li>
 Internet Archive Wayback, NCBI E-utilities cho trang PubMed, recrawl trực tiếp, và dữ liệu crawl công khai từ Hugging Face
 của cùng danh sách URL (qua cổng chất lượng).</li>
 <li>Còn <b>27.925 URL</b> không lấy được (403, rỗng).</li></ul>
-<p class=note>Tài liệu đang theo dõi: <b>{t['doc']}</b>, nguồn <b>{E(SOURCE.get(src, str(src)))}</b>.</p>
+<p class=note>Tài liệu đang theo dõi: <b>{t['doc']}</b>, nguồn <b>{src}</b>.</p>
 </div><div><table class=src><tr><th>Nguồn</th><th class=n>Tài liệu</th><th></th></tr>{rows}
 <tr><td><b>Docstore v2.1</b></td><td class=n><b>{fmt(total)}</b></td><td>{' · '.join(f'{LANG[k]} {fmt(v)}' for k, v in m['by_lang'].items())}</td></tr>
 </table></div></div>"""
 
 
 def step_docstore(t: dict) -> str:
+    if (s := snapshot(t, 2)) is not None:
+        return s
     meta, body = t.get("meta"), t["body"]
+    if meta is None and not body:
+        return (NO_DS.replace("phần dưới dùng văn bản đã chuẩn bị của tài liệu.", "tài liệu này chưa có văn bản đã chuẩn bị.")
+                + preview_block(t))
     n = int(meta["n_chars"]) if meta is not None else (len(body["text"]) if body else 0)
     layers, ticks = [], ""
     for i, p in enumerate(t.get("passages", pd.DataFrame()).itertuples()):
@@ -312,7 +499,7 @@ def step_docstore(t: dict) -> str:
         f"<dl><dt>doc_id</dt><dd>{t['doc']}</dd><dt>URL</dt><dd>{E(meta['url'])}</dd><dt>Ngôn ngữ · nguồn</dt>"
         f"<dd>{LANG.get(meta['lang'], meta['lang'])} · {E(SOURCE.get(meta['source'], meta['source']))}</dd>"
         f"<dt>Thân bài</dt><dd>{fmt(n)} ký tự · {int(meta['n_passages'])} đoạn · {len(t.get('sections', []))} mục · khung trang {fmt(meta['furniture_chars'])} ký tự</dd></dl>")
-    return f"""<p>Mỗi URL thành <b>một bản ghi</b> <code>{{id, url, t, x}}</code>.
+    return f"""{NO_DS if meta is None else ''}<p>Mỗi URL thành <b>một bản ghi</b> <code>{{id, url, t, x}}</code>.
 Văn bản được chuẩn hoá (entity, Unicode, khoảng trắng) nhưng <b>không viết lại</b>. Phần khung trang (menu, footer, CTA…)
 được <b>đánh dấu</b> bằng span chứ không xoá. Vì thế mọi chunk nộp đều cắt nguyên văn được từ thân bài.</p>
 {fields}{bar(n, layers, ticks=ticks)}
@@ -349,6 +536,8 @@ def index_units(doc: int, lang: str) -> dict[str, int | None]:
 
 
 def step_index(t: dict) -> str:
+    if (s := snapshot(t, 3)) is not None:
+        return s
     lang = t["lang"]
     units = index_units(t["doc"], lang)
     cards = [("vi_doc", "BM25 VI-doc", "732.246 tài liệu tiếng Việt · token âm tiết giữ dấu · k1 1,5, b 0,75", "tài liệu"),
@@ -393,9 +582,11 @@ def step_retrieval(t: dict) -> str:
     rows = "".join(f"<tr><td>{E(a)}</td><td class=n>{('#' + fmt(k)) if k else '—'}</td><td class=n>{fmt(n)}</td></tr>"
                    for a, k, n in t["ranks"])
     pool = ", ".join(f"{k}: {v}" for k, v in t["pool"]["set"].value_counts().items())
+    grid_html = grid_block(t, "lang") + grid_table(t)
     vi = ("<li>VI: RRF k=60, trọng số dense : BM25-doc : BM25-section = 2 : 1 : 1 → <b>pool5000_vi</b>"
           + (f" (tài liệu này: #{t['pool5000']})" if t.get("pool5000") else "") + ", lấy 1.500 đầu.</li>")
-    return f"""<div class=two><div><p>Tài liệu {t['doc']} trong từng kênh của ngôn ngữ {LANG.get(t['lang'], t['lang'])}
+    return f"""{grid_html}<h3 class=fol>Tài liệu đang theo dõi: {t['doc']}</h3>
+<div class=two><div><p>Tài liệu {t['doc']} trong từng kênh của ngôn ngữ {LANG.get(t['lang'], t['lang'])}
 (hạng / độ dài danh sách):</p><table><tr><th>Kênh · biến thể</th><th class=n>Hạng</th><th class=n>Danh sách</th></tr>{rows}</table>
 <p class=note>— = không có trong danh sách của kênh đó.</p></div><div>
 <p><b>Gộp thành pool</b> (Reciprocal Rank Fusion, k = 60):</p><ul>{vi}
@@ -426,10 +617,11 @@ def step_rerank(t: dict) -> str:
             layer = []
     m = "" if pd.isna(r.get("m3all")) else (f"<div>m3all<b>{r['m3all']:.3f}</b><span>0,4·dense {r['dense']:.3f} + "
                                              f"0,2·sparse {r['sparse']:.3f} + 0,4·ColBERT {r['colbert']:.3f}</span></div>")
-    return f"""<p>Ba đặc trưng chấm lại pool, đều từ mô hình mở (BAAI):</p>
+    return f"""{grid_block(t, "rr3")}{grid_table(t)}<h3 class=fol>Tài liệu đang theo dõi: {t['doc']}</h3>
+<p>Ba đặc trưng chấm lại pool, đều từ mô hình mở (BAAI):</p>
 <div class=kpi><div>rr3 · bge-reranker-v2-m3<b>{r.get('rr3', float('nan')):.2f}</b><span>logit cross-encoder trên đoạn trùng từ nhất với câu hỏi</span></div>{m}</div>
 <p><b>rr4</b>: cùng reranker chấm <b>mọi đoạn</b> của tài liệu → hồ sơ điểm theo đoạn, dùng để đặt cửa sổ chunk:</p>
-{bar(len(body['text']), layer) if layer else '<p class=note>Cần --prepare (văn bản) và gói B (hồ sơ rr4).</p>'}
+{bar(len(body['text']), layer) if layer else f'<p class=note>Hồ sơ rr4 theo đoạn cần văn bản đầy đủ của tài liệu {t["doc"]}: có sẵn cho 5 tài liệu đầu mỗi câu hỏi.</p>'}
 <p class=note>{E(note)}</p>"""
 
 
@@ -470,11 +662,6 @@ def step_depth(t: dict) -> str:
     c, r = t["c"], t["row"]
     checks = "".join(f"<li class={'ok' if g == w else 'bad'}>{'✔' if g == w else '✘'} {E(n)}"
                      f"{'' if isinstance(g, bool) else f': {g}'}</li>" for n, (g, w) in t["checks"].items())
-    rows = "".join(
-        f"<tr{' class=me' if int(x.doc_id) == t['doc'] else ''}><td>{i + 1}</td><td>{int(x.doc_id)}</td>"
-        f"<td>{LANG.get(x.lang, x.lang)}</td><td class=n>{x.rr3:.2f}</td><td class=n><b>{x.p:.3f}</b></td>"
-        f"<td>{'doc' if i < t['n_doc'] else ('doc #7916' if i < t['n_deep'] else '')}{' · chunk' if i < t['n_chunk'] else ''}</td>"
-        f"<td class=u>{E(str(getattr(x, 'host', '')))}</td></tr>" for i, x in enumerate(c.head(12).itertuples()))
     return f"""<div class=two><div>
 <p><b>p(gold)</b>: logit = a<sub>ngôn ngữ</sub> + e·log(1+hạng) + h + b·rr3 + c·m3z + d·m3rel.
 14 tham số được fit sao cho P/R/F2 tổng hợp mà mô hình dự đoán khớp P/R/F2 public của 27 bài của đội. Không dùng nhãn từng cặp.</p>
@@ -483,8 +670,7 @@ def step_depth(t: dict) -> str:
 <div>Kỳ vọng số gold<b>{t['nq']['g_exp']:.1f}</b></div><div>N_q<b>{t['n_doc']}</b><span>{lang_mix(c['lang'].head(t['n_doc']))}</span></div></div>
 </div><div><p><b>Đối chiếu với bài đã nộp</b> (tính lại mỗi lần mở demo):</p><ul class=checks>{checks}</ul></div></div>
 {svg_curve(t)}
-<details><summary>12 tài liệu đầu theo p</summary>
-<table><tr><th>#</th><th>doc</th><th>NN</th><th class=n>rr3</th><th class=n>p</th><th>vào bài</th><th>host</th></tr>{rows}</table></details>"""
+{grid_block(t, "p")}{grid_table(t)}"""
 
 
 def production_chunker():
@@ -536,10 +722,27 @@ def chunk_story(t: dict) -> dict | None:
     return out
 
 
+def preview_block(t: dict) -> str:
+    """The submitted chunk of the followed document as stored by --grid (first characters), when no body is prepared."""
+    g = t["grid"]
+    r = g[g["doc_id"] == t["doc"]]
+    if r.empty or pd.isna(r.iloc[0]["chunk_len"]) or int(r.index[0]) >= t["n_chunk"]:
+        return f"<p class=note>Tài liệu {t['doc']} không có đoạn trích trong bài nộp (hạng p #{t['pos']} > n_c = {t['n_chunk']}).</p>"
+    x = r.iloc[0]
+    return (f"<p>Đoạn trích đã nộp cho tài liệu {t['doc']}: <b>{fmt(x['chunk_len'])} ký tự</b> nguyên văn "
+            f"(hạng p #{t['pos']}). Phần đầu đoạn:</p><pre class=doc>{E(str(x['preview']))} …</pre>"
+            f"<p class=note>Phát lại từng vòng cắt cần văn bản đầy đủ của tài liệu: chỉ có sẵn cho 5 tài liệu đầu mỗi câu hỏi "
+            f"(<code>python run.py --demo --prepare</code>, cần docstore).</p>")
+
+
 def step_chunk(t: dict) -> str:
+    return grid_block(t, "chunk") + grid_table(t) + f"<h3 class=fol>Tài liệu đang theo dõi: {t['doc']}</h3>" + chunk_detail(t)
+
+
+def chunk_detail(t: dict) -> str:
     body, ch = t["body"], t.get("chunk")
     if not body or not ch:
-        return f"<p class=note>Chạy <code>python run.py --demo --prepare --qids {t['qid']}</code> một lần để có văn bản chunk.</p>"
+        return preview_block(t)
     st = t.get("story") or {}
     n = len(body["text"])
     layers = []
@@ -602,7 +805,8 @@ def step_overview(t: dict) -> str:
     return f"""<div class=q>Câu hỏi #{t['qid']}: {E(t['query'])}</div>
 <p>Hệ thống trả lời bằng <b>danh sách tài liệu</b> và <b>đoạn trích</b>. Điểm = trung bình F2 của docs và F2 của chunks, nên
 câu hỏi khó nhất là <b>lấy bao nhiêu tài liệu cho từng câu hỏi</b>. Demo đi qua từng tầng với câu hỏi này và theo dõi
-một tài liệu thật (<b>{t['doc']}</b>) từ lúc crawl tới lúc thành chunk trong bài nộp.</p>
+một tài liệu thật (<b>{t['doc']}</b>) từ lúc crawl tới lúc thành chunk trong bài nộp. Từ bước 6, cả <b>{len(t['grid'])} tài liệu
+đầu</b> của câu hỏi hiện thành một lưới cố định thứ tự; mỗi bước tô lưới theo đúng thông tin của tầng đó.</p>
 <div class=flow>{flow}</div>
 <p class=note>Bấm một khối hoặc dùng phím ← → để chuyển bước. Mọi số trên các trang lấy từ tệp của lần chạy sản xuất.</p>"""
 
@@ -641,6 +845,16 @@ mark{background:#f3c6c0} .legend{font-size:15px;color:var(--mute)} .legend span{
 .box:hover{border-color:var(--acc)} .box i{font-style:normal;color:var(--acc);font-weight:700;margin-right:8px} .box b{font-size:21px}
 .box span{display:block;color:var(--mute);font-size:16px} .box:not(:nth-child(3n))::after{content:'→';position:absolute;right:-28px;top:34%;font-size:24px;color:var(--acc)}
 ul.checks{list-style:none;padding:0} li.ok{color:#1d6b3a} li.bad{color:#b3261e;font-weight:700} details{margin:10px 0} summary{cursor:pointer;color:var(--acc)}
+.gwrap{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:4px 0 14px}
+.gh{margin:0 0 8px;font-size:17px} .grid{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.grid .c{position:relative;display:flex;flex-direction:column;justify-content:space-between;height:58px;padding:3px 7px;
+border-radius:6px;text-decoration:none;font-variant-numeric:tabular-nums;border:2px solid transparent;transition:transform .08s}
+.grid .c b{font-size:12px;font-weight:600;opacity:.85} .grid .c i{position:absolute;top:3px;right:7px;font:11px 'Segoe UI',Arial;opacity:.8}
+.grid .c span{font-size:17px;font-weight:700;text-align:right} .grid a.c:hover{transform:scale(1.08);z-index:2;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.grid .dim{opacity:.22} .grid .deep{opacity:.6;border:2px dashed #6b4fa0}
+.grid .me{opacity:1;outline:4px solid #e8c547;outline-offset:1px;z-index:1;box-shadow:0 0 0 8px rgba(232,197,71,.35)}
+h3.fol{margin:18px 0 8px;padding-top:12px;border-top:2px solid var(--line);font-size:22px}
+.tw{max-height:520px;overflow:auto} .tw table{font-size:15px} .tw th{position:sticky;top:0}
 """
 JS = """
 const S=[...document.querySelectorAll('section.step')],B=[...document.querySelectorAll('nav button')];let i=0;
@@ -738,6 +952,72 @@ def prepare(qids: list[int], per_query: int) -> None:
     print(f"{len(qids)} questions: {len(chunks)} chunks, {len(docs)} document texts -> {OUT.relative_to(ROOT)}")
 
 
+def iter_submission(path: Path, digest: "hashlib._Hash"):
+    """Entries of submission.json inside the zip, parsed one by one (the file is ~0.9 GB: never loaded whole)."""
+    dec, text = json.JSONDecoder(), codecs.getincrementaldecoder("utf-8")()
+    with zipfile.ZipFile(path) as z, z.open("submission.json") as raw:
+        def more() -> tuple[str, bool]:
+            b = raw.read(1 << 22)
+            digest.update(b)
+            return text.decode(b, final=not b), not b
+        buf, eof = more()
+        buf = buf.lstrip()
+        if not buf.startswith("["):
+            raise SystemExit(f"{path}: submission.json is not a JSON list")
+        buf = buf[1:]
+        while True:
+            buf = buf.lstrip(" \t\r\n,")
+            if buf.startswith("]"):
+                return
+            try:
+                obj, end = dec.raw_decode(buf)
+            except json.JSONDecodeError:
+                if eof:
+                    raise
+                chunk, eof = more()
+                buf += chunk
+                continue
+            yield obj
+            buf = buf[end:]
+
+
+def build_grid(snapshot_dir: Path | None) -> None:
+    """out/demo/top100.parquet: for the GRID highest-p documents of every question, the length and the first characters of
+    the chunk submitted for it (from SUBMISSION). With --snapshot-from: the crawl/docstore/index steps of pages rendered
+    with the docstore present, reused when the docstore is not on this machine."""
+    need([PG / "cands_p.parquet", SUBMISSION], "unzip artifacts_A_pgold.zip; submitted zips in submissions/")
+    c = pd.read_parquet(PG / "cands_p.parquet", columns=["qid", "doc_id", "p"])
+    top = c.sort_values(["qid", "p"], ascending=[True, False]).groupby("qid").head(GRID)
+    want = {(int(q), int(d)) for q, d in top[["qid", "doc_id"]].itertuples(index=False)}
+    sys.path.insert(0, str(ROOT))
+    from reproduce import SUBMITTED_JSON_SHA256  # noqa: E402
+    h, rows = hashlib.sha256(), []
+    for k, e in enumerate(iter_submission(SUBMISSION, h), 1):
+        q = int(e["id"])
+        rows += [(q, int(x["doc_id"]), len(x["chunk_text"]), x["chunk_text"][:600])
+                 for x in e["relevant_chunks"] if (q, int(x["doc_id"])) in want]
+        if k % 200 == 0:
+            print(f"  {k} questions", flush=True)
+    ok = h.hexdigest() == SUBMITTED_JSON_SHA256["N1_n125"]
+    print(f"{SUBMISSION.name}: submission.json sha256 {'matches #7916' if ok else 'DIFFERS from #7916'}")
+    if not ok:
+        raise SystemExit("not the submitted file")
+    out = pd.DataFrame(rows, columns=["qid", "doc_id", "chunk_len", "preview"])
+    out.to_parquet(TOP100, index=False)
+    print(f"{len(out)} chunks of top-{GRID} documents -> {TOP100.relative_to(ROOT)}")
+    if snapshot_dir:
+        snap = {}
+        for page in sorted(snapshot_dir.glob("q*.html")):
+            secs = page.read_text(encoding="utf-8").split("<section class=step>")[1:]
+            m = re.search(r"câu hỏi #(\d+) · tài liệu (\d+)", secs[0]) if secs else None
+            if not m or len(secs) != len(STEPS):
+                continue
+            snap[f"{m.group(1)}:{m.group(2)}"] = {str(k): secs[k].split("</h2>", 1)[1].rsplit("</section>", 1)[0]
+                                                   for k in (1, 2, 3)}
+        SNAP.write_text(json.dumps(snap, ensure_ascii=False), encoding="utf-8")
+        print(f"{len(snap)} saved pages ({', '.join(snap)}) -> {SNAP.relative_to(ROOT)}")
+
+
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -747,7 +1027,13 @@ def main() -> None:
     ap.add_argument("--qids", default="", help="comma list for --prepare (default: --qid)")
     ap.add_argument("--docs-per-query", type=int, default=5, help="--prepare: text of the top-p documents per question")
     ap.add_argument("--html", type=Path, default=None, help="page path (default: out/demo/q<qid>.html)")
+    ap.add_argument("--grid", action="store_true", help=f"build {TOP100.name} (chunk of the top-{GRID} documents) once")
+    ap.add_argument("--snapshot-from", type=Path, default=None,
+                    help="--grid: folder of pages rendered with the docstore (their steps 2-4 are reused without it)")
     args = ap.parse_args()
+    if args.grid:
+        build_grid(args.snapshot_from)
+        return
     if args.prepare:
         qids = list(range(1, 1201)) if args.qids == "all" else [int(x) for x in args.qids.split(",") if x] or [args.qid]
         prepare(qids, args.docs_per_query)

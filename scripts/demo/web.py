@@ -110,6 +110,7 @@ class Handler(BaseHTTPRequestHandler):
                 t0 = time.time()
                 t = tq.trace(int(parts[1]), int(doc) if doc and doc.isdigit() else None)
                 ok = all(g == w for g, w in t["checks"].values())
+                t["web"] = True  # grid cells become links to ?doc=
                 page = tq.render_html(t, ok, home="/")
                 print(f"q{parts[1]} doc {t['doc']} {'OK' if ok else 'MISMATCH'} {time.time() - t0:.1f}s", flush=True)
                 return self.send(200, page)
